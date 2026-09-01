@@ -111,14 +111,14 @@ recordings    → id, room_id, user_id, character_id, audio_url, duration_ms, cr
 
 > **Objectif :** Avoir un système d'auth solide avant de construire quoi que ce soit par-dessus.
 
-- [ ] Implémenter l'authentification avec `nuxt-auth-utils` :
+- [x] Implémenter l'authentification avec `nuxt-auth-utils` :
   - Inscription / Connexion (email + password)
-  - Sessions JWT sécurisées (httpOnly cookies)
+  - Sessions JWT sécurisées (httpOnly cookies, 7 jours)
   - Optionnel : OAuth (Google, Discord)
-- [ ] Middleware de protection des routes (pages admin, API privées)
-- [ ] Gestion des rôles : `player` vs `admin`
-- [ ] Page profil utilisateur (avatar, username)
-- [ ] Gestion de l'anonymat : permettre de jouer sans compte (pseudo temporaire + session locale)
+- [x] Middleware de protection des routes (pages admin, API privées)
+- [x] Gestion des rôles : `player` vs `admin`
+- [x] Page profil utilisateur (avatar, username)
+- [x] Gestion de l'anonymat : permettre de jouer sans compte (pseudo temporaire + sessionStorage)
 
 ---
 

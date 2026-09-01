@@ -1,0 +1,410 @@
+<script setup lang="ts">
+definePageMeta({ layout: 'admin', middleware: 'admin', title: 'Nouvelle scène — Admin' })
+
+const router = useRouter()
+
+// ─── Upload state ────────────────────────────────────────────────────────────
+
+const uploadState = reactive({
+  video: { progress: 0, url: '', uploading: false },
+  audio: { progress: 0, url: '', uploading: false },
+  thumbnail: { progress: 0, url: '', uploading: false },
+})
+
+const form = reactive({
+  title: '',
+  description: '',
+  durationMs: 0,
+})
+
+const loading = ref(false)
+const error = ref('')
+
+// ─── Upload vers S3 via URL présignée ────────────────────────────────────────
+
+async function uploadFile(file: File, type: 'video' | 'audio' | 'thumbnail', contentType: string) {
+  const slot = uploadState[type]
+  slot.uploading = true
+  slot.progress = 0
+
+  try {
+    // 1. Obtenir une URL présignée du serveur
+    const { presignedUrl, publicUrl } = await $fetch('/api/admin/upload/presign', {
+      method: 'POST',
+      body: { filename: file.name, contentType, type },
+    })
+
+    // 2. Upload direct vers S3 avec suivi de progression
+    await new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) slot.progress = Math.round((e.loaded / e.total) * 100)
+      }
+      xhr.onload = () =>
+        xhr.status === 200 ? resolve() : reject(new Error(`Upload failed: ${xhr.status}`))
+      xhr.onerror = () => reject(new Error('Upload network error'))
+      xhr.open('PUT', presignedUrl)
+      xhr.setRequestHeader('Content-Type', contentType)
+      xhr.send(file)
+    })
+
+    slot.url = publicUrl
+    slot.progress = 100
+  } finally {
+    slot.uploading = false
+  }
+}
+
+const onVideoChange = async (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+
+  // Lire la durée de la vidéo
+  const videoEl = document.createElement('video')
+  videoEl.src = URL.createObjectURL(file)
+  await new Promise((r) => videoEl.addEventListener('loadedmetadata', r))
+  form.durationMs = Math.round(videoEl.duration * 1000)
+  URL.revokeObjectURL(videoEl.src)
+
+  await uploadFile(file, 'video', 'video/mp4')
+}
+
+const onAudioChange = async (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  await uploadFile(file, 'audio', file.type as 'audio/mpeg' | 'audio/wav')
+}
+
+const onThumbnailChange = async (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  await uploadFile(file, 'thumbnail', file.type as 'image/jpeg' | 'image/png' | 'image/webp')
+}
+
+// ─── Création de la scène ─────────────────────────────────────────────────────
+
+const handleCreate = async () => {
+  error.value = ''
+  if (!uploadState.video.url) {
+    error.value = 'Veuillez uploader une vidéo.'
+    return
+  }
+  if (!uploadState.audio.url) {
+    error.value = 'Veuillez uploader une piste audio M&E.'
+    return
+  }
+
+  loading.value = true
+  try {
+    const scene = await $fetch('/api/admin/scenes', {
+      method: 'POST',
+      body: {
+        title: form.title,
+        description: form.description || undefined,
+        videoUrl: uploadState.video.url,
+        audioMeUrl: uploadState.audio.url,
+        thumbnailUrl: uploadState.thumbnail.url || undefined,
+        durationMs: form.durationMs,
+      },
+    })
+    await router.push(`/admin/scenes/${scene.id}`)
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string } }
+    error.value = err.data?.message ?? 'Erreur lors de la création.'
+  } finally {
+    loading.value = false
+  }
+}
+</script>
+
+<template>
+  <div class="create-page">
+    <div class="page-header">
+      <NuxtLink to="/admin/scenes" class="back-link">← Retour</NuxtLink>
+      <h1 class="page-title">Nouvelle scène</h1>
+    </div>
+
+    <form class="create-form" @submit.prevent="handleCreate">
+      <!-- Informations de base -->
+      <div class="card">
+        <h2 class="card-title">Informations</h2>
+        <div class="form-group">
+          <label for="title">Titre *</label>
+          <input
+            id="title"
+            v-model="form.title"
+            type="text"
+            maxlength="100"
+            required
+            placeholder="Ex: Scène du café — Film X"
+          />
+        </div>
+        <div class="form-group">
+          <label for="desc">Description</label>
+          <textarea
+            id="desc"
+            v-model="form.description"
+            rows="3"
+            placeholder="Contexte de la scène..."
+          />
+        </div>
+      </div>
+
+      <!-- Upload vidéo -->
+      <div class="card">
+        <h2 class="card-title">Vidéo muette (MP4) *</h2>
+        <div class="upload-zone" :class="{ uploaded: uploadState.video.url }">
+          <input
+            id="video-input"
+            type="file"
+            accept="video/mp4"
+            :disabled="uploadState.video.uploading"
+            @change="onVideoChange"
+          />
+          <label for="video-input" class="upload-label">
+            <span v-if="uploadState.video.url">✅ Vidéo uploadée</span>
+            <span v-else-if="uploadState.video.uploading"
+              >Upload... {{ uploadState.video.progress }}%</span
+            >
+            <span v-else>🎬 Choisir une vidéo MP4</span>
+          </label>
+          <div v-if="uploadState.video.uploading" class="progress-bar">
+            <div class="progress-fill" :style="{ width: `${uploadState.video.progress}%` }" />
+          </div>
+          <p v-if="form.durationMs > 0" class="duration-hint">
+            Durée détectée : {{ Math.floor(form.durationMs / 60000) }}m{{
+              Math.floor((form.durationMs % 60000) / 1000)
+            }}s
+          </p>
+        </div>
+      </div>
+
+      <!-- Upload audio M&E -->
+      <div class="card">
+        <h2 class="card-title">Piste Audio M&E *</h2>
+        <p class="card-hint">Musique et effets sonores sans dialogue</p>
+        <div class="upload-zone" :class="{ uploaded: uploadState.audio.url }">
+          <input
+            id="audio-input"
+            type="file"
+            accept="audio/mpeg,audio/wav,audio/ogg"
+            :disabled="uploadState.audio.uploading"
+            @change="onAudioChange"
+          />
+          <label for="audio-input" class="upload-label">
+            <span v-if="uploadState.audio.url">✅ Audio uploadé</span>
+            <span v-else-if="uploadState.audio.uploading"
+              >Upload... {{ uploadState.audio.progress }}%</span
+            >
+            <span v-else>🎵 Choisir une piste M&E (MP3, WAV)</span>
+          </label>
+          <div v-if="uploadState.audio.uploading" class="progress-bar">
+            <div class="progress-fill" :style="{ width: `${uploadState.audio.progress}%` }" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Miniature -->
+      <div class="card">
+        <h2 class="card-title">Miniature (optionnel)</h2>
+        <div class="upload-zone" :class="{ uploaded: uploadState.thumbnail.url }">
+          <input
+            id="thumb-input"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            :disabled="uploadState.thumbnail.uploading"
+            @change="onThumbnailChange"
+          />
+          <label for="thumb-input" class="upload-label">
+            <span v-if="uploadState.thumbnail.url">✅ Image uploadée</span>
+            <span v-else-if="uploadState.thumbnail.uploading"
+              >Upload... {{ uploadState.thumbnail.progress }}%</span
+            >
+            <span v-else>🖼️ Choisir une image (JPG, PNG, WebP)</span>
+          </label>
+          <div v-if="uploadState.thumbnail.uploading" class="progress-bar">
+            <div class="progress-fill" :style="{ width: `${uploadState.thumbnail.progress}%` }" />
+          </div>
+        </div>
+      </div>
+
+      <p v-if="error" class="form-error">{{ error }}</p>
+
+      <div class="form-actions">
+        <NuxtLink to="/admin/scenes" class="btn-ghost">Annuler</NuxtLink>
+        <button
+          type="submit"
+          class="btn-primary"
+          :disabled="loading || uploadState.video.uploading || uploadState.audio.uploading"
+        >
+          {{ loading ? 'Création...' : 'Créer la scène' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</template>
+
+<style scoped>
+.create-page {
+  max-width: 720px;
+}
+.page-header {
+  margin-bottom: 2rem;
+}
+.back-link {
+  color: #64748b;
+  text-decoration: none;
+  font-size: 0.875rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+.back-link:hover {
+  color: #a78bfa;
+}
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.card {
+  background: #16161d;
+  border: 1px solid #2d2d3a;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 1rem;
+}
+.card-hint {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-bottom: 0.75rem;
+  margin-top: -0.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+.form-group:last-child {
+  margin-bottom: 0;
+}
+label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+input[type='text'],
+textarea {
+  background: #0f0f13;
+  border: 1px solid #2d2d3a;
+  border-radius: 8px;
+  color: #e2e8f0;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+  resize: vertical;
+}
+input:focus,
+textarea:focus {
+  border-color: #7c3aed;
+}
+
+.upload-zone {
+  border: 2px dashed #2d2d3a;
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: border-color 0.15s;
+  position: relative;
+}
+.upload-zone.uploaded {
+  border-color: #14532d;
+  border-style: solid;
+}
+.upload-zone input[type='file'] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.upload-label {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  cursor: pointer;
+  pointer-events: none;
+}
+.progress-bar {
+  background: #1e1e2e;
+  border-radius: 4px;
+  height: 6px;
+  margin-top: 0.75rem;
+  overflow: hidden;
+}
+.progress-fill {
+  background: #7c3aed;
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.2s;
+}
+.duration-hint {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.5rem;
+}
+
+.form-error {
+  color: #f87171;
+  font-size: 0.875rem;
+}
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+.btn-primary {
+  background: #7c3aed;
+  color: #fff;
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+.btn-primary:hover:not(:disabled) {
+  background: #6d28d9;
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-ghost {
+  background: transparent;
+  color: #64748b;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  text-decoration: none;
+  border: 1px solid #2d2d3a;
+}
+.btn-ghost:hover {
+  border-color: #64748b;
+  color: #94a3b8;
+}
+</style>
