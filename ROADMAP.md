@@ -126,20 +126,20 @@ recordings    → id, room_id, user_id, character_id, audio_url, duration_ms, cr
 
 > **Objectif :** Avoir un outil fonctionnel pour injecter de vraies données avant de coder le jeu. Ne pas hardcoder une seule scène.
 
-- [ ] Layout back-office protégé par le rôle `admin`
-- [ ] **Module Upload Médias** :
+- [x] Layout back-office protégé par le rôle `admin`
+- [x] **Module Upload Médias** :
   - Upload de vidéos MP4 (muettes) vers R2/S3 avec barre de progression
   - Upload de pistes audio M&E (musique et effets sans dialogue) vers R2/S3
   - Validation des formats et taille max côté client ET serveur
-- [ ] **CRUD Scènes** : Créer, lister, modifier, supprimer, publier/dépublier une scène
-- [ ] **CRUD Personnages** : Ajouter les personnages associés à une scène avec couleur et description
-- [ ] **Éditeur de répliques (Subtitle Editor)** :
+- [x] **CRUD Scènes** : Créer, lister, modifier, supprimer, publier/dépublier une scène
+- [x] **CRUD Personnages** : Ajouter les personnages associés à une scène avec couleur et description
+- [x] **Éditeur de répliques (Subtitle Editor)** :
   - Interface de lecture vidéo intégrée
   - Bouton "Marquer début" / "Marquer fin" pour capturer les timecodes (`currentTime`)
   - Associer la réplique à un personnage
   - Prévisualisation du prompteur en temps réel
   - Export/Import du JSON de répliques
-- [ ] Dashboard admin : nombre de scènes, salons actifs, enregistrements récents
+- [x] Dashboard admin : nombre de scènes, salons actifs, enregistrements récents
 - [ ] **Tester avec au moins 2 vraies scènes** avant de passer à la phase suivante
 
 ---
