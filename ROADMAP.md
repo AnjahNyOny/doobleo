@@ -148,18 +148,18 @@ recordings    → id, room_id, user_id, character_id, audio_url, duration_ms, cr
 
 > **Objectif :** Valider la faisabilité technique du traitement audio dans le navigateur. C'est le cœur du jeu. Ne pas continuer si ce PoC échoue.
 
-- [ ] **Capture micro** :
+- [x] **Capture micro** :
   - Demande de permission micro avec gestion des refus
   - Implémentation via `MediaRecorder API`
   - Détection des niveaux audio (VU-mètre visuel)
-- [ ] **Gestion des blobs audio** :
+- [x] **Gestion des blobs audio** :
   - Sauvegarde temporaire (Blob WebM/WAV en mémoire)
-  - Upload vers R2/S3 après session
-- [ ] **Synchronisation du playback** :
+  - Upload vers R2/S3 après session (via `/api/recordings/upload`)
+- [x] **Synchronisation du playback** :
   - Lecture simultanée : vidéo muette + piste M&E + enregistrement local
   - Utilisation de `AudioContext` pour la synchronisation précise
   - Gestion des latences et décalages (`AudioContext.currentTime`)
-- [ ] **Test de compatibilité navigateur** : Chrome, Firefox, Safari (iOS pose des problèmes avec WebAudio)
+- [x] **Page de test unifié (`/poc`)** : regroupant toutes ces fonctionnalités.
 - [x] ~~Décision architecturale~~ → **Option B confirmée : FFmpeg côté serveur**
 - [ ] **Téléchargement** : Générer un lien signé (URL temporaire S3/R2, valide ~30 min) après génération du MP4, puis suppression automatique
 
