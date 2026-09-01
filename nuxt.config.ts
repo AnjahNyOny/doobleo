@@ -9,6 +9,9 @@ export default defineNuxtConfig({
     typeCheck: false, // désactivé en dev pour la vitesse, activé en CI
   },
 
+  // ─── CSS Global ─────────────────────────────────────────────────────────────
+  css: ['~/assets/css/main.css'],
+
   // ─── Alias pour les types partagés ──────────────────────────────────────────
   alias: {
     '~shared': '../shared',

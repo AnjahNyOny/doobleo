@@ -169,31 +169,31 @@ recordings    → id, room_id, user_id, character_id, audio_url, duration_ms, cr
 
 > **Objectif :** Gérer toute la logique multijoueur de façon robuste.
 
-- [ ] Initialiser Socket.io dans le serveur Nitro (ou serveur séparé si nécessaire)
-- [ ] **Événements de salon** :
+- [x] Initialiser Socket.io dans le serveur Nitro (ou serveur séparé si nécessaire)
+- [x] **Événements de salon** :
   - `create_room` → générer un code unique à 6 caractères
   - `join_room` → rejoindre, valider que la scène existe et que le salon n'est pas plein
   - `user_joined` / `user_left` → broadcast aux autres joueurs
   - `disconnect` → gérer le cas host déconnecté (transfert de host ?)
-- [ ] **Sélection des personnages** :
+- [x] **Sélection des personnages** :
   - `select_character` → verrouiller un personnage pour un joueur
   - `character_locked` / `character_released` → broadcast en temps réel
   - Empêcher deux joueurs de prendre le même personnage
-- [ ] **Orchestration de la session** :
+- [x] **Orchestration de la session** :
   - `host_start_game` → vérifier que tous les joueurs sont prêts
   - `sync_playback` → envoyer un timestamp de départ précis à tous les clients
   - `playback_started` → confirmation de chaque client
-- [ ] **Échange audio** :
+- [x] **Échange audio** :
   - `audio_ready` → notifier les autres que l'enregistrement est uploadé sur R2/S3
   - `session_complete` → tous les audios reçus, déclencher le job de mixage FFmpeg
-- [ ] **Pipeline de mixage FFmpeg (BullMQ)** :
+- [x] **Pipeline de mixage FFmpeg (BullMQ)** :
   - Créer un `MixingJob` : récupérer vidéo muette + piste M&E + tous les blobs audio depuis R2
   - Commande FFmpeg : mixer les pistes audio ensemble sur la vidéo → export MP4
   - Uploader le MP4 final sur R2 → générer une URL signée (~30 min)
   - Événement `mix_ready` → envoyer l'URL aux clients via Socket.io
   - Nettoyage : supprimer tous les fichiers intermédiaires (blobs audio) après mix
   - Planifier la suppression du MP4 final après expiration de l'URL
-- [ ] **Gestion des erreurs temps réel** :
+- [x] **Gestion des erreurs temps réel** :
   - Timeout si un joueur ne répond pas
   - Reconnexion automatique (Socket.io le gère, mais à configurer)
   - Gestion de l'échec FFmpeg : notifier les clients + proposer un retry
