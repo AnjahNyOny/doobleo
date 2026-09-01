@@ -37,9 +37,20 @@ export default defineNuxtConfig({
 
   // ─── Modules (à activer au fur et à mesure) ──────────────────────────────────
   modules: [
-    '@nuxt/eslint', // Génère .nuxt/eslint.config.mjs
-    // '@pinia/nuxt',           // Phase 6
+    '@nuxt/eslint', // Gènère .nuxt/eslint.config.mjs
+    'nuxt-auth-utils', // Auth sessions (httpOnly cookies)
+    '@pinia/nuxt', // Gestion d'état
     // '@nuxtjs/tailwindcss',   // Phase 6
-    // 'nuxt-auth-utils',       // Phase 2
   ],
+
+  // ─── Config session (nuxt-auth-utils) ─────────────────────────────────────────
+  auth: {
+    session: {
+      cookie: {
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+      },
+      maxAge: 60 * 60 * 24 * 7, // 7 jours
+    },
+  },
 })
