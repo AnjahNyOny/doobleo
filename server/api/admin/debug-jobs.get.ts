@@ -2,7 +2,7 @@ import { Queue } from 'bullmq'
 import { getRedisConnection } from '../../utils/redis'
 
 export default defineEventHandler(async (_event) => {
-  const queue = new Queue('audio-separation', { connection: getRedisConnection() })
+  const queue = new Queue('audio_separation', { connection: getRedisConnection() })
 
   const failedJobs = await queue.getFailed(0, 10)
   const activeJobs = await queue.getActive(0, 10)
