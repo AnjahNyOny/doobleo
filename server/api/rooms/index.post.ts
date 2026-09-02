@@ -50,7 +50,11 @@ export default defineEventHandler(async (event) => {
     })
     .returning()
 
-  // 4. Ajouter l'hôte comme joueur
+  if (!room) {
+    throw createError({ statusCode: 500, message: 'Erreur lors de la création du salon.' })
+  }
+
+  // 4. Ajouter l'hôte comme joueur dans la room (table room_players)
   const [player] = await db
     .insert(roomPlayers)
     .values({
