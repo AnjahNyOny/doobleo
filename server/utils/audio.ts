@@ -107,10 +107,13 @@ export async function processHuggingFaceSeparation(
     const videoRes = await fetch(downloadUrl)
     if (!videoRes.ok) throw new Error(`Failed to download video: ${videoRes.statusText}`)
 
-    // Save locally and extract audio as WAV for better compatibility
+    if (!videoRes.body) throw new Error('No body to download')
+
+    // Save locally using streams to avoid RAM exhaustion
     const videoFile = path.join(tmpDir, 'video.mp4')
     const audioFile = path.join(tmpDir, 'audio.wav')
-    await fs.writeFile(videoFile, Buffer.from(await videoRes.arrayBuffer()))
+    const videoStream = createWriteStream(videoFile)
+    await pipeline(Readable.fromWeb(videoRes.body as any), videoStream)
 
     // Extract audio from video
     await new Promise<void>((resolve, reject) => {
@@ -239,8 +242,10 @@ export async function processHuggingFaceSeparation(
     for (const [i, url] of [drumsFileUrl, bassFileUrl, otherFileUrl].entries()) {
       const stemRes = await fetch(url, { headers: { Authorization: `Bearer ${hfToken}` } })
       if (!stemRes.ok) throw new Error(`Failed to download stem ${i}: ${stemRes.statusText}`)
+      if (!stemRes.body) throw new Error('No body to download for stem')
       const stemPath = path.join(tmpDir, `stem_${i}.wav`)
-      await fs.writeFile(stemPath, Buffer.from(await stemRes.arrayBuffer()))
+      const stemStream = createWriteStream(stemPath)
+      await pipeline(Readable.fromWeb(stemRes.body as any), stemStream)
       stemFiles.push(stemPath)
     }
 
