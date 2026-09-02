@@ -69,12 +69,6 @@ const onVideoChange = async (e: Event) => {
   await uploadFile(file, 'video', 'video/mp4')
 }
 
-const _onAudioChange = async (e: Event) => {
-  const file = (e.target as HTMLInputElement).files?.[0]
-  if (!file) return
-  await uploadFile(file, 'audio', file.type as 'audio/mpeg' | 'audio/wav')
-}
-
 const onThumbnailChange = async (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (!file) return
@@ -173,8 +167,6 @@ const handleCreate = async () => {
           </p>
         </div>
       </div>
-
-
 
       <!-- Miniature -->
       <div class="card">

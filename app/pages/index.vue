@@ -11,7 +11,7 @@ const guestName = ref('')
 const guestId = ref('')
 
 const { disconnect } = useSocket()
-const availableScenes = ref<{id: string; title: string}[]>([])
+const availableScenes = ref<{ id: string; title: string }[]>([])
 const selectedSceneId = ref('')
 
 onMounted(async () => {
@@ -39,8 +39,8 @@ onMounted(async () => {
       availableScenes.value = scenes
       selectedSceneId.value = scenes[0].id
     }
-  } catch(e) {
-    console.error("Erreur chargement des scènes", e)
+  } catch (e) {
+    console.error('Erreur chargement des scènes', e)
   }
 })
 
@@ -182,7 +182,11 @@ const joinRoom = () => {
                 {{ scene.title }}
               </option>
             </select>
-            <button class="btn-secondary w-full" :disabled="loadingCreate || !selectedSceneId" @click="createRoom">
+            <button
+              class="btn-secondary w-full"
+              :disabled="loadingCreate || !selectedSceneId"
+              @click="createRoom"
+            >
               {{ loadingCreate ? 'Création...' : 'Héberger un salon' }}
             </button>
           </div>
