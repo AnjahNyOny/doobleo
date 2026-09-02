@@ -111,6 +111,11 @@ const startGame = () => {
   socket.emit('host_start_game', { roomCode: code })
 }
 
+const leaveRoom = () => {
+  disconnect()
+  navigateTo('/')
+}
+
 // Utilitaires UI
 const getPlayerByChar = (charId: string) => {
   return players.value.find((p: any) => p.characterId === charId)
@@ -129,8 +134,11 @@ const isMyChar = (charId: string) => {
   <div class="room-page">
     <div class="header">
       <div class="brand text-gradient">Doobleo</div>
-      <div class="room-code">
-        Code: <strong>{{ code }}</strong>
+      <div class="header-actions">
+        <div class="room-code">
+          Code: <strong>{{ code }}</strong>
+        </div>
+        <button class="btn-sm-ghost" title="Quitter la partie" @click="leaveRoom">Quitter</button>
       </div>
     </div>
 
@@ -219,6 +227,12 @@ const isMyChar = (charId: string) => {
   margin-bottom: 2rem;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .brand {
   font-family: 'Outfit', sans-serif;
   font-size: 1.5rem;
@@ -226,10 +240,10 @@ const isMyChar = (charId: string) => {
 }
 
 .room-code {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
+  background: #111111;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0.5rem 1rem;
-  border-radius: var(--radius);
+  border-radius: 4px;
   font-family: monospace;
   font-size: 1.1rem;
   color: var(--text-muted);
@@ -268,9 +282,9 @@ const isMyChar = (charId: string) => {
   flex: 1;
 }
 .player-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
   padding: 0.75rem;
   display: flex;
   align-items: center;
@@ -367,30 +381,30 @@ const isMyChar = (charId: string) => {
 }
 
 .character-card {
-  background: rgba(0, 0, 0, 0.2);
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius);
-  padding: 1.25rem;
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 1rem;
   display: flex;
   align-items: center;
   gap: 1rem;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.2s ease;
   text-align: left;
 }
 .character-card:hover:not(:disabled) {
-  border-color: var(--char-color);
-  background: rgba(255, 255, 255, 0.05);
+  background: #1a1a1a;
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
 }
 .character-card.is-mine {
   border-color: var(--char-color);
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
 }
 .character-card.is-taken {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
-  filter: grayscale(1);
+  filter: grayscale(100%);
 }
 
 .char-color-dot {
