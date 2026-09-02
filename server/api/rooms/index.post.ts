@@ -4,7 +4,7 @@ import { useDb } from '../../utils/db'
 import { rooms, roomPlayers, scenes } from '../../db/schema/index'
 
 const createRoomSchema = z.object({
-  sceneId: z.string().uuid(),
+  sceneId: z.string().uuid().optional().nullable(),
   hostUserId: z.string().min(1),
   hostUsername: z.string().min(1).max(30),
   hostAvatarUrl: z.string().url().optional().nullable(),
@@ -14,10 +14,12 @@ export default defineEventHandler(async (event) => {
   const body = await readValidatedBody(event, createRoomSchema.parse)
   const db = useDb()
 
-  // 1. Vérifier si la scène existe et est publiée
-  const [scene] = await db.select().from(scenes).where(eq(scenes.id, body.sceneId)).limit(1)
-  if (!scene || !scene.isPublished) {
-    throw createError({ statusCode: 404, message: 'Scène introuvable ou non publiée.' })
+  // 1. Vérifier si la scène existe et est publiée, si un sceneId est fourni
+  if (body.sceneId) {
+    const [scene] = await db.select().from(scenes).where(eq(scenes.id, body.sceneId)).limit(1)
+    if (!scene || !scene.isPublished) {
+      throw createError({ statusCode: 404, message: 'Scène introuvable ou non publiée.' })
+    }
   }
 
   // 2. Générer un code unique à 6 caractères
@@ -40,7 +42,7 @@ export default defineEventHandler(async (event) => {
     .insert(rooms)
     .values({
       code,
-      sceneId: body.sceneId,
+      sceneId: body.sceneId || null,
       hostUserId: body.hostUserId,
       status: 'waiting',
       // Expiration dans 24h par exemple

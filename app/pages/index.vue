@@ -77,18 +77,9 @@ const createRoom = async () => {
 
   loadingCreate.value = true
   try {
-    if (!selectedSceneId.value) {
-      errorMsg.value = "Aucune scène n'est sélectionnée."
-      loadingCreate.value = false
-      return
-    }
-
-    const sceneId = selectedSceneId.value
-
     const res = await $fetch('/api/rooms', {
       method: 'POST',
       body: {
-        sceneId,
         hostUserId: currentUser.id,
         hostUsername: currentUser.username,
         hostAvatarUrl: currentUser.avatarUrl,
@@ -193,19 +184,9 @@ const joinRoom = () => {
 
         <div class="action-box">
           <h3 class="box-title">Créer une partie</h3>
-          <p class="box-desc">Choisissez une scène à doubler.</p>
+          <p class="box-desc">Créez un salon et invitez vos amis à doubler.</p>
           <div class="create-form">
-            <select v-model="selectedSceneId" class="input-field w-full mb-3">
-              <option disabled value="">— Sélectionner une scène —</option>
-              <option v-for="scene in availableScenes" :key="scene.id" :value="scene.id">
-                {{ scene.title }}
-              </option>
-            </select>
-            <button
-              class="btn-secondary w-full"
-              :disabled="loadingCreate || !selectedSceneId"
-              @click="createRoom"
-            >
+            <button class="btn-secondary w-full" :disabled="loadingCreate" @click="createRoom">
               {{ loadingCreate ? 'Création...' : 'Héberger un salon' }}
             </button>
           </div>

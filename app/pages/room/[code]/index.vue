@@ -32,7 +32,7 @@ onMounted(() => {
 })
 
 // ─── ETAT DU SALON ─────────────────────────────────────────────────────────
-const { data: roomInfo, error } = await useFetch(`/api/rooms/${code}`)
+const { data: roomInfo, error, refresh } = await useFetch(`/api/rooms/${code}`)
 if (error.value) {
   alert(error.value.data?.message || 'Erreur lors du chargement du salon.')
   router.push('/')
@@ -41,10 +41,32 @@ if (error.value) {
 const socketState = ref<any>(null)
 const socketError = ref('')
 const countdown = ref<number | null>(null)
+const availableScenes = ref<any[]>([])
+
+if (!roomInfo.value?.sceneId) {
+  const scenes = await $fetch('/api/scenes')
+  availableScenes.value = scenes as any[]
+}
 
 const isHost = computed(() => roomInfo.value?.hostUserId === userId.value)
 const players = computed(() => socketState.value?.players || [])
 const characters = computed(() => roomInfo.value?.scene?.characters || [])
+
+// ─── ACTIONS ───────────────────────────────────────────────────────────────
+
+const selectScene = async (sceneId: string) => {
+  if (!isHost.value) return
+  try {
+    await $fetch(`/api/rooms/${code}/scene`, {
+      method: 'PUT',
+      body: { sceneId },
+    })
+    // Force refresh the room info to get the scene and characters
+    await refresh()
+  } catch (e: any) {
+    socketError.value = e.data?.message || 'Erreur lors du choix de la scène.'
+  }
+}
 
 // ─── SOCKET ────────────────────────────────────────────────────────────────
 let socket: any
@@ -56,7 +78,12 @@ onMounted(() => {
 
   socket.emit('join_room', { roomCode: code, userId: userId.value, isHost: isHost.value })
 
-  socket.on('room_state_update', (state: any) => {
+  socket.on('room_state_update', async (state: any) => {
+    // Si la scène a été modifiée, on rafraîchit les infos de la room
+    if (state.sceneId && roomInfo.value && state.sceneId !== roomInfo.value.sceneId) {
+      await refresh()
+    }
+
     socketState.value = state
 
     // Si la partie a commencé, on redirige vers le studio
@@ -175,38 +202,65 @@ const isMyChar = (charId: string) => {
         <div v-else class="guest-msg">En attente du lancement par l'hôte...</div>
       </div>
 
-      <!-- PANEL DROITE : Scène & Personnages -->
+      <!-- PANEL DROITE : Choix Scène OU Personnages -->
       <div class="scene-panel glass-card">
-        <div class="scene-header">
-          <h1 class="scene-title">{{ roomInfo?.scene?.title }}</h1>
-          <span class="scene-duration">▶ 00:00</span>
-        </div>
-
-        <p class="instruction">Choisissez votre personnage :</p>
-
-        <div class="characters-grid">
-          <button
-            v-for="char in characters"
-            :key="char.id"
-            class="character-card"
-            :class="{
-              'is-mine': isMyChar(char.id),
-              'is-taken': isCharTakenByOther(char.id),
-            }"
-            :style="{ '--char-color': char.color }"
-            :disabled="isCharTakenByOther(char.id)"
-            @click="selectCharacter(char.id)"
-          >
-            <div class="char-color-dot" :style="{ background: char.color }" />
-            <div class="char-content">
-              <span class="char-name">{{ char.name }}</span>
-              <span v-if="isMyChar(char.id)" class="char-status my-status">Mon choix</span>
-              <span v-else-if="isCharTakenByOther(char.id)" class="char-status taken-status"
-                >Déjà pris</span
+        <!-- ETAT 1 : Pas de scène choisie -->
+        <template v-if="!roomInfo?.sceneId">
+          <div v-if="isHost" class="scene-selection">
+            <h2 class="panel-title mb-4">Choisissez une scène à doubler</h2>
+            <div class="scenes-grid">
+              <button
+                v-for="scene in availableScenes"
+                :key="scene.id"
+                class="scene-card"
+                @click="selectScene(scene.id)"
               >
+                <div class="scene-card-content">
+                  <h3 class="scene-card-title">{{ scene.title }}</h3>
+                  <p class="scene-card-desc">{{ scene.description }}</p>
+                </div>
+              </button>
             </div>
-          </button>
-        </div>
+          </div>
+          <div v-else class="guest-msg waiting-scene">
+            <h2>En attente de l'hôte...</h2>
+            <p>L'hôte est en train de choisir la scène à doubler.</p>
+          </div>
+        </template>
+
+        <!-- ETAT 2 : Scène choisie, choix des persos -->
+        <template v-else>
+          <div class="scene-header">
+            <h1 class="scene-title">{{ roomInfo?.scene?.title }}</h1>
+            <span class="scene-duration">▶ 00:00</span>
+          </div>
+
+          <p class="instruction">Choisissez votre personnage :</p>
+
+          <div class="characters-grid">
+            <button
+              v-for="char in characters"
+              :key="char.id"
+              class="character-card"
+              :class="{
+                'is-mine': isMyChar(char.id),
+                'is-taken': isCharTakenByOther(char.id),
+              }"
+              :style="{ '--char-color': char.color }"
+              :disabled="isCharTakenByOther(char.id)"
+              @click="selectCharacter(char.id)"
+            >
+              <div class="char-color-dot" :style="{ background: char.color }" />
+              <div class="char-content">
+                <span class="char-name">{{ char.name }}</span>
+                <span v-if="isMyChar(char.id)" class="char-status my-status">Mon choix</span>
+                <span v-else-if="isCharTakenByOther(char.id)" class="char-status taken-status"
+                  >Déjà pris</span
+                >
+              </div>
+            </button>
+          </div>
+        </template>
       </div>
     </div>
   </div>

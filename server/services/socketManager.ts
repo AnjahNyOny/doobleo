@@ -165,3 +165,12 @@ export const initSocketManager = (io: SocketServer) => {
     })
   })
 }
+
+// Export a method to broadcast room state from HTTP endpoints
+export const updateRoomScene = (io: SocketServer, roomCode: string, sceneId: string) => {
+  const state = activeRooms.get(roomCode)
+  if (state) {
+    state.sceneId = sceneId
+    io.to(roomCode).emit('room_state_update', state)
+  }
+}

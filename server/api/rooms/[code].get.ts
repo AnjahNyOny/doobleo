@@ -15,8 +15,18 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Salon introuvable.' })
   }
 
+  // Si pas de scène, on renvoie juste la room
+  if (!room.sceneId) {
+    return {
+      ...room,
+      scene: null,
+      characters: [],
+      lines: [],
+    }
+  }
+
   // On renvoie aussi les infos de la scène
-  const [scene] = await db.select().from(scenes).where(eq(scenes.id, room.sceneId!)).limit(1)
+  const [scene] = await db.select().from(scenes).where(eq(scenes.id, room.sceneId)).limit(1)
   const sceneCharacters = await db.select().from(characters).where(eq(characters.sceneId, scene.id))
 
   // Importer lines from schema
