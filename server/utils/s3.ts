@@ -79,7 +79,12 @@ export function getPublicUrl(key: string): string {
 
 export function extractKeyFromUrl(url: string): string {
   const config = useRuntimeConfig()
-  return url.replace(`${config.s3PublicUrl}/`, '')
+  let key = url.replace(`${config.s3PublicUrl}/`, '')
+  const queryIndex = key.indexOf('?')
+  if (queryIndex !== -1) {
+    key = key.substring(0, queryIndex)
+  }
+  return key
 }
 
 // ─── Générer une clé unique pour un média ────────────────────────────────────
