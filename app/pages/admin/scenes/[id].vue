@@ -201,12 +201,17 @@ const deleteLine = async (lineId: string) => {
 
 // Export JSON des répliques
 const exportLines = () => {
-  const data = JSON.stringify(scene.value?.lines ?? [], null, 2)
+  const exportData = {
+    version: 1,
+    characters: scene.value?.characters ?? [],
+    lines: scene.value?.lines ?? [],
+  }
+  const data = JSON.stringify(exportData, null, 2)
   const blob = new Blob([data], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `${scene.value?.title}-lines.json`
+  a.download = `${scene.value?.title ?? 'scene'}-lines.json`
   a.click()
   URL.revokeObjectURL(url)
 }
@@ -215,16 +220,66 @@ const exportLines = () => {
 const importLines = async (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (!file) return
-  const text = await file.text()
-  const parsed = JSON.parse(text)
-  if (
-    !confirm(
-      `Importer ${parsed.length} répliques ? Cela remplacera toutes les répliques actuelles.`
+
+  try {
+    const text = await file.text()
+    const parsed = JSON.parse(text)
+
+    let linesToImport = []
+
+    if (Array.isArray(parsed)) {
+      linesToImport = parsed
+      alert(
+        "⚠️ Vous utilisez un ancien fichier d'export (sans noms de personnages). Assurez-vous que les IDs correspondent !"
+      )
+    } else if (parsed.version === 1 && Array.isArray(parsed.lines)) {
+      const importedChars = parsed.characters || []
+      const localChars = (scene.value?.characters as any[]) || []
+
+      const missingChars = new Set<string>()
+
+      linesToImport = parsed.lines.map((line: any) => {
+        const importedChar = importedChars.find((c: any) => c.id === line.characterId)
+        const charName = importedChar?.name
+
+        if (charName) {
+          const localMatch = localChars.find(
+            (c: any) => c.name.toLowerCase() === charName.toLowerCase()
+          )
+          if (localMatch) {
+            return { ...line, characterId: localMatch.id }
+          } else {
+            missingChars.add(charName)
+          }
+        }
+        return line
+      })
+
+      if (missingChars.size > 0) {
+        alert(
+          `❌ Les personnages suivants manquent dans cette scène : ${Array.from(missingChars).join(', ')}.\n\nVeuillez les créer d'abord (avec les mêmes noms) avant d'importer !`
+        )
+        return
+      }
+    }
+
+    if (
+      !confirm(
+        `Importer ${linesToImport.length} répliques ? Cela remplacera toutes les répliques actuelles.`
+      )
     )
-  )
-    return
-  await $fetch(`/api/admin/scenes/${sceneId}/lines`, { method: 'PUT', body: { lines: parsed } })
-  await refresh()
+      return
+
+    await $fetch(`/api/admin/scenes/${sceneId}/lines`, {
+      method: 'PUT',
+      body: { lines: linesToImport },
+    })
+    await refresh()
+  } catch (err: any) {
+    alert("Erreur lors de l'import: " + (err.data?.message || err.message))
+  } finally {
+    ;(e.target as HTMLInputElement).value = ''
+  }
 }
 
 // Couleur du personnage par id
