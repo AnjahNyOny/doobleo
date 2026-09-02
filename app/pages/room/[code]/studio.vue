@@ -351,11 +351,16 @@ const validateTake = () => {
   }
 }
 
-// Changer de réplique manuellement
 const selectLine = (index: number) => {
   if (isRecording.value) return
   stopPreview()
   pause()
+
+  // Sauvegarde automatique de la prise non validée si on change de ligne
+  if (pendingBlob.value && activeLine.value) {
+    recordedTakes.value[activeLine.value.id] = pendingBlob.value
+  }
+
   activeLineIndex.value = index
   pendingBlob.value = null
 }
@@ -377,6 +382,12 @@ const handleEnd = async () => {
   stopPreview()
   pause()
   stopRecording()
+
+  // Sauvegarde automatique de la dernière prise
+  if (pendingBlob.value && activeLine.value) {
+    recordedTakes.value[activeLine.value.id] = pendingBlob.value
+    pendingBlob.value = null
+  }
 
   if (!myCharId.value) {
     router.push(`/room/${code}/playback`)

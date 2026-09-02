@@ -74,6 +74,10 @@ export async function processMixJob(data: MixJobData, scene: any): Promise<strin
         command.input(meFile)
         amixInputs += '[1:a]'
         inputIndex++
+      } else {
+        // Si pas de piste M&E, on utilise l'audio original de la vidéo comme base
+        // pour que duration=first ne coupe pas le mixage sur la durée d'une petite prise.
+        amixInputs += '[0:a]'
       }
 
       for (const chunk of chunkFiles) {
@@ -83,11 +87,14 @@ export async function processMixJob(data: MixJobData, scene: any): Promise<strin
         inputIndex++
       }
 
-      const totalAudioInputs = inputIndex - 1
+      // Si pas de ME, on a ajouté [0:a] comme base, donc le nombre d'entrées audio est inputIndex.
+      // S'il y a un ME, on a [1:a] comme base + les chunks, donc c'est inputIndex - 1.
+      // Wait, let's just count how many inputs amix is receiving.
+      const totalAudioInputs = scene.audioMeUrl ? inputIndex - 1 : inputIndex
 
       if (totalAudioInputs > 0) {
-        // Amix (Audio Mix)
-        filterComplex += `${amixInputs}amix=inputs=${totalAudioInputs}:duration=first:dropout_transition=2[aout]`
+        // Amix avec normalize=0 pour ne pas baisser le volume en fonction du nombre d'entrées
+        filterComplex += `${amixInputs}amix=inputs=${totalAudioInputs}:duration=first:dropout_transition=2:normalize=0[aout]`
         command.complexFilter(filterComplex, ['aout'])
         command.outputOptions(['-map 0:v', '-c:v copy', '-c:a aac', '-b:a 192k'])
       } else {
