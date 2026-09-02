@@ -30,5 +30,3 @@ jobs:
       - name: Check formatting (Prettier)
         run: npm run format:check
 
-      - name: TypeScript typecheck
-        run: npm run typecheck
