@@ -122,7 +122,7 @@ watch(
 
       // On charge l'URL explicitement via notre proxy local pour éviter les erreurs CORS de Cloudflare R2
       try {
-        await wavesurfer.load(scene.value.videoUrl)
+        await wavesurfer.load(`/api/proxy?url=${encodeURIComponent(scene.value.videoUrl)}`)
       } catch (err) {
         console.warn('Impossible de dessiner les pics audio (CORS probable).', err)
       }

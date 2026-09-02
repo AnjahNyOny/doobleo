@@ -72,7 +72,7 @@ watch(
 
       const audioToLoad = roomInfo.value.scene.audioVocalsUrl || roomInfo.value.scene.videoUrl
       try {
-        await wavesurfer.load(audioToLoad)
+        await wavesurfer.load(`/api/proxy?url=${encodeURIComponent(audioToLoad)}`)
       } catch (err) {
         console.warn('Erreur WaveSurfer', err)
       }
