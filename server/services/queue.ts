@@ -1,10 +1,8 @@
 import { Queue } from 'bullmq'
+import { getRedisConnection } from '../utils/redis'
 
 // BullMQ Queue Configuration
-const connection = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-}
+const connection = getRedisConnection()
 
 export const mixingQueue = new Queue('mixing', { connection })
 export const audioSeparationQueue = new Queue('audio_separation', { connection })
