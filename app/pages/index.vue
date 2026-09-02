@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { Library } from 'lucide-vue-next'
 
 definePageMeta({ title: 'Doobleo — Doublez vos films entre amis' })
 
@@ -162,8 +163,12 @@ const joinRoom = () => {
       </div>
 
       <div class="library-action">
-        <NuxtLink to="/library" class="btn-secondary w-full">
-          📚 Explorer la Bibliothèque de Scènes
+        <NuxtLink
+          to="/library"
+          class="btn-secondary w-full"
+          style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem"
+        >
+          <Library :size="18" /> Explorer la Bibliothèque de Scènes
         </NuxtLink>
       </div>
 

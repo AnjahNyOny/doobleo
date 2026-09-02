@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ArrowLeft } from 'lucide-vue-next'
 
 definePageMeta({ title: 'Bibliothèque — Doobleo' })
 
@@ -57,7 +58,13 @@ const hostRoomWithScene = async (sceneId: string) => {
 <template>
   <div class="library-page">
     <div class="header">
-      <NuxtLink to="/" class="btn-sm-ghost mb-4">⬅ Retour à l'accueil</NuxtLink>
+      <NuxtLink
+        to="/"
+        class="btn-sm-ghost mb-4"
+        style="display: inline-flex; align-items: center; gap: 0.5rem"
+      >
+        <ArrowLeft :size="16" /> Retour à l'accueil
+      </NuxtLink>
       <h1 class="title text-gradient">Bibliothèque de Scènes</h1>
       <p class="subtitle">Parcourez le catalogue et créez une partie directement.</p>
     </div>

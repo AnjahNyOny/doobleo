@@ -1,6 +1,20 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import WaveSurfer from 'wavesurfer.js'
+import {
+  Headphones,
+  Mic,
+  Check,
+  Play,
+  Pause,
+  Square,
+  Timer,
+  ArrowLeft,
+  Menu,
+  X,
+  Rocket,
+  Circle,
+} from 'lucide-vue-next'
 
 definePageMeta({ title: 'Studio — Doobleo' })
 
@@ -473,7 +487,9 @@ const leaveStudio = () => {
       <div class="sidebar-header">
         <div class="sidebar-title-row">
           <h2 class="scene-title">{{ roomInfo?.scene?.title }}</h2>
-          <button class="mobile-close-btn" @click="showMobileSidebar = false">✕</button>
+          <button class="mobile-close-btn" @click="showMobileSidebar = false">
+            <X :size="20" />
+          </button>
         </div>
         <span v-if="myCharId" class="progression-pill">
           {{ completedLinesCount }} / {{ myLines.length }} validées
@@ -505,9 +521,11 @@ const leaveStudio = () => {
     <main class="main-workspace">
       <!-- Indicateur d'enregistrement global -->
       <div class="workspace-header">
-        <button class="mobile-menu-btn" @click="showMobileSidebar = true">☰ Répliques</button>
+        <button class="mobile-menu-btn" @click="showMobileSidebar = true">
+          <Menu :size="16" class="icon" /> Répliques
+        </button>
         <button class="btn-sm-ghost btn-leave" title="Retour au lobby" @click="leaveStudio">
-          ⬅ Quitter le studio
+          <ArrowLeft :size="16" class="icon" /> Quitter le studio
         </button>
         <div v-if="isRecording" class="recording-indicator">
           <div class="red-dot" />
@@ -520,7 +538,7 @@ const leaveStudio = () => {
           :disabled="isRecording || isUploading"
           @click="handleEnd"
         >
-          🚀 Terminer et Passer au Mix
+          <Rocket :size="16" /> Terminer et Passer au Mix
         </button>
       </div>
 
@@ -545,8 +563,12 @@ const leaveStudio = () => {
             >
               {{ getChar(activeLine.characterId)?.name || 'Personnage' }}
             </span>
-            <span v-if="recordedTakes[activeLine.id]" class="validated-tag">✓ Déjà validé</span>
-            <span v-else-if="pendingBlob" class="recorded-tag">● Prise prête</span>
+            <span v-if="recordedTakes[activeLine.id]" class="validated-tag"
+              ><Check :size="12" /> Déjà validé</span
+            >
+            <span v-else-if="pendingBlob" class="recorded-tag"
+              ><Circle :size="12" /> Prise prête</span
+            >
           </div>
 
           <h1 class="main-text">{{ activeLine.text }}</h1>
@@ -558,7 +580,7 @@ const leaveStudio = () => {
               :disabled="isRecording || isReviewing || countdown !== null"
               @click="playReference"
             >
-              <span class="icon">▶️</span> Écouter Référence
+              <span class="icon"><Play :size="16" /></span> Écouter Référence
             </button>
 
             <button
@@ -567,7 +589,7 @@ const leaveStudio = () => {
               :disabled="isReviewing"
               @click="recordTake"
             >
-              <span class="icon">🎤</span>
+              <span class="icon"><Mic :size="16" /></span>
               {{ currentLineTake ? 'Réenregistrer' : 'Enregistrer' }}
             </button>
             <button
@@ -575,10 +597,10 @@ const leaveStudio = () => {
               class="btn-control btn-record countdown-btn"
               @click="stopTake"
             >
-              <span class="icon">⏱️</span> Préparez-vous : {{ countdown }}
+              <span class="icon"><Timer :size="16" /></span> Préparez-vous : {{ countdown }}
             </button>
             <button v-else class="btn-control btn-stop-rec" @click="stopTake">
-              <span class="icon">⏹️</span> Arrêter l'enregistrement
+              <span class="icon"><Square :size="16" fill="currentColor" /></span> Arrêter
             </button>
 
             <button
@@ -587,10 +609,10 @@ const leaveStudio = () => {
               :disabled="!currentLineTake || isRecording || countdown !== null"
               @click="playMyTake"
             >
-              <span class="icon">🎧</span> Écouter ma prise
+              <span class="icon"><Headphones :size="16" /></span> Écouter ma prise
             </button>
             <button v-else class="btn-control btn-review is-active-review" @click="stopPreview">
-              <span class="icon">⏸️</span> Pause preview
+              <span class="icon"><Pause :size="16" /></span> Pause
             </button>
 
             <button
@@ -966,12 +988,17 @@ const leaveStudio = () => {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
-  padding: 2rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+@media (min-width: 600px) {
+  .active-line-content {
+    padding: 2rem;
+  }
 }
 
 .card-header {
@@ -1007,11 +1034,17 @@ const leaveStudio = () => {
 }
 
 .main-text {
-  font-size: 1.75rem;
+  font-size: 1.2rem;
   font-weight: 800;
   line-height: 1.35;
   color: #f8fafc;
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1rem 0;
+}
+@media (min-width: 600px) {
+  .main-text {
+    font-size: 1.75rem;
+    margin: 0 0 1.5rem 0;
+  }
 }
 
 .controls,

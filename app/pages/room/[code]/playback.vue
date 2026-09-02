@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { Download, AlertTriangle, Clapperboard } from 'lucide-vue-next'
 
 definePageMeta({ title: 'Résultat — Doobleo' })
 
@@ -63,7 +64,9 @@ const downloadVideo = () => {
 
     <div v-else-if="finalVideoUrl" class="result-container">
       <div class="glass-card main-card">
-        <h1 class="title">C'est dans la boîte ! 🎬</h1>
+        <h1 class="title">
+          <Clapperboard :size="24" style="margin-right: 0.5rem" /> C'est dans la boîte !
+        </h1>
 
         <div class="video-wrapper">
           <video :src="finalVideoUrl" controls playsinline class="final-video" />
@@ -71,11 +74,11 @@ const downloadVideo = () => {
 
         <div class="actions">
           <button class="btn-primary w-full download-btn" @click="downloadVideo">
-            ⬇ Télécharger le chef-d'œuvre
+            <Download :size="16" class="icon" /> Télécharger le chef-d'œuvre
           </button>
 
           <div class="warning-box">
-            <span class="warning-icon">⚠️</span>
+            <span class="warning-icon"><AlertTriangle :size="16" /></span>
             <p>
               Le fichier sera supprimé de nos serveurs d'ici 30 minutes. Pensez à le sauvegarder !
             </p>
