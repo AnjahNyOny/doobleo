@@ -18,6 +18,7 @@ function getS3Client(): S3Client {
       accessKeyId: config.s3AccessKeyId,
       secretAccessKey: config.s3SecretAccessKey,
     },
+    forcePathStyle: true,
   })
   return _s3
 }
