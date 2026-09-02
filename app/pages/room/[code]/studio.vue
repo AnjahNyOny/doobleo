@@ -8,7 +8,7 @@ const route = useRoute()
 const router = useRouter()
 const code = route.params.code as string
 
-const { connect, getSocket } = useSocket()
+const { connect, getSocket, disconnect } = useSocket()
 const socket = getSocket() || connect()
 
 const { loggedIn, user } = useUserSession()
@@ -451,6 +451,14 @@ onUnmounted(() => {
   stop()
   stopRecording()
 })
+
+const leaveStudio = () => {
+  stopPreview()
+  stop()
+  stopRecording()
+  disconnect()
+  router.push('/')
+}
 </script>
 
 <template>
@@ -498,6 +506,9 @@ onUnmounted(() => {
       <!-- Indicateur d'enregistrement global -->
       <div class="workspace-header">
         <button class="mobile-menu-btn" @click="showMobileSidebar = true">☰ Répliques</button>
+        <button class="btn-sm-ghost btn-leave" title="Retour au lobby" @click="leaveStudio">
+          ⬅ Quitter le studio
+        </button>
         <div v-if="isRecording" class="recording-indicator">
           <div class="red-dot" />
           ENREGISTREMENT EN COURS

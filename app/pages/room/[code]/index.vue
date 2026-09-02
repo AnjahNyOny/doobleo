@@ -140,7 +140,7 @@ const startGame = () => {
 
 const leaveRoom = () => {
   disconnect()
-  navigateTo('/')
+  router.push('/')
 }
 
 // Utilitaires UI

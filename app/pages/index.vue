@@ -161,6 +161,12 @@ const joinRoom = () => {
         </button>
       </div>
 
+      <div class="library-action">
+        <NuxtLink to="/library" class="btn-secondary w-full">
+          📚 Explorer la Bibliothèque de Scènes
+        </NuxtLink>
+      </div>
+
       <div class="divider" />
 
       <p v-if="errorMsg" class="error-text">{{ errorMsg }}</p>
@@ -374,6 +380,16 @@ const joinRoom = () => {
   background: rgba(248, 113, 113, 0.1);
   padding: 0.5rem;
   border-radius: var(--radius);
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.library-action {
+  margin-top: 1.5rem;
+  padding: 0 1rem;
 }
 
 .admin-link {
