@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import WaveSurfer from 'wavesurfer.js'
+
 definePageMeta({ layout: 'admin', middleware: 'admin' })
 
 const route = useRoute()
@@ -92,8 +94,49 @@ const deleteCharacter = async (charId: string, name: string) => {
 // ─── Éditeur de répliques (timecodes) ─────────────────────────────────────────
 
 const videoRef = ref<HTMLVideoElement | null>(null)
+const waveformContainerRef = ref<HTMLElement | null>(null)
+let wavesurfer: WaveSurfer | null = null
+
 const currentSecMs = ref(0)
 const isPlaying = ref(false)
+
+// Init WaveSurfer when elements are ready
+watch(
+  [videoRef, waveformContainerRef],
+  async ([videoEl, containerEl]) => {
+    if (videoEl && containerEl && scene.value?.videoUrl && !wavesurfer) {
+      wavesurfer = WaveSurfer.create({
+        container: containerEl,
+        waveColor: '#4c1d95',
+        progressColor: '#8b5cf6',
+        cursorColor: '#c4b5fd',
+        height: 120, // Plus grand verticalement pour mieux voir
+        normalize: true,
+        barWidth: 2, // Barres plus fines pour plus de détails
+        barGap: 1, // Moins d'espace
+        barRadius: 2,
+        minPxPerSec: 100, // 100 pixels par seconde : TRES détaillé (ajoute un scroll horizontal)
+        autoScroll: true, // Suit automatiquement la lecture
+        media: videoEl, // Synchronise avec la vidéo
+      })
+
+      // On charge l'URL explicitement via notre proxy local pour éviter les erreurs CORS de Cloudflare R2
+      try {
+        await wavesurfer.load(`/api/proxy?url=${encodeURIComponent(scene.value.videoUrl)}`)
+      } catch (err) {
+        console.warn('Impossible de dessiner les pics audio (CORS probable).', err)
+      }
+    }
+  },
+  { immediate: true }
+)
+
+onUnmounted(() => {
+  if (wavesurfer) {
+    wavesurfer.destroy()
+    wavesurfer = null
+  }
+})
 
 const newLine = reactive({ characterId: '', text: '', startMs: 0, endMs: 0 })
 const addingLine = ref(false)
@@ -312,8 +355,11 @@ const onTimeUpdate = () => {
             controls
             @timeupdate="onTimeUpdate"
           />
+          <!-- Container pour la forme d'onde -->
+          <div ref="waveformContainerRef" class="waveform-container" />
+
           <div class="timecode-display">
-            ⏱ {{ formatMs(currentTimeMs) }}
+            ⏱ {{ formatMs(currentSecMs) }}
             <span
               v-if="activeLine"
               class="active-line-preview"
@@ -618,9 +664,16 @@ select:focus {
 }
 .video-player {
   width: 100%;
-  border-radius: 10px;
-  background: #000;
   aspect-ratio: 16/9;
+  background: #000;
+  display: block;
+}
+
+.waveform-container {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: -4px; /* supprime l'espace sous la vidéo */
 }
 .timecode-display {
   background: #0f0f13;

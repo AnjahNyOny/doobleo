@@ -6,8 +6,34 @@ export const usePlaybackSync = (videoElement: Ref<HTMLVideoElement | null>) => {
   const durationMs = ref(0)
   const isRecordingMode = ref(false) // Si true, on mute les vocals originaux
 
-  // Audio sources
   const audioContext = ref<AudioContext | null>(null)
+
+  const loopTimeUpdate = () => {
+    if (videoElement.value) {
+      currentTimeMs.value = Math.round(videoElement.value.currentTime * 1000)
+    }
+    if (videoElement.value && !videoElement.value.paused) {
+      requestAnimationFrame(loopTimeUpdate)
+    }
+  }
+
+  // S'attacher nativement aux événements de la vidéo pour garantir un curseur toujours fluide
+  watch(
+    videoElement,
+    (el, oldEl) => {
+      if (oldEl) {
+        oldEl.removeEventListener('play', loopTimeUpdate)
+        oldEl.removeEventListener('pause', loopTimeUpdate)
+        oldEl.removeEventListener('seeked', loopTimeUpdate)
+      }
+      if (el) {
+        el.addEventListener('play', loopTimeUpdate)
+        el.addEventListener('pause', loopTimeUpdate)
+        el.addEventListener('seeked', loopTimeUpdate)
+      }
+    },
+    { immediate: true }
+  )
 
   let meBuffer: AudioBuffer | null = null
   let meSource: AudioBufferSourceNode | null = null

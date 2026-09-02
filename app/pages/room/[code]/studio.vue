@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import WaveSurfer from 'wavesurfer.js'
 
 definePageMeta({ title: 'Studio — Doobleo' })
 
@@ -47,32 +48,82 @@ const state = ref<any>(null)
 const myCharId = ref<string>('')
 
 const videoRef = ref<HTMLVideoElement | null>(null)
-const {
-  isPlaying,
-  loadMeTrack,
-  loadVocalsTrack,
-  playSegment,
-  pause,
-  stop,
-  updateTime,
-} = usePlaybackSync(videoRef)
+const waveformContainerRef = ref<HTMLElement | null>(null)
+let wavesurfer: WaveSurfer | null = null
 
-const {
-  isRecording,
-  startRecording,
-  stopRecording,
-  recordedBlob,
-  requestPermission,
-  audioLevel,
-} = useMicrophone()
+// Init WaveSurfer when elements are ready
+watch(
+  [videoRef, waveformContainerRef],
+  async ([videoEl, containerEl]) => {
+    if (videoEl && containerEl && roomInfo.value?.scene?.videoUrl && !wavesurfer) {
+      wavesurfer = WaveSurfer.create({
+        container: containerEl,
+        waveColor: '#4c1d95',
+        progressColor: '#8b5cf6',
+        cursorColor: 'transparent', // On cache le curseur puisque c'est statique pour la durée
+        height: 80,
+        normalize: true,
+        barWidth: 2,
+        barGap: 1,
+        barRadius: 2,
+        hideScrollbar: true, // Cache la scrollbar
+        interact: false, // Statistique
+      })
 
-const isStudioReady = ref(false)
-const lines = ref<Line[]>([])
+      const audioToLoad = roomInfo.value.scene.audioVocalsUrl || roomInfo.value.scene.videoUrl
+      try {
+        await wavesurfer.load(`/api/proxy?url=${encodeURIComponent(audioToLoad)}`)
+      } catch (err) {
+        console.warn('Erreur WaveSurfer', err)
+      }
+    }
+  },
+  { immediate: true }
+)
 
-// Ligne active
+// Synchroniser le zoom de la Waveform sur la réplique active
 const activeLineIndex = ref(0)
+const lines = ref<Line[]>([])
 const activeLine = computed<Line | undefined>(() => lines.value[activeLineIndex.value])
 
+watch(
+  [activeLine, () => wavesurfer],
+  ([line, ws]) => {
+    if (line && ws && waveformContainerRef.value) {
+      const durationSec = (line.endMs - line.startMs) / 1000
+      if (durationSec > 0) {
+        const width = waveformContainerRef.value.clientWidth || 800
+        const pxPerSec = width / durationSec
+        ws.setOptions({ minPxPerSec: pxPerSec })
+
+        // Petit délai pour laisser le zoom s'appliquer avant de scroller
+        setTimeout(() => {
+          ws.setScrollTime(line.startMs / 1000)
+        }, 50)
+      }
+    }
+  },
+  { immediate: true }
+)
+
+onUnmounted(() => {
+  if (wavesurfer) {
+    wavesurfer.destroy()
+    wavesurfer = null
+  }
+  if (wavesurferRecorded) {
+    wavesurferRecorded.destroy()
+    wavesurferRecorded = null
+  }
+})
+
+const { isPlaying, currentTimeMs, loadMeTrack, loadVocalsTrack, playSegment, pause, stop } =
+  usePlaybackSync(videoRef)
+
+const { isRecording, startRecording, stopRecording, recordedBlob, requestPermission, audioLevel } =
+  useMicrophone()
+
+const isStudioReady = ref(false)
 // Prises validées (lineId -> Blob)
 const recordedTakes = ref<Record<string, Blob>>({})
 
@@ -85,8 +136,53 @@ const currentLineTake = computed<Blob | null>(() => {
   return pendingBlob.value || recordedTakes.value[activeLine.value.id] || null
 })
 
-// Audio player pour écouter sa propre prise en preview sans soucis de décodage WebAudio
-const previewAudio = ref<HTMLAudioElement | null>(null)
+// Init WaveSurfer recorded (Vert)
+const waveformRecordedRef = ref<HTMLElement | null>(null)
+let wavesurferRecorded: WaveSurfer | null = null
+
+watch(
+  [activeLine, waveformRecordedRef, currentLineTake],
+  async ([line, containerEl, takeBlob]) => {
+    if (!line || !containerEl) return
+
+    if (!wavesurferRecorded) {
+      wavesurferRecorded = WaveSurfer.create({
+        container: containerEl,
+        waveColor: 'rgba(74, 222, 128, 0.7)', // Vert translucide
+        progressColor: 'rgba(34, 197, 94, 0.9)',
+        cursorColor: 'transparent',
+        height: 80,
+        normalize: true,
+        barWidth: 2,
+        barGap: 1,
+        barRadius: 2,
+        hideScrollbar: true,
+        interact: false,
+      })
+    }
+
+    // Sync la largeur / échelle avec l'original
+    const durationSec = (line.endMs - line.startMs) / 1000
+    if (durationSec > 0) {
+      const width = containerEl.clientWidth || 800
+      const pxPerSec = width / durationSec
+      wavesurferRecorded.setOptions({ minPxPerSec: pxPerSec })
+    }
+
+    if (takeBlob) {
+      try {
+        await wavesurferRecorded.loadBlob(takeBlob)
+      } catch (err) {
+        console.warn('Erreur chargement prise', err)
+      }
+    } else {
+      wavesurferRecorded.empty()
+    }
+  },
+  { immediate: true }
+)
+
+// L'audio player (previewAudio) est maintenant géré par wavesurferRecorded
 const isReviewing = ref(false)
 
 onMounted(async () => {
@@ -134,26 +230,51 @@ const playReference = () => {
 }
 
 // 2. Enregistrer
+const countdown = ref<number | null>(null)
+let countdownTimer: ReturnType<typeof setInterval> | null = null
+
 const recordTake = async () => {
-  if (!activeLine.value) return
+  if (!activeLine.value || countdown.value !== null) return
   stopPreview()
 
-  await requestPermission()
-  startRecording()
+  // Efface l'ancienne prise (fait disparaître la courbe verte instantanément)
+  pendingBlob.value = null
+  // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+  delete recordedTakes.value[activeLine.value.id]
 
-  playSegment(
-    activeLine.value.startMs,
-    activeLine.value.endMs,
-    true, // mode enregistrement (fond M&E seul ou mute)
-    () => {
-      // Fin automatique à la fin du timecode
-      stopRecording()
+  await requestPermission()
+
+  // Lancer le compte à rebours
+  countdown.value = 3
+  countdownTimer = setInterval(() => {
+    if (countdown.value && countdown.value > 1) {
+      countdown.value--
+    } else {
+      if (countdownTimer) clearInterval(countdownTimer)
+      countdown.value = null
+
+      // Démarrer réellement l'enregistrement
+      startRecording()
+      playSegment(
+        activeLine.value.startMs,
+        activeLine.value.endMs,
+        true, // mode enregistrement (fond M&E seul ou mute)
+        () => {
+          // Fin automatique à la fin du timecode
+          stopRecording()
+        }
+      )
     }
-  )
+  }, 1000)
 }
 
-// 2b. Arrêter manuellement l'enregistrement
+// 2b. Arrêter manuellement l'enregistrement (ou annuler le compte à rebours)
 const stopTake = () => {
+  if (countdownTimer) {
+    clearInterval(countdownTimer)
+    countdownTimer = null
+    countdown.value = null
+  }
   stopRecording()
   pause()
 }
@@ -165,13 +286,6 @@ const playMyTake = () => {
 
   isReviewing.value = true
 
-  // Créer ou réutiliser l'élément audio de preview
-  if (!previewAudio.value) {
-    previewAudio.value = new Audio()
-  }
-  const blobUrl = URL.createObjectURL(currentLineTake.value)
-  previewAudio.value.src = blobUrl
-
   // Lancer la vidéo au bon endroit
   if (videoRef.value) {
     videoRef.value.currentTime = activeLine.value.startMs / 1000
@@ -179,23 +293,40 @@ const playMyTake = () => {
     videoRef.value.play().catch(() => {})
   }
 
-  previewAudio.value.play().catch((err) => console.warn('Erreur preview audio:', err))
-
-  previewAudio.value.onended = () => {
-    stopPreview()
+  if (wavesurferRecorded) {
+    wavesurferRecorded.play()
+    wavesurferRecorded.once('finish', () => {
+      stopPreview()
+    })
   }
 }
 
 const stopPreview = () => {
-  if (previewAudio.value) {
-    previewAudio.value.pause()
-    previewAudio.value.currentTime = 0
+  if (wavesurferRecorded && wavesurferRecorded.isPlaying()) {
+    wavesurferRecorded.pause()
+    wavesurferRecorded.setTime(0)
   }
   if (isReviewing.value) {
     pause()
     isReviewing.value = false
   }
 }
+
+// ─── CURSEUR DE LECTURE ────────────────────────────────────────────────────
+const playheadProgress = computed(() => {
+  if (!activeLine.value || !currentTimeMs.value) return -1
+
+  if (!isRecording.value && !isPlaying.value && !isReviewing.value) return -1
+
+  const total = activeLine.value.endMs - activeLine.value.startMs
+  if (total <= 0) return -1
+
+  const relativeTime = currentTimeMs.value - activeLine.value.startMs
+
+  if (relativeTime < 0 || relativeTime > total) return -1
+
+  return Math.min(Math.max((relativeTime / total) * 100, 0), 100)
+})
 
 // 4. Valider la prise
 const validateTake = () => {
@@ -311,53 +442,75 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="studio-page">
+  <div class="studio-page new-layout">
     <div v-if="!isStudioReady" class="loading-overlay">
       <div class="spinner" />
       <p>Préparation du studio...</p>
     </div>
 
-    <!-- Vidéo en arrière-plan plein écran -->
-    <video
-      ref="videoRef"
-      :src="roomInfo?.scene?.videoUrl"
-      class="bg-video"
-      muted
-      playsinline
-      @timeupdate="updateTime"
-    />
-    <div class="video-overlay" />
-
-    <!-- UI Studio Ligne par Ligne -->
-    <div class="studio-ui">
-      <!-- En-tête -->
-      <div class="header">
-        <div class="header-left">
-          <h2 class="scene-title">{{ roomInfo?.scene?.title }}</h2>
-          <span v-if="myCharId" class="progression-pill">
-            {{ completedLinesCount }} / {{ myLines.length }} validées
-          </span>
-        </div>
-
-        <div class="header-right">
-          <div v-if="isRecording" class="recording-indicator">
-            <div class="red-dot" /> ENREGISTREMENT EN COURS
-          </div>
-
-          <button
-            v-if="completedLinesCount > 0"
-            class="btn-finish"
-            :disabled="isRecording || isUploading"
-            @click="handleEnd"
-          >
-            🚀 Terminer et Passer au Mix
-          </button>
-        </div>
+    <!-- Sidebar à gauche -->
+    <aside class="sidebar-left">
+      <div class="sidebar-header">
+        <h2 class="scene-title">{{ roomInfo?.scene?.title }}</h2>
+        <span v-if="myCharId" class="progression-pill">
+          {{ completedLinesCount }} / {{ myLines.length }} validées
+        </span>
       </div>
 
-      <!-- Zone centrale : Réplique courante -->
-      <div class="center-content">
-        <div v-if="activeLine" class="active-line-display">
+      <div class="lines-list">
+        <div
+          v-for="(line, index) in lines"
+          :key="line.id"
+          class="line-item"
+          :class="{
+            'is-active': index === activeLineIndex,
+            'is-mine': line.characterId === myCharId,
+            'is-done': !!recordedTakes[line.id],
+          }"
+          @click="selectLine(index)"
+        >
+          <div class="line-char" :style="{ color: getChar(line.characterId)?.color || '#6366f1' }">
+            {{ getChar(line.characterId)?.name }}
+            <span v-if="!!recordedTakes[line.id]" class="status-icon">✓</span>
+          </div>
+          <div class="line-text">{{ line.text }}</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Zone principale centrale -->
+    <main class="main-workspace">
+      <!-- Indicateur d'enregistrement global -->
+      <div class="workspace-header">
+        <div v-if="isRecording" class="recording-indicator">
+          <div class="red-dot" />
+          ENREGISTREMENT EN COURS
+        </div>
+        <div class="spacer" />
+        <button
+          v-if="completedLinesCount > 0"
+          class="btn-finish"
+          :disabled="isRecording || isUploading"
+          @click="handleEnd"
+        >
+          🚀 Terminer et Passer au Mix
+        </button>
+      </div>
+
+      <!-- Vidéo au centre (réduite) -->
+      <div class="video-container">
+        <video
+          ref="videoRef"
+          :src="roomInfo?.scene?.videoUrl"
+          class="scene-video"
+          muted
+          playsinline
+        />
+      </div>
+
+      <!-- Panneau de la réplique active et des boutons -->
+      <div class="active-line-panel">
+        <div v-if="activeLine" class="active-line-content">
           <div class="card-header">
             <span
               class="char-badge"
@@ -365,30 +518,24 @@ onUnmounted(() => {
             >
               {{ getChar(activeLine.characterId)?.name || 'Personnage' }}
             </span>
-            <span v-if="recordedTakes[activeLine.id]" class="validated-tag">
-              ✓ Déjà validé
-            </span>
-            <span v-else-if="pendingBlob" class="recorded-tag">
-              ● Prise prête
-            </span>
+            <span v-if="recordedTakes[activeLine.id]" class="validated-tag">✓ Déjà validé</span>
+            <span v-else-if="pendingBlob" class="recorded-tag">● Prise prête</span>
           </div>
 
           <h1 class="main-text">{{ activeLine.text }}</h1>
 
           <!-- Contrôles d'action -->
           <div v-if="activeLine.characterId === myCharId" class="controls">
-            <!-- 1. Écouter la référence -->
             <button
               class="btn-control btn-listen"
-              :disabled="isRecording || isReviewing"
+              :disabled="isRecording || isReviewing || countdown !== null"
               @click="playReference"
             >
               <span class="icon">▶️</span> Écouter Référence
             </button>
 
-            <!-- 2. Enregistrer / Arrêter -->
             <button
-              v-if="!isRecording"
+              v-if="!isRecording && countdown === null"
               class="btn-control btn-record"
               :disabled="isReviewing"
               @click="recordTake"
@@ -397,43 +544,43 @@ onUnmounted(() => {
               {{ currentLineTake ? 'Réenregistrer' : 'Enregistrer' }}
             </button>
             <button
-              v-else
-              class="btn-control btn-stop-rec"
+              v-else-if="countdown !== null"
+              class="btn-control btn-record countdown-btn"
               @click="stopTake"
             >
+              <span class="icon">⏱️</span> Préparez-vous : {{ countdown }}
+            </button>
+            <button v-else class="btn-control btn-stop-rec" @click="stopTake">
               <span class="icon">⏹️</span> Arrêter l'enregistrement
             </button>
 
-            <!-- 3. Écouter sa prise -->
             <button
               v-if="!isReviewing"
               class="btn-control btn-review"
-              :disabled="!currentLineTake || isRecording"
+              :disabled="!currentLineTake || isRecording || countdown !== null"
               @click="playMyTake"
             >
               <span class="icon">🎧</span> Écouter ma prise
             </button>
-            <button
-              v-else
-              class="btn-control btn-review is-active-review"
-              @click="stopPreview"
-            >
+            <button v-else class="btn-control btn-review is-active-review" @click="stopPreview">
               <span class="icon">⏸️</span> Pause preview
             </button>
 
-            <!-- 4. Valider -->
             <button
               class="btn-control btn-validate"
-              :disabled="!currentLineTake || isRecording || isReviewing"
+              :disabled="!currentLineTake || isRecording || isReviewing || countdown !== null"
               @click="validateTake"
             >
               <span class="icon">✅</span> Valider
             </button>
           </div>
 
-          <!-- Si la ligne n'appartient pas au joueur actuel -->
           <div v-else class="waiting-turn">
-            <p>Cette réplique appartient à <strong>{{ getChar(activeLine.characterId)?.name }}</strong>.</p>
+            <p>
+              Cette réplique appartient à
+              <strong>{{ getChar(activeLine.characterId)?.name }}</strong
+              >.
+            </p>
             <div class="turn-actions">
               <button class="btn-control btn-listen" :disabled="isPlaying" @click="playReference">
                 ▶️ Écouter l'extrait
@@ -450,66 +597,64 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- Barre de son VU Meter (active pendant l'enregistrement) -->
-      <div v-if="isRecording" class="vu-meter">
-        <div class="vu-label">Niveau micro</div>
-        <div class="vu-bar">
-          <div
-            class="vu-fill"
-            :style="{
-              width: `${audioLevel}%`,
-              background: audioLevel > 80 ? '#ef4444' : audioLevel > 40 ? '#22c55e' : '#3b82f6',
-            }"
-          />
-        </div>
-      </div>
-
-      <!-- Timeline des répliques (en bas) -->
-      <div class="lines-timeline">
-        <div
-          v-for="(line, index) in lines"
-          :key="line.id"
-          class="timeline-item"
-          :class="{
-            'is-active': index === activeLineIndex,
-            'is-mine': line.characterId === myCharId,
-            'is-done': !!recordedTakes[line.id],
-          }"
-          @click="selectLine(index)"
-        >
-          <div
-            class="char-indicator"
-            :style="{ background: getChar(line.characterId)?.color || '#6366f1' }"
-          />
-          <div class="timeline-info">
-            <span class="timeline-char">{{ getChar(line.characterId)?.name }}</span>
-            <span class="line-preview">{{ line.text }}</span>
+      <!-- Graphiques et VU-meter en bas -->
+      <div class="bottom-panel">
+        <div v-if="isRecording" class="vu-meter">
+          <div class="vu-label">Niveau micro</div>
+          <div class="vu-bar">
+            <div
+              class="vu-fill"
+              :style="{
+                width: `${audioLevel}%`,
+                background: audioLevel > 80 ? '#ef4444' : audioLevel > 40 ? '#22c55e' : '#3b82f6',
+              }"
+            />
           </div>
-          <div v-if="recordedTakes[line.id]" class="done-badge" title="Validée">✓</div>
-          <div v-else-if="line.characterId === myCharId" class="mine-dot" />
+        </div>
+
+        <div v-show="activeLine" class="studio-waveform-wrapper">
+          <div class="waveform-label">
+            <span class="label-ref">Voix originale</span>
+            <span v-if="currentLineTake" class="label-take"> / Votre prise</span>
+          </div>
+          <div class="waveforms-stack">
+            <div ref="waveformContainerRef" class="waveform-container" />
+            <div ref="waveformRecordedRef" class="waveform-container waveform-recorded" />
+
+            <div
+              v-show="playheadProgress >= 0"
+              class="playhead-cursor"
+              :style="{ left: playheadProgress + '%' }"
+            />
+          </div>
         </div>
       </div>
+    </main>
 
-      <!-- Overlay d'upload final -->
-      <div v-if="isUploading" class="uploading-overlay">
-        <div class="spinner" />
-        <p>Envoi de vos enregistrements vers le studio...</p>
-      </div>
+    <!-- Overlay d'upload final -->
+    <div v-if="isUploading" class="uploading-overlay">
+      <div class="spinner" />
+      <p>Envoi de vos enregistrements vers le studio...</p>
     </div>
   </div>
 </template>
 
 <style scoped>
 .studio-page {
-  position: relative;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
   background: #09090b;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    sans-serif;
   color: white;
+  display: flex;
 }
 
+/* ─── OVERLAYS ─── */
 .loading-overlay,
 .uploading-overlay {
   position: absolute;
@@ -524,7 +669,6 @@ onUnmounted(() => {
   gap: 1.25rem;
   backdrop-filter: blur(8px);
 }
-
 .spinner {
   width: 48px;
   height: 48px;
@@ -539,69 +683,115 @@ onUnmounted(() => {
   }
 }
 
-.bg-video {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  min-width: 100%;
-  min-height: 100%;
-  width: auto;
-  height: auto;
-  object-fit: cover;
-  z-index: 1;
-  filter: brightness(0.45);
-}
-
-.video-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.3) 0%, rgba(9, 9, 11, 0.85) 100%);
-  z-index: 2;
-}
-
-.studio-ui {
-  position: absolute;
-  inset: 0;
-  z-index: 10;
+/* ─── SIDEBAR (LEFT) ─── */
+.sidebar-left {
+  width: 320px;
+  background: #121217;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
-  padding: 1.5rem 2rem;
-  gap: 1.5rem;
+  z-index: 10;
 }
-
-/* ─── HEADER ─── */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+.sidebar-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 .scene-title {
-  font-size: 1.35rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: white;
-  margin: 0;
+  margin: 0 0 0.5rem 0;
 }
 .progression-pill {
+  display: inline-block;
   background: rgba(168, 85, 247, 0.2);
   border: 1px solid rgba(168, 85, 247, 0.4);
   color: #d8b4fe;
-  padding: 0.35rem 0.85rem;
+  padding: 0.25rem 0.6rem;
   border-radius: 20px;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 600;
 }
-
-.header-right {
+.lines-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
+.line-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.line-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.line-item.is-active {
+  background: rgba(168, 85, 247, 0.15);
+  border-color: rgba(168, 85, 247, 0.4);
+}
+.line-item.is-mine {
+  border-left: 4px solid #a855f7;
+}
+.line-item.is-done {
+  border-left-color: #22c55e;
+}
+.line-char {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+}
+.status-icon {
+  color: #22c55e;
+  font-weight: 800;
+}
+.line-text {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+  /* limit to 3 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ─── MAIN WORKSPACE ─── */
+.main-workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at top, #1a1a24 0%, #09090b 100%);
+  position: relative;
+  overflow: hidden;
+}
+.workspace-header {
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+}
+.spacer {
+  flex: 1;
+}
+
 .recording-indicator {
   display: flex;
   align-items: center;
@@ -613,7 +803,6 @@ onUnmounted(() => {
   border-radius: 20px;
   font-weight: 700;
   font-size: 0.85rem;
-  letter-spacing: 0.05em;
   animation: pulse 1.5s infinite;
 }
 .red-dot {
@@ -623,10 +812,14 @@ onUnmounted(() => {
   border-radius: 50%;
 }
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
-
 .btn-finish {
   background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
   color: white;
@@ -636,7 +829,6 @@ onUnmounted(() => {
   font-weight: 700;
   font-size: 0.95rem;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
   transition: all 0.2s;
 }
 .btn-finish:hover:not(:disabled) {
@@ -648,98 +840,103 @@ onUnmounted(() => {
   cursor: not-allowed;
 }
 
-/* ─── CENTRE : RÉPLIQUE ACTIVE ─── */
-.center-content {
+/* ─── VIDEO CONTAINER ─── */
+.video-container {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 2rem 2rem 0 2rem;
+  min-height: 0; /* allows shrinking */
+}
+.scene-video {
+  width: 100%;
+  max-width: 900px;
+  max-height: 100%;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  background: #000;
+  object-fit: contain;
 }
 
-.active-line-display {
-  background: rgba(18, 18, 23, 0.85);
-  backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 28px;
-  padding: 3rem;
-  max-width: 850px;
+/* ─── ACTIVE LINE & CONTROLS ─── */
+.active-line-panel {
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: center;
+}
+.active-line-content {
   width: 100%;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  max-width: 900px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  animation: fadeIn 0.3s ease;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.98); }
-  to { opacity: 1; transform: scale(1); }
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .card-header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 .char-badge {
-  display: inline-block;
-  padding: 0.35rem 1.2rem;
+  padding: 0.25rem 1rem;
   border-radius: 20px;
   font-weight: 800;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
   color: white;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+.validated-tag,
+.recorded-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
 }
 .validated-tag {
   background: rgba(34, 197, 94, 0.2);
   border: 1px solid rgba(34, 197, 94, 0.4);
   color: #4ade80;
-  font-size: 0.8rem;
-  font-weight: 700;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
 }
 .recorded-tag {
   background: rgba(59, 130, 246, 0.2);
   border: 1px solid rgba(59, 130, 246, 0.4);
   color: #93c5fd;
-  font-size: 0.8rem;
-  font-weight: 700;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
 }
 
 .main-text {
-  font-size: 2.5rem;
+  font-size: 1.75rem;
   font-weight: 800;
   line-height: 1.35;
   color: #f8fafc;
-  margin-bottom: 2.5rem;
-  max-width: 750px;
+  margin: 0 0 1.5rem 0;
 }
 
-/* ─── BOUTONS D'ACTION ─── */
-.controls {
+.controls,
+.turn-actions {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   justify-content: center;
   flex-wrap: wrap;
 }
-
 .btn-control {
-  padding: 0.85rem 1.5rem;
-  border-radius: 14px;
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.95rem;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s;
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   color: white;
 }
 .btn-control:disabled {
@@ -755,17 +952,30 @@ onUnmounted(() => {
 }
 .btn-listen:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.16);
-  transform: translateY(-2px);
 }
 
-.btn-record {
-  background: #ef4444;
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+.btn-control.btn-record {
+  background: linear-gradient(135deg, #ef4444, #f43f5e);
 }
-.btn-record:hover:not(:disabled) {
-  background: #dc2626;
-  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+.btn-control.btn-record:hover:not(:disabled) {
+  background: linear-gradient(135deg, #dc2626, #e11d48);
   transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+.countdown-btn {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  animation: pulse-orange 1s infinite;
+}
+@keyframes pulse-orange {
+  0% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+  }
 }
 
 .btn-stop-rec {
@@ -773,7 +983,6 @@ onUnmounted(() => {
   border: 1px solid #f87171;
   animation: pulse 1s infinite;
 }
-
 .btn-review {
   background: #3b82f6;
   box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);
@@ -786,7 +995,6 @@ onUnmounted(() => {
   background: #1d4ed8;
   border-color: #60a5fa;
 }
-
 .btn-validate {
   background: #22c55e;
   box-shadow: 0 4px 15px rgba(34, 197, 94, 0.35);
@@ -796,49 +1004,46 @@ onUnmounted(() => {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(34, 197, 94, 0.6);
 }
-
 .btn-next {
   background: rgba(255, 255, 255, 0.1);
 }
-
 .waiting-turn {
   color: #94a3b8;
-  font-size: 1.1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.25rem;
-}
-.turn-actions {
-  display: flex;
   gap: 1rem;
 }
 
-/* ─── VU METER ─── */
-.vu-meter {
-  align-self: center;
-  background: rgba(0, 0, 0, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 0.75rem 1.5rem;
-  border-radius: 24px;
-  backdrop-filter: blur(12px);
-  width: 280px;
+/* ─── BOTTOM PANEL (WAVEFORM & VU) ─── */
+.bottom-panel {
+  padding: 0 2rem 2rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  align-items: center;
+  gap: 1rem;
+}
+.vu-meter {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.5rem 1rem;
+  border-radius: 16px;
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 .vu-label {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   text-transform: uppercase;
   font-weight: 700;
   color: #94a3b8;
-  letter-spacing: 0.05em;
   text-align: center;
 }
 .vu-bar {
-  height: 8px;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 4px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
   overflow: hidden;
 }
 .vu-fill {
@@ -846,82 +1051,52 @@ onUnmounted(() => {
   transition: width 0.08s ease-out;
 }
 
-/* ─── TIMELINE RÉPLIQUES ─── */
-.lines-timeline {
-  display: flex;
-  gap: 0.85rem;
-  overflow-x: auto;
-  padding: 0.5rem 0.25rem 0.75rem 0.25rem;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-}
-.timeline-item {
-  flex: 0 0 auto;
-  width: 240px;
-  background: rgba(18, 18, 23, 0.7);
-  backdrop-filter: blur(12px);
+.studio-waveform-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 0.85rem 1rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  position: relative;
-}
-.timeline-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-.timeline-item.is-active {
-  border-color: #a855f7;
-  background: rgba(168, 85, 247, 0.15);
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
-}
-.timeline-item.is-mine {
-  border-left: 3px solid #a855f7;
-}
-.timeline-item.is-done {
-  border-color: rgba(34, 197, 94, 0.4);
-}
-
-.char-indicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.timeline-info {
-  display: flex;
-  flex-direction: column;
+  border-radius: 16px;
   overflow: hidden;
-  gap: 0.2rem;
 }
-.timeline-char {
+.waveform-label {
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: #cbd5e1;
+  padding: 0.5rem 1rem 0;
 }
-.line-preview {
-  color: #94a3b8;
-  font-size: 0.85rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.label-ref {
+  color: #c4b5fd;
 }
-.done-badge {
-  color: #22c55e;
-  font-weight: 800;
-  margin-left: auto;
-  font-size: 1rem;
+.label-take {
+  color: #86efac;
 }
-.mine-dot {
-  width: 6px;
-  height: 6px;
-  background: #a855f7;
-  border-radius: 50%;
-  margin-left: auto;
+.waveforms-stack {
+  position: relative;
+  width: 100%;
+}
+.waveform-container {
+  width: 100%;
+  padding-bottom: 0.25rem;
+}
+.waveform-recorded {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+.playhead-cursor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #ef4444;
+  box-shadow:
+    0 0 10px rgba(239, 68, 68, 0.8),
+    0 0 4px rgba(239, 68, 68, 1);
+  z-index: 10;
+  pointer-events: none;
 }
 </style>
