@@ -13,14 +13,14 @@ if (ffmpegPath) {
 async function downloadFile(url: string, dest: string) {
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Failed to download ${url}: ${res.statusText}`)
-  
+
   const arrayBuffer = await res.arrayBuffer()
   await fs.writeFile(dest, Buffer.from(arrayBuffer))
 }
 
 export async function processMixJob(data: MixJobData, scene: any): Promise<string> {
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), `doobleo-mix-${data.roomCode}-`))
-  
+
   try {
     const videoFile = path.join(tmpDir, 'video.mp4')
     const meFile = path.join(tmpDir, 'me.mp3')
@@ -28,10 +28,10 @@ export async function processMixJob(data: MixJobData, scene: any): Promise<strin
     const { extractKeyFromUrl } = await import('./s3')
 
     // 1. Download Video and ME track
-    const videoUrl = scene.videoUrl.includes('.r2.cloudflarestorage.com') 
+    const videoUrl = scene.videoUrl.includes('.r2.cloudflarestorage.com')
       ? await generateDownloadPresignedUrl(extractKeyFromUrl(scene.videoUrl))
       : scene.videoUrl
-    
+
     await downloadFile(videoUrl, videoFile)
 
     if (scene.audioMeUrl) {
@@ -57,10 +57,10 @@ export async function processMixJob(data: MixJobData, scene: any): Promise<strin
 
     // 3. Build FFmpeg command
     const outputFile = path.join(tmpDir, 'output.mp4')
-    
+
     await new Promise<void>((resolve, reject) => {
       const command = ffmpeg(videoFile)
-      
+
       let filterComplex = ''
       let amixInputs = ''
       let inputIndex = 1 // video is 0
@@ -104,12 +104,12 @@ export async function processMixJob(data: MixJobData, scene: any): Promise<strin
     // 4. Upload to S3
     const outputKey = `mixes/${data.roomCode}-${Date.now()}.mp4`
     const uploadUrl = await generateUploadPresignedUrl(outputKey, 'video/mp4')
-    
+
     const outputBuffer = await fs.readFile(outputFile)
     const uploadRes = await fetch(uploadUrl, {
       method: 'PUT',
       headers: { 'Content-Type': 'video/mp4' },
-      body: outputBuffer
+      body: outputBuffer,
     })
 
     if (!uploadRes.ok) {
@@ -117,7 +117,6 @@ export async function processMixJob(data: MixJobData, scene: any): Promise<strin
     }
 
     return await generateDownloadPresignedUrl(outputKey)
-
   } finally {
     // 5. Cleanup
     try {

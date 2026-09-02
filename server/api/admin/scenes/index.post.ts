@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
 
   const [scene] = await db.insert(scenes).values(body).returning()
-  
+
   // Lancer la séparation audio en arrière-plan
   await addAudioSeparationJob(scene.id, scene.videoUrl)
 

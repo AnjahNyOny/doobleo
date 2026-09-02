@@ -9,7 +9,13 @@ interface RoomState {
   code: string
   hostId: string
   sceneId: string
-  players: { userId: string; socketId: string; isReady: boolean; characterId?: string; chunks?: {key: string, startMs: number}[] }[]
+  players: {
+    userId: string
+    socketId: string
+    isReady: boolean
+    characterId?: string
+    chunks?: { key: string; startMs: number }[]
+  }[]
   status: 'waiting' | 'countdown' | 'playing' | 'review' | 'mixing' | 'finished'
   mixesReady: number
 }
@@ -84,7 +90,7 @@ export const initSocketManager = (io: SocketServer) => {
       if (state) {
         state.status = 'countdown'
         state.mixesReady = 0
-        state.players.forEach(p => {
+        state.players.forEach((p) => {
           p.chunks = []
           ;(p as any).hasUploaded = false
         })
@@ -108,7 +114,7 @@ export const initSocketManager = (io: SocketServer) => {
         const state = activeRooms.get(roomCode)
         if (!state) return
 
-        const player = state.players.find(p => p.userId === userId)
+        const player = state.players.find((p) => p.userId === userId)
         if (player && !(player as any).hasUploaded) {
           player.chunks = chunks
           ;(player as any).hasUploaded = true
@@ -125,7 +131,7 @@ export const initSocketManager = (io: SocketServer) => {
           const blobs = playersWithChars.map((p) => ({
             userId: p.userId,
             characterId: p.characterId!,
-            chunks: p.chunks || []
+            chunks: p.chunks || [],
           }))
 
           // Cast to any to bypass type error while we update queue.ts

@@ -18,10 +18,14 @@ export default defineEventHandler(async (event) => {
   // On renvoie aussi les infos de la scène
   const [scene] = await db.select().from(scenes).where(eq(scenes.id, room.sceneId!)).limit(1)
   const sceneCharacters = await db.select().from(characters).where(eq(characters.sceneId, scene.id))
-  
+
   // Importer lines from schema
   const { lines } = await import('../../db/schema/index')
-  const sceneLines = await db.select().from(lines).where(eq(lines.sceneId, scene.id)).orderBy(lines.order)
+  const sceneLines = await db
+    .select()
+    .from(lines)
+    .where(eq(lines.sceneId, scene.id))
+    .orderBy(lines.order)
 
   const { generateDownloadPresignedUrl, extractKeyFromUrl } = await import('../../utils/s3')
 

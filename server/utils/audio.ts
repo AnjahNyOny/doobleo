@@ -2,9 +2,17 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import os from 'node:os'
 import ffmpeg from 'fluent-ffmpeg'
-import { generateDownloadPresignedUrl, generateUploadPresignedUrl, getPublicUrl, extractKeyFromUrl } from './s3'
+import {
+  generateDownloadPresignedUrl,
+  generateUploadPresignedUrl,
+  getPublicUrl,
+  extractKeyFromUrl,
+} from './s3'
 
-export async function processKaraokeSeparation(videoUrl: string, sceneId: string): Promise<{ vocalsUrl: string, accompanimentUrl: string }> {
+export async function processKaraokeSeparation(
+  videoUrl: string,
+  sceneId: string
+): Promise<{ vocalsUrl: string; accompanimentUrl: string }> {
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), `doobleo-karaoke-${sceneId}-`))
 
   try {
@@ -18,7 +26,7 @@ export async function processKaraokeSeparation(videoUrl: string, sceneId: string
 
     const res = await fetch(downloadUrl)
     if (!res.ok) throw new Error(`Failed to download video: ${res.statusText}`)
-    
+
     const arrayBuffer = await res.arrayBuffer()
     await fs.writeFile(videoFile, Buffer.from(arrayBuffer))
 
@@ -41,12 +49,12 @@ export async function processKaraokeSeparation(videoUrl: string, sceneId: string
     // 3. Upload M&E track
     const meKey = `media/audio/${sceneId}_me_${Date.now()}.mp3`
     const uploadUrl = await generateUploadPresignedUrl(meKey, 'audio/mpeg')
-    
+
     const meBuffer = await fs.readFile(meFile)
     const uploadRes = await fetch(uploadUrl, {
       method: 'PUT',
       headers: { 'Content-Type': 'audio/mpeg' },
-      body: meBuffer
+      body: meBuffer,
     })
 
     if (!uploadRes.ok) {
@@ -55,10 +63,9 @@ export async function processKaraokeSeparation(videoUrl: string, sceneId: string
 
     // Vocals is just the original video since extracting pure vocals without AI is tough
     return {
-      vocalsUrl: videoUrl, 
-      accompanimentUrl: getPublicUrl(meKey)
+      vocalsUrl: videoUrl,
+      accompanimentUrl: getPublicUrl(meKey),
     }
-
   } finally {
     try {
       await fs.rm(tmpDir, { recursive: true, force: true })
@@ -73,7 +80,10 @@ export async function processKaraokeSeparation(videoUrl: string, sceneId: string
 const HF_SPACE = 'ahk-d/Spleeter-HT-Demucs-Stem-Separation-2025'
 const HF_SPACE_URL = `https://${HF_SPACE.replace('/', '-').toLowerCase()}.hf.space`
 
-export async function processHuggingFaceSeparation(videoUrl: string, sceneId: string): Promise<{ vocalsUrl: string, accompanimentUrl: string }> {
+export async function processHuggingFaceSeparation(
+  videoUrl: string,
+  sceneId: string
+): Promise<{ vocalsUrl: string; accompanimentUrl: string }> {
   const hfToken = process.env.HUGGINGFACE_TOKEN
   if (!hfToken) throw new Error('HUGGINGFACE_TOKEN is not set in .env')
 
@@ -110,7 +120,7 @@ export async function processHuggingFaceSeparation(videoUrl: string, sceneId: st
     const uploadRes = await fetch(`${HF_SPACE_URL}/gradio_api/upload`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${hfToken}`,
+        Authorization: `Bearer ${hfToken}`,
       },
       body: (() => {
         const formData = new FormData()
@@ -124,7 +134,7 @@ export async function processHuggingFaceSeparation(videoUrl: string, sceneId: st
       throw new Error(`HF upload failed (${uploadRes.status}): ${errText}`)
     }
 
-    const uploadedPaths = await uploadRes.json() as string[]
+    const uploadedPaths = (await uploadRes.json()) as string[]
     const uploadedPath = uploadedPaths[0]
     console.log(`[HF] Fichier uploadé: ${uploadedPath}`)
 
@@ -134,13 +144,19 @@ export async function processHuggingFaceSeparation(videoUrl: string, sceneId: st
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${hfToken}`,
+        Authorization: `Bearer ${hfToken}`,
       },
       body: JSON.stringify({
         data: [
-          { path: uploadedPath, orig_name: 'audio.wav', size: audioBuffer.length, mime_type: 'audio/wav', meta: { _type: 'gradio.FileData' } },
-          true,   // run_htdemucs
-          false,  // run_spleeter
+          {
+            path: uploadedPath,
+            orig_name: 'audio.wav',
+            size: audioBuffer.length,
+            mime_type: 'audio/wav',
+            meta: { _type: 'gradio.FileData' },
+          },
+          true, // run_htdemucs
+          false, // run_spleeter
         ],
       }),
     })
@@ -150,13 +166,16 @@ export async function processHuggingFaceSeparation(videoUrl: string, sceneId: st
       throw new Error(`HF submit failed (${submitRes.status}): ${errText}`)
     }
 
-    const { event_id } = await submitRes.json() as { event_id: string }
+    const { event_id } = (await submitRes.json()) as { event_id: string }
     console.log(`[HF] Job soumis, event_id: ${event_id}. Attente du résultat...`)
 
     // 4. Poll for results via SSE stream
-    const resultRes = await fetch(`${HF_SPACE_URL}/gradio_api/call/separate_selected_models/${event_id}`, {
-      headers: { 'Authorization': `Bearer ${hfToken}` },
-    })
+    const resultRes = await fetch(
+      `${HF_SPACE_URL}/gradio_api/call/separate_selected_models/${event_id}`,
+      {
+        headers: { Authorization: `Bearer ${hfToken}` },
+      }
+    )
 
     if (!resultRes.ok) {
       throw new Error(`HF result fetch failed (${resultRes.status})`)
@@ -174,7 +193,9 @@ export async function processHuggingFaceSeparation(videoUrl: string, sceneId: st
           if (Array.isArray(parsed)) {
             resultData = parsed
           }
-        } catch { /* skip non-JSON lines */ }
+        } catch {
+          /* skip non-JSON lines */
+        }
       }
     }
 
@@ -183,10 +204,18 @@ export async function processHuggingFaceSeparation(videoUrl: string, sceneId: st
     }
 
     // Output: [0]=Drums, [1]=Bass, [2]=Other, [3]=Vocals
-    const drumsFileUrl = resultData[0]?.url ? resultData[0].url : `${HF_SPACE_URL}/gradio_api/file=${resultData[0]?.path}`
-    const bassFileUrl = resultData[1]?.url ? resultData[1].url : `${HF_SPACE_URL}/gradio_api/file=${resultData[1]?.path}`
-    const otherFileUrl = resultData[2]?.url ? resultData[2].url : `${HF_SPACE_URL}/gradio_api/file=${resultData[2]?.path}`
-    const vocalsFileUrl = resultData[3]?.url ? resultData[3].url : `${HF_SPACE_URL}/gradio_api/file=${resultData[3]?.path}`
+    const drumsFileUrl = resultData[0]?.url
+      ? resultData[0].url
+      : `${HF_SPACE_URL}/gradio_api/file=${resultData[0]?.path}`
+    const bassFileUrl = resultData[1]?.url
+      ? resultData[1].url
+      : `${HF_SPACE_URL}/gradio_api/file=${resultData[1]?.path}`
+    const otherFileUrl = resultData[2]?.url
+      ? resultData[2].url
+      : `${HF_SPACE_URL}/gradio_api/file=${resultData[2]?.path}`
+    const vocalsFileUrl = resultData[3]?.url
+      ? resultData[3].url
+      : `${HF_SPACE_URL}/gradio_api/file=${resultData[3]?.path}`
 
     if (!drumsFileUrl || !bassFileUrl || !otherFileUrl) {
       throw new Error('Missing stem URLs from Hugging Face output.')
@@ -197,7 +226,7 @@ export async function processHuggingFaceSeparation(videoUrl: string, sceneId: st
     // 5. Download the 3 non-vocal stems locally
     const stemFiles: string[] = []
     for (const [i, url] of [drumsFileUrl, bassFileUrl, otherFileUrl].entries()) {
-      const stemRes = await fetch(url, { headers: { 'Authorization': `Bearer ${hfToken}` } })
+      const stemRes = await fetch(url, { headers: { Authorization: `Bearer ${hfToken}` } })
       if (!stemRes.ok) throw new Error(`Failed to download stem ${i}: ${stemRes.statusText}`)
       const stemPath = path.join(tmpDir, `stem_${i}.wav`)
       await fs.writeFile(stemPath, Buffer.from(await stemRes.arrayBuffer()))

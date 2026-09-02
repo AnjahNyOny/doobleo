@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 500,
       message:
-        'Le stockage S3/R2 n\'est pas encore configuré dans le fichier .env (S3_ACCESS_KEY_ID = CHANGE_ME).',
+        "Le stockage S3/R2 n'est pas encore configuré dans le fichier .env (S3_ACCESS_KEY_ID = CHANGE_ME).",
     })
   }
 
