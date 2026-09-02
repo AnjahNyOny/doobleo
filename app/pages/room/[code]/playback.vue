@@ -26,6 +26,11 @@ onMounted(() => {
     finalVideoUrl.value = url
     isMixing.value = false
   })
+
+  socket.on('mix_error', ({ message }: { message: string }) => {
+    errorMsg.value = message
+    isMixing.value = false
+  })
 })
 
 onUnmounted(() => {

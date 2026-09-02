@@ -1,7 +1,6 @@
 <script setup lang="ts">
 definePageMeta({
-  title: 'Connexion — Doobleo',
-  layout: 'auth',
+  middleware: 'guest',
 })
 
 const { login } = useAuth()

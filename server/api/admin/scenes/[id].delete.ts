@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm'
-import { requireAdmin } from '../../../../utils/guards'
-import { useDb } from '../../../../utils/db'
-import { scenes, rooms } from '../../../../db/schema/index'
-import { deleteS3Object, extractKeyFromUrl } from '../../../../utils/s3'
+import { requireAdmin } from '../../../utils/guards'
+import { useDb } from '../../../utils/db'
+import { scenes, rooms } from '../../../db/schema/index'
+import { deleteS3Object, extractKeyFromUrl } from '../../../utils/s3'
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)

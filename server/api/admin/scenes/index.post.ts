@@ -2,13 +2,13 @@ import { z } from 'zod'
 import { requireAdmin } from '../../../utils/guards'
 import { useDb } from '../../../utils/db'
 import { scenes } from '../../../db/schema/index'
+import { addAudioSeparationJob } from '../../../services/queue'
 
 const createSceneSchema = z.object({
   title: z.string().min(1).max(100),
   description: z.string().optional(),
   thumbnailUrl: z.string().url().optional(),
   videoUrl: z.string().url('URL vidéo invalide'),
-  audioMeUrl: z.string().url('URL audio M&E invalide'),
   durationMs: z.number().int().positive(),
 })
 
@@ -18,5 +18,9 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
 
   const [scene] = await db.insert(scenes).values(body).returning()
+  
+  // Lancer la séparation audio en arrière-plan
+  await addAudioSeparationJob(scene.id, scene.videoUrl)
+
   return scene
 })

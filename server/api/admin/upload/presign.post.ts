@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { requireAdmin } from '../../utils/guards'
-import { generateUploadPresignedUrl, generateMediaKey } from '../../utils/s3'
+import { requireAdmin } from '../../../utils/guards'
+import { generateUploadPresignedUrl, generateMediaKey } from '../../../utils/s3'
 
 const presignSchema = z.object({
   filename: z.string().min(1).max(255),
@@ -18,6 +18,15 @@ const presignSchema = z.object({
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
+
+  const config = useRuntimeConfig()
+  if (!config.s3AccessKeyId || config.s3AccessKeyId === 'CHANGE_ME') {
+    throw createError({
+      statusCode: 500,
+      message:
+        'Le stockage S3/R2 n\'est pas encore configuré dans le fichier .env (S3_ACCESS_KEY_ID = CHANGE_ME).',
+    })
+  }
 
   const body = await readValidatedBody(event, presignSchema.parse)
 

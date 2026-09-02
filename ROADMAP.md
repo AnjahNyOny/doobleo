@@ -205,31 +205,31 @@ recordings    → id, room_id, user_id, character_id, audio_url, duration_ms, cr
 
 > **Objectif :** Assembler l'interface publique avec Nuxt et Pinia.
 
-- [ ] **Design System** : Définir les composants de base (Button, Card, Badge, Modal, Toast)
-- [ ] **Lobby (`/`)** :
+- [x] **Design System** : Définir les composants de base (Button, Card, Badge, Modal, Toast)
+- [x] **Lobby (`/`)** :
   - Créer un salon (host) → génère un code à 6 caractères
   - Rejoindre un salon (player) → saisir le code
   - **Mode avec compte** : afficher l'avatar et le username persistant
   - **Mode invité** : saisir un pseudo temporaire (stocké en session locale, sans inscription)
-- [ ] **Salle d'attente (`/room/[code]`)** :
+- [x] **Salle d'attente (`/room/[code]`)** :
   - Liste des joueurs connectés en temps réel (via Socket.io)
   - Sélection de la scène (host uniquement)
   - Choix du personnage avec visualisation des personnages pris/libres
   - Bouton "Je suis prêt" par joueur
   - Bouton "Lancer" pour le host (désactivé si tous ne sont pas prêts)
-- [ ] **Studio d'enregistrement (`/room/[code]/studio`)** :
+- [x] **Studio d'enregistrement (`/room/[code]/studio`)** :
   - Lecteur vidéo muette en plein écran
   - Prompteur défilant synchronisé avec les timecodes JSON
   - Mise en surbrillance de la réplique active
   - Indicateur d'enregistrement (micro actif, VU-mètre)
   - Countdown visuel avant le lancement
-- [ ] **Écran de rendu final (`/room/[code]/playback`)** :
+- [x] **Écran de rendu final (`/room/[code]/playback`)** :
   - Lecteur vidéo avec mixage audio en temps réel
   - Indicateur de chargement pendant le traitement FFmpeg (Option B) ou l'assemblage navigateur (Option A)
   - **Bouton de téléchargement** : URL signée temporaire vers le MP4 final (valide ~30 min)
   - **Bannière d'avertissement** : "Ce fichier sera supprimé dans X minutes. Téléchargez-le maintenant."
   - Suppression automatique des fichiers côté serveur après expiration
-- [ ] **Gestion des états d'erreur** :
+- [x] **Gestion des états d'erreur** :
   - Salon inexistant ou expiré
   - Micro refusé par l'utilisateur
   - Déconnexion en cours de partie

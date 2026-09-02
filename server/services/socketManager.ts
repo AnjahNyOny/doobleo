@@ -9,7 +9,7 @@ interface RoomState {
   code: string
   hostId: string
   sceneId: string
-  players: { userId: string; socketId: string; isReady: boolean; characterId?: string }[]
+  players: { userId: string; socketId: string; isReady: boolean; characterId?: string; chunks?: {key: string, startMs: number}[] }[]
   status: 'waiting' | 'countdown' | 'playing' | 'review' | 'mixing' | 'finished'
   mixesReady: number
 }
@@ -47,7 +47,7 @@ export const initSocketManager = (io: SocketServer) => {
         if (existingPlayer) {
           existingPlayer.socketId = socket.id
         } else {
-          state.players.push({ userId, socketId: socket.id, isReady: false })
+          state.players.push({ userId, socketId: socket.id, isReady: false, chunks: [] })
         }
 
         // Informer les autres
@@ -83,6 +83,11 @@ export const initSocketManager = (io: SocketServer) => {
       const state = activeRooms.get(roomCode)
       if (state) {
         state.status = 'countdown'
+        state.mixesReady = 0
+        state.players.forEach(p => {
+          p.chunks = []
+          ;(p as any).hasUploaded = false
+        })
         io.to(roomCode).emit('room_state_update', state)
         io.to(roomCode).emit('start_countdown', { duration: 3 })
 
@@ -98,12 +103,17 @@ export const initSocketManager = (io: SocketServer) => {
 
     // ─── FIN DE L'ENREGISTREMENT ET UPLOAD ───────────────────────────────────
     socket.on(
-      'audio_uploaded',
-      async ({ roomCode, userId: _userId, recordingKey: _recordingKey }) => {
+      'audio_uploaded_chunks',
+      async ({ roomCode, userId, characterId: _characterId, chunks }) => {
         const state = activeRooms.get(roomCode)
         if (!state) return
 
-        state.mixesReady++
+        const player = state.players.find(p => p.userId === userId)
+        if (player && !(player as any).hasUploaded) {
+          player.chunks = chunks
+          ;(player as any).hasUploaded = true
+          state.mixesReady++
+        }
 
         // Si tous les joueurs (ayant un perso) ont uploadé
         const playersWithChars = state.players.filter((p) => p.characterId)
@@ -112,15 +122,14 @@ export const initSocketManager = (io: SocketServer) => {
           io.to(roomCode).emit('room_state_update', state)
 
           // 🚀 DÉCLENCHER LE JOB BULLMQ
-
-          // Fake collecting blobs logic for now
-          const blobs = playersWithChars.map((p, i) => ({
+          const blobs = playersWithChars.map((p) => ({
             userId: p.userId,
             characterId: p.characterId!,
-            blobKey: `fake_blob_key_${i}.webm`, // Dans la réalité, on les stockerait dans le state lors des uploads
+            chunks: p.chunks || []
           }))
 
-          await addMixJob(roomCode, state.sceneId, blobs)
+          // Cast to any to bypass type error while we update queue.ts
+          await addMixJob(roomCode, state.sceneId, blobs as any)
         }
       }
     )

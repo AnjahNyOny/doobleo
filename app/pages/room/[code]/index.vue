@@ -7,8 +7,8 @@ const route = useRoute()
 const router = useRouter()
 const code = route.params.code as string
 
-const { loggedIn, user } = useAuth()
-const { connect, disconnect } = useSocket()
+const { loggedIn, user } = useUserSession()
+const { connect } = useSocket()
 
 // ─── ETAT DU JOUEUR ────────────────────────────────────────────────────────
 const userId = ref('')
@@ -72,17 +72,23 @@ onMounted(() => {
 
   socket.on('start_countdown', ({ duration }: { duration: number }) => {
     countdown.value = duration
+    // Clear any existing interval
+    if ((window as any).__countdownInterval) {
+      clearInterval((window as any).__countdownInterval)
+    }
     const interval = setInterval(() => {
       countdown.value! -= 1
       if (countdown.value! <= 0) {
         clearInterval(interval)
+        countdown.value = null
       }
     }, 1000)
+    ;(window as any).__countdownInterval = interval
   })
 })
 
 onUnmounted(() => {
-  disconnect()
+  // Ne pas déconnecter ici, on navigue vers studio.vue
 })
 
 // ─── ACTIONS ───────────────────────────────────────────────────────────────

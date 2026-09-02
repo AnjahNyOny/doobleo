@@ -4,13 +4,18 @@ import { ref, onMounted } from 'vue'
 definePageMeta({ title: 'Doobleo — Doublez vos films entre amis' })
 
 const router = useRouter()
-const { loggedIn, user } = useAuth()
+const { loggedIn, user } = useUserSession()
 
 // ─── ETAT INVITE ─────────────────────────────────────────────────────────────
 const guestName = ref('')
 const guestId = ref('')
 
-onMounted(() => {
+const { disconnect } = useSocket()
+const availableScenes = ref<{id: string; title: string}[]>([])
+const selectedSceneId = ref('')
+
+onMounted(async () => {
+  disconnect() // S'assurer de nettoyer la socket en revenant à l'accueil
   if (!loggedIn.value) {
     const savedName = sessionStorage.getItem('guestName')
     const savedId = sessionStorage.getItem('guestId')
@@ -25,6 +30,17 @@ onMounted(() => {
       sessionStorage.setItem('guestId', newId)
       guestId.value = newId
     }
+  }
+
+  // Charger les scènes disponibles
+  try {
+    const scenes = await $fetch('/api/scenes')
+    if (scenes && scenes.length > 0) {
+      availableScenes.value = scenes
+      selectedSceneId.value = scenes[0].id
+    }
+  } catch(e) {
+    console.error("Erreur chargement des scènes", e)
   }
 })
 
@@ -60,18 +76,13 @@ const createRoom = async () => {
 
   loadingCreate.value = true
   try {
-    // Il faut une scène par défaut. Pour le PoC, on va chercher la première scène publiée
-    const { data: scenes } = await useFetch('/api/admin/scenes')
-    const publishedScenes = scenes.value?.filter((s) => s.isPublished) || []
-
-    if (publishedScenes.length === 0) {
-      errorMsg.value = "Aucune scène n'est disponible pour l'instant."
+    if (!selectedSceneId.value) {
+      errorMsg.value = "Aucune scène n'est sélectionnée."
       loadingCreate.value = false
       return
     }
 
-    // Créer la room (par défaut on prend la première scène, le host pourra changer)
-    const sceneId = publishedScenes[0].id
+    const sceneId = selectedSceneId.value
 
     const res = await $fetch('/api/rooms', {
       method: 'POST',
@@ -163,10 +174,18 @@ const joinRoom = () => {
 
         <div class="action-box">
           <h3 class="box-title">Créer une partie</h3>
-          <p class="box-desc">Invitez jusqu'à 5 amis.</p>
-          <button class="btn-secondary w-full" :disabled="loadingCreate" @click="createRoom">
-            {{ loadingCreate ? 'Création...' : 'Héberger un salon' }}
-          </button>
+          <p class="box-desc">Choisissez une scène à doubler.</p>
+          <div class="create-form">
+            <select v-model="selectedSceneId" class="input-field w-full mb-3">
+              <option disabled value="">— Sélectionner une scène —</option>
+              <option v-for="scene in availableScenes" :key="scene.id" :value="scene.id">
+                {{ scene.title }}
+              </option>
+            </select>
+            <button class="btn-secondary w-full" :disabled="loadingCreate || !selectedSceneId" @click="createRoom">
+              {{ loadingCreate ? 'Création...' : 'Héberger un salon' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>

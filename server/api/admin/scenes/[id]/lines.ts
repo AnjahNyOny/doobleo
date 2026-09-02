@@ -1,8 +1,8 @@
 import { eq, and } from 'drizzle-orm'
 import { z } from 'zod'
-import { requireAdmin } from '../../../../../utils/guards'
-import { useDb } from '../../../../../utils/db'
-import { lines, characters } from '../../../../../db/schema/index'
+import { requireAdmin } from '../../../../utils/guards'
+import { useDb } from '../../../../utils/db'
+import { lines, characters } from '../../../../db/schema/index'
 
 const lineSchema = z.object({
   characterId: z.string().uuid(),

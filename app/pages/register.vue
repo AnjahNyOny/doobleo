@@ -1,7 +1,6 @@
 <script setup lang="ts">
 definePageMeta({
-  title: 'Inscription — Doobleo',
-  layout: 'auth',
+  middleware: 'guest',
 })
 
 const { register } = useAuth()

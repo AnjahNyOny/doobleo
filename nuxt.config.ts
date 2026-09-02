@@ -46,6 +46,10 @@ export default defineNuxtConfig({
     // '@nuxtjs/tailwindcss',   // Phase 6
   ],
 
+  imports: {
+    dirs: ['composables/**'],
+  },
+
   // ─── Config session (nuxt-auth-utils) ─────────────────────────────────────────
   auth: {
     session: {

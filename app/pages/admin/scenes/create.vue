@@ -69,7 +69,7 @@ const onVideoChange = async (e: Event) => {
   await uploadFile(file, 'video', 'video/mp4')
 }
 
-const onAudioChange = async (e: Event) => {
+const _onAudioChange = async (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (!file) return
   await uploadFile(file, 'audio', file.type as 'audio/mpeg' | 'audio/wav')
@@ -89,10 +89,6 @@ const handleCreate = async () => {
     error.value = 'Veuillez uploader une vidéo.'
     return
   }
-  if (!uploadState.audio.url) {
-    error.value = 'Veuillez uploader une piste audio M&E.'
-    return
-  }
 
   loading.value = true
   try {
@@ -102,7 +98,6 @@ const handleCreate = async () => {
         title: form.title,
         description: form.description || undefined,
         videoUrl: uploadState.video.url,
-        audioMeUrl: uploadState.audio.url,
         thumbnailUrl: uploadState.thumbnail.url || undefined,
         durationMs: form.durationMs,
       },
@@ -179,30 +174,7 @@ const handleCreate = async () => {
         </div>
       </div>
 
-      <!-- Upload audio M&E -->
-      <div class="card">
-        <h2 class="card-title">Piste Audio M&E *</h2>
-        <p class="card-hint">Musique et effets sonores sans dialogue</p>
-        <div class="upload-zone" :class="{ uploaded: uploadState.audio.url }">
-          <input
-            id="audio-input"
-            type="file"
-            accept="audio/mpeg,audio/wav,audio/ogg"
-            :disabled="uploadState.audio.uploading"
-            @change="onAudioChange"
-          />
-          <label for="audio-input" class="upload-label">
-            <span v-if="uploadState.audio.url">✅ Audio uploadé</span>
-            <span v-else-if="uploadState.audio.uploading"
-              >Upload... {{ uploadState.audio.progress }}%</span
-            >
-            <span v-else>🎵 Choisir une piste M&E (MP3, WAV)</span>
-          </label>
-          <div v-if="uploadState.audio.uploading" class="progress-bar">
-            <div class="progress-fill" :style="{ width: `${uploadState.audio.progress}%` }" />
-          </div>
-        </div>
-      </div>
+
 
       <!-- Miniature -->
       <div class="card">
@@ -235,9 +207,9 @@ const handleCreate = async () => {
         <button
           type="submit"
           class="btn-primary"
-          :disabled="loading || uploadState.video.uploading || uploadState.audio.uploading"
+          :disabled="loading || uploadState.video.uploading || uploadState.thumbnail.uploading"
         >
-          {{ loading ? 'Création...' : 'Créer la scène' }}
+          {{ loading ? 'Création...' : 'Créer la scène (Séparation Audio par IA)' }}
         </button>
       </div>
     </form>

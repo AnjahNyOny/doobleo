@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { requireAdmin } from '../../../../utils/guards'
-import { useDb } from '../../../../utils/db'
-import { scenes } from '../../../../db/schema/index'
+import { requireAdmin } from '../../../utils/guards'
+import { useDb } from '../../../utils/db'
+import { scenes } from '../../../db/schema/index'
 
 const updateSceneSchema = z.object({
   title: z.string().min(1).max(100).optional(),

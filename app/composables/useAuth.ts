@@ -24,8 +24,8 @@ export const useAuth = () => {
   // ─── Déconnexion ───────────────────────────────────────────────────────────
 
   const logout = async () => {
-    await $fetch('/api/auth/logout', { method: 'POST' })
-    await refreshSession()
+    const { clear } = useUserSession()
+    await clear()
     await router.push('/login')
   }
 

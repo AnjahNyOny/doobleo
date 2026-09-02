@@ -92,7 +92,7 @@ const deleteCharacter = async (charId: string, name: string) => {
 // ─── Éditeur de répliques (timecodes) ─────────────────────────────────────────
 
 const videoRef = ref<HTMLVideoElement | null>(null)
-const currentTimeMs = computed(() => Math.round((videoRef.value?.currentTime ?? 0) * 1000))
+const currentSecMs = ref(0)
 const isPlaying = ref(false)
 
 const newLine = reactive({ characterId: '', text: '', startMs: 0, endMs: 0 })
@@ -100,10 +100,16 @@ const addingLine = ref(false)
 const lineError = ref('')
 
 const markStart = () => {
-  newLine.startMs = currentTimeMs.value
+  if (videoRef.value) {
+    currentSecMs.value = Math.round(videoRef.value.currentTime * 1000)
+  }
+  newLine.startMs = currentSecMs.value
 }
 const markEnd = () => {
-  newLine.endMs = currentTimeMs.value
+  if (videoRef.value) {
+    currentSecMs.value = Math.round(videoRef.value.currentTime * 1000)
+  }
+  newLine.endMs = currentSecMs.value
 }
 
 const formatMs = (ms: number) => {
@@ -187,13 +193,16 @@ const charName = (charId: string) =>
 // Ligne active pendant la lecture
 const activeLine = computed(() =>
   ((scene.value?.lines as Line[]) ?? []).find(
-    (l) => currentTimeMs.value >= l.startMs && currentTimeMs.value <= l.endMs
+    (l) => currentSecMs.value >= l.startMs && currentSecMs.value <= l.endMs
   )
 )
 
-// Sync isPlaying
+// Sync isPlaying et timecode réactif
 const onTimeUpdate = () => {
-  if (videoRef.value) isPlaying.value = !videoRef.value.paused
+  if (videoRef.value) {
+    isPlaying.value = !videoRef.value.paused
+    currentSecMs.value = Math.round(videoRef.value.currentTime * 1000)
+  }
 }
 </script>
 

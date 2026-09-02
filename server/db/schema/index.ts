@@ -34,8 +34,9 @@ export const scenes = pgTable('scenes', {
   title: varchar('title', { length: 100 }).notNull(),
   description: text('description'),
   thumbnailUrl: text('thumbnail_url'),
-  videoUrl: text('video_url').notNull(), // URL R2/S3 (vidéo muette)
-  audioMeUrl: text('audio_me_url').notNull(), // URL R2/S3 (piste M&E)
+  videoUrl: text('video_url').notNull(), // URL R2/S3
+  audioMeUrl: text('audio_me_url'), // URL R2/S3 (piste M&E) - généré par IA
+  audioVocalsUrl: text('audio_vocals_url'), // URL R2/S3 (voix originales de référence) - généré par IA
   durationMs: integer('duration_ms').notNull(),
   isPublished: boolean('is_published').notNull().default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),

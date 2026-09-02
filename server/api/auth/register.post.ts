@@ -29,14 +29,18 @@ export default defineEventHandler(async (event) => {
   // 4. Hacher le mot de passe
   const passwordHash = await hash(body.password, 12)
 
-  // 5. Créer l'utilisateur
+  // 5. Rôle : Le premier utilisateur inscrit devient automatiquement 'admin'
+  const allUsers = await db.select({ id: users.id }).from(users).limit(1)
+  const role = allUsers.length === 0 ? 'admin' : 'player'
+
+  // 6. Créer l'utilisateur
   const [newUser] = await db
     .insert(users)
     .values({
       username: body.username,
       email: body.email,
       passwordHash,
-      role: 'player',
+      role,
     })
     .returning({
       id: users.id,
