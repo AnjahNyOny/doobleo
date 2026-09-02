@@ -79,12 +79,25 @@ export function getPublicUrl(key: string): string {
 
 export function extractKeyFromUrl(url: string): string {
   const config = useRuntimeConfig()
-  let key = url.replace(`${config.s3PublicUrl}/`, '')
-  const queryIndex = key.indexOf('?')
-  if (queryIndex !== -1) {
-    key = key.substring(0, queryIndex)
+  try {
+    const parsed = new URL(url)
+    let key = parsed.pathname
+    const bucketPrefix = `/${config.s3BucketName}/`
+    if (key.startsWith(bucketPrefix)) {
+      key = key.substring(bucketPrefix.length)
+    } else if (key.startsWith('/')) {
+      key = key.substring(1)
+    }
+    return key
+  } catch {
+    // Fallback in case of malformed URL
+    let key = url.replace(`${config.s3PublicUrl}/`, '')
+    const queryIndex = key.indexOf('?')
+    if (queryIndex !== -1) {
+      key = key.substring(0, queryIndex)
+    }
+    return key
   }
-  return key
 }
 
 // ─── Générer une clé unique pour un média ────────────────────────────────────
