@@ -55,9 +55,13 @@ export async function processKaraokeSeparation(
     const uploadUrl = await generateUploadPresignedUrl(meKey, 'audio/mpeg')
 
     const meBuffer = createReadStream(meFile)
+    const stat = await fs.stat(meFile)
     const uploadRes = await fetch(uploadUrl, {
       method: 'PUT',
-      headers: { 'Content-Type': 'audio/mpeg' },
+      headers: {
+        'Content-Type': 'audio/mpeg',
+        'Content-Length': stat.size.toString(),
+      },
       body: meBuffer as any,
       duplex: 'half',
     } as any)

@@ -111,9 +111,13 @@ export async function processMixJob(data: MixJobData, scene: any): Promise<strin
     const uploadUrl = await generateUploadPresignedUrl(outputKey, 'video/mp4')
 
     const fileStream = createReadStream(outputFile)
+    const stat = await fs.stat(outputFile)
     const uploadRes = await fetch(uploadUrl, {
       method: 'PUT',
-      headers: { 'Content-Type': 'video/mp4' },
+      headers: {
+        'Content-Type': 'video/mp4',
+        'Content-Length': stat.size.toString(),
+      },
       body: fileStream as any, // Node.js stream
       duplex: 'half', // Requis par Node fetch pour streamer un body
     } as any)

@@ -35,10 +35,12 @@ export default defineNitroPlugin(() => {
         if (global.__io) {
           global.__io.to(data.roomCode).emit('mix_ready', { url: finalUrl })
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Mix job failed:', err)
         if (global.__io) {
-          global.__io.to(data.roomCode).emit('mix_error', { message: 'Erreur lors du mixage.' })
+          global.__io
+            .to(data.roomCode)
+            .emit('mix_error', { message: `Erreur lors du mixage: ${err.message || err}` })
         }
         throw err
       }
