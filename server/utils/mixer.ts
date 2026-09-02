@@ -1,4 +1,7 @@
 import fs from 'node:fs/promises'
+import { createWriteStream, createReadStream } from 'node:fs'
+import { pipeline } from 'node:stream/promises'
+import { Readable } from 'node:stream'
 import path from 'node:path'
 import os from 'node:os'
 import ffmpeg from 'fluent-ffmpeg'
@@ -13,9 +16,11 @@ if (ffmpegPath) {
 async function downloadFile(url: string, dest: string) {
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Failed to download ${url}: ${res.statusText}`)
+  if (!res.body) throw new Error('No body to download')
 
-  const arrayBuffer = await res.arrayBuffer()
-  await fs.writeFile(dest, Buffer.from(arrayBuffer))
+  const fileStream = createWriteStream(dest)
+  // Convertit le Web Stream en Node Stream et écrit sur le disque sans saturer la RAM
+  await pipeline(Readable.fromWeb(res.body as any), fileStream)
 }
 
 export async function processMixJob(data: MixJobData, scene: any): Promise<string> {
@@ -101,16 +106,17 @@ export async function processMixJob(data: MixJobData, scene: any): Promise<strin
         .run()
     })
 
-    // 4. Upload to S3
+    // 4. Upload to S3 (Streaming to avoid RAM OOM)
     const outputKey = `mixes/${data.roomCode}-${Date.now()}.mp4`
     const uploadUrl = await generateUploadPresignedUrl(outputKey, 'video/mp4')
 
-    const outputBuffer = await fs.readFile(outputFile)
+    const fileStream = createReadStream(outputFile)
     const uploadRes = await fetch(uploadUrl, {
       method: 'PUT',
       headers: { 'Content-Type': 'video/mp4' },
-      body: outputBuffer,
-    })
+      body: fileStream as any, // Node.js stream
+      duplex: 'half', // Requis par Node fetch pour streamer un body
+    } as any)
 
     if (!uploadRes.ok) {
       throw new Error(`Upload failed: ${uploadRes.statusText}`)

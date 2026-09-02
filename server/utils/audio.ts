@@ -1,4 +1,7 @@
 import fs from 'node:fs/promises'
+import { createWriteStream, createReadStream, openAsBlob } from 'node:fs'
+import { pipeline } from 'node:stream/promises'
+import { Readable } from 'node:stream'
 import path from 'node:path'
 import os from 'node:os'
 import ffmpeg from 'fluent-ffmpeg'
@@ -26,9 +29,10 @@ export async function processKaraokeSeparation(
 
     const res = await fetch(downloadUrl)
     if (!res.ok) throw new Error(`Failed to download video: ${res.statusText}`)
+    if (!res.body) throw new Error('No body to download')
 
-    const arrayBuffer = await res.arrayBuffer()
-    await fs.writeFile(videoFile, Buffer.from(arrayBuffer))
+    const fileStream = createWriteStream(videoFile)
+    await pipeline(Readable.fromWeb(res.body as any), fileStream)
 
     // 2. Process Karaoke (Remove center channel to keep only side channels for M&E)
     await new Promise<void>((resolve, reject) => {
@@ -50,12 +54,13 @@ export async function processKaraokeSeparation(
     const meKey = `media/audio/${sceneId}_me_${Date.now()}.mp3`
     const uploadUrl = await generateUploadPresignedUrl(meKey, 'audio/mpeg')
 
-    const meBuffer = await fs.readFile(meFile)
+    const meBuffer = createReadStream(meFile)
     const uploadRes = await fetch(uploadUrl, {
       method: 'PUT',
       headers: { 'Content-Type': 'audio/mpeg' },
-      body: meBuffer,
-    })
+      body: meBuffer as any,
+      duplex: 'half',
+    } as any)
 
     if (!uploadRes.ok) {
       throw new Error(`Upload failed: ${uploadRes.statusText}`)
@@ -116,7 +121,9 @@ export async function processHuggingFaceSeparation(
 
     // 2. Upload audio file to the HF Space
     console.log(`[HF] Upload du fichier audio vers le Space Hugging Face...`)
-    const audioBuffer = await fs.readFile(audioFile)
+
+    const fileBlob = await openAsBlob(audioFile)
+
     const uploadRes = await fetch(`${HF_SPACE_URL}/gradio_api/upload`, {
       method: 'POST',
       headers: {
@@ -124,7 +131,7 @@ export async function processHuggingFaceSeparation(
       },
       body: (() => {
         const formData = new FormData()
-        formData.append('files', new Blob([audioBuffer], { type: 'audio/wav' }), 'audio.wav')
+        formData.append('files', fileBlob, 'audio.wav')
         return formData
       })(),
     })
@@ -151,7 +158,7 @@ export async function processHuggingFaceSeparation(
           {
             path: uploadedPath,
             orig_name: 'audio.wav',
-            size: audioBuffer.length,
+            size: fileBlob.size,
             mime_type: 'audio/wav',
             meta: { _type: 'gradio.FileData' },
           },
