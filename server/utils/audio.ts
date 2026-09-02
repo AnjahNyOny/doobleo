@@ -217,17 +217,17 @@ export async function processHuggingFaceSeparation(
       throw new Error(`Unexpected HF output. SSE response:\n${sseText.slice(0, 500)}`)
     }
 
-    // Output from API: [0]=Vocals, [1]=Drums, [2]=Bass, [3]=Other
-    const vocalsFileUrl = resultData[0]?.url
+    // Output: [0]=Drums, [1]=Bass, [2]=Other, [3]=Vocals
+    const drumsFileUrl = resultData[0]?.url
       ? resultData[0].url
       : `${HF_SPACE_URL}/gradio_api/file=${resultData[0]?.path}`
-    const drumsFileUrl = resultData[1]?.url
+    const bassFileUrl = resultData[1]?.url
       ? resultData[1].url
       : `${HF_SPACE_URL}/gradio_api/file=${resultData[1]?.path}`
-    const bassFileUrl = resultData[2]?.url
+    const otherFileUrl = resultData[2]?.url
       ? resultData[2].url
       : `${HF_SPACE_URL}/gradio_api/file=${resultData[2]?.path}`
-    const otherFileUrl = resultData[3]?.url
+    const vocalsFileUrl = resultData[3]?.url
       ? resultData[3].url
       : `${HF_SPACE_URL}/gradio_api/file=${resultData[3]?.path}`
 
