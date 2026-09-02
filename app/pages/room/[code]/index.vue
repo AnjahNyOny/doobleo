@@ -276,9 +276,16 @@ const isMyChar = (charId: string) => {
 
 .header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
+  gap: 1rem;
   margin-bottom: 2rem;
+}
+@media (min-width: 768px) {
+  .header {
+    flex-direction: row;
+    justify-content: space-between;
+  }
 }
 
 .header-actions {
@@ -309,10 +316,15 @@ const isMyChar = (charId: string) => {
 
 .layout-grid {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 1fr;
   gap: 2rem;
   flex: 1;
   transition: filter 0.3s;
+}
+@media (min-width: 900px) {
+  .layout-grid {
+    grid-template-columns: 320px 1fr;
+  }
 }
 .blur-bg {
   filter: blur(8px) brightness(0.6);
@@ -428,10 +440,26 @@ const isMyChar = (charId: string) => {
   color: var(--text-muted);
   margin-bottom: 1.5rem;
 }
+.scenes-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 600px) {
+  .scenes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
 .characters-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: 1fr;
   gap: 1rem;
+}
+@media (min-width: 600px) {
+  .characters-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
 }
 
 .character-card {

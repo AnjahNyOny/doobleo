@@ -82,7 +82,7 @@ export async function processMixJob(data: MixJobData, scene: any): Promise<strin
 
       for (const chunk of chunkFiles) {
         command.input(chunk.file)
-        filterComplex += `[${inputIndex}:a]adelay=${chunk.startMs}:all=1,apad[a${inputIndex}];`
+        filterComplex += `[${inputIndex}:a]volume=1.5,adelay=${chunk.startMs}:all=1,apad[a${inputIndex}];`
         amixInputs += `[a${inputIndex}]`
         inputIndex++
       }

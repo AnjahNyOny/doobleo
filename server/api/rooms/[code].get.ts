@@ -27,6 +27,9 @@ export default defineEventHandler(async (event) => {
 
   // On renvoie aussi les infos de la scène
   const [scene] = await db.select().from(scenes).where(eq(scenes.id, room.sceneId)).limit(1)
+  if (!scene) {
+    throw createError({ statusCode: 404, message: 'Scène introuvable.' })
+  }
   const sceneCharacters = await db.select().from(characters).where(eq(characters.sceneId, scene.id))
 
   // Importer lines from schema

@@ -141,15 +141,19 @@ const downloadVideo = () => {
   animation: fadeInUp 0.8s ease-out;
 }
 
-.main-card {
-  padding: 2.5rem;
-}
+/* .main-card styling relies on global .glass-card responsive padding */
 
 .title {
   text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
   color: white;
+}
+@media (min-width: 768px) {
+  .title {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+  }
 }
 
 .video-wrapper {

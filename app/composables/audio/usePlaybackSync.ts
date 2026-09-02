@@ -25,11 +25,13 @@ export const usePlaybackSync = (videoElement: Ref<HTMLVideoElement | null>) => {
         oldEl.removeEventListener('play', loopTimeUpdate)
         oldEl.removeEventListener('pause', loopTimeUpdate)
         oldEl.removeEventListener('seeked', loopTimeUpdate)
+        oldEl.removeEventListener('timeupdate', updateTime)
       }
       if (el) {
         el.addEventListener('play', loopTimeUpdate)
         el.addEventListener('pause', loopTimeUpdate)
         el.addEventListener('seeked', loopTimeUpdate)
+        el.addEventListener('timeupdate', updateTime)
       }
     },
     { immediate: true }

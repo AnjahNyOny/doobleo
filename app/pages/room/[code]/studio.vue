@@ -124,6 +124,7 @@ const { isRecording, startRecording, stopRecording, recordedBlob, requestPermiss
   useMicrophone()
 
 const isStudioReady = ref(false)
+const showMobileSidebar = ref(false)
 // Prises validées (lineId -> Blob)
 const recordedTakes = ref<Record<string, Blob>>({})
 
@@ -460,9 +461,12 @@ onUnmounted(() => {
     </div>
 
     <!-- Sidebar à gauche -->
-    <aside class="sidebar-left">
+    <aside class="sidebar-left" :class="{ 'is-open': showMobileSidebar }">
       <div class="sidebar-header">
-        <h2 class="scene-title">{{ roomInfo?.scene?.title }}</h2>
+        <div class="sidebar-title-row">
+          <h2 class="scene-title">{{ roomInfo?.scene?.title }}</h2>
+          <button class="mobile-close-btn" @click="showMobileSidebar = false">✕</button>
+        </div>
         <span v-if="myCharId" class="progression-pill">
           {{ completedLinesCount }} / {{ myLines.length }} validées
         </span>
@@ -493,6 +497,7 @@ onUnmounted(() => {
     <main class="main-workspace">
       <!-- Indicateur d'enregistrement global -->
       <div class="workspace-header">
+        <button class="mobile-menu-btn" @click="showMobileSidebar = true">☰ Répliques</button>
         <div v-if="isRecording" class="recording-indicator">
           <div class="red-dot" />
           ENREGISTREMENT EN COURS
@@ -701,8 +706,44 @@ onUnmounted(() => {
   border-right: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
-  z-index: 10;
+  z-index: 50;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
 }
+.sidebar-left.is-open {
+  transform: translateX(0);
+}
+@media (min-width: 900px) {
+  .sidebar-left {
+    position: static;
+    transform: none;
+  }
+}
+
+.sidebar-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+@media (min-width: 900px) {
+  .mobile-close-btn {
+    display: none;
+  }
+}
+
 .sidebar-header {
   padding: 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -711,7 +752,7 @@ onUnmounted(() => {
   font-size: 1.2rem;
   font-weight: 700;
   color: white;
-  margin: 0 0 0.5rem 0;
+  margin: 0;
 }
 .progression-pill {
   display: inline-block;
@@ -789,7 +830,7 @@ onUnmounted(() => {
   overflow: hidden;
 }
 .workspace-header {
-  padding: 1rem 2rem;
+  padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -798,6 +839,28 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   z-index: 20;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+@media (min-width: 600px) {
+  .workspace-header {
+    padding: 1rem 2rem;
+  }
+}
+
+.mobile-menu-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+@media (min-width: 900px) {
+  .mobile-menu-btn {
+    display: none;
+  }
 }
 .spacer {
   flex: 1;
@@ -857,8 +920,13 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem 2rem 0 2rem;
+  padding: 4rem 1rem 0 1rem; /* more top padding to avoid header on mobile */
   min-height: 0; /* allows shrinking */
+}
+@media (min-width: 600px) {
+  .video-container {
+    padding: 4rem 2rem 0 2rem;
+  }
 }
 .scene-video {
   width: 100%;
@@ -872,9 +940,14 @@ onUnmounted(() => {
 
 /* ─── ACTIVE LINE & CONTROLS ─── */
 .active-line-panel {
-  padding: 1.5rem 2rem;
+  padding: 1rem;
   display: flex;
   justify-content: center;
+}
+@media (min-width: 600px) {
+  .active-line-panel {
+    padding: 1.5rem 2rem;
+  }
 }
 .active-line-content {
   width: 100%;

@@ -55,8 +55,14 @@ h6 {
   background: #111111;
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 8px; /* Sharper edges for minimal look */
-  padding: 2.5rem;
+  padding: 1.5rem;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+@media (min-width: 768px) {
+  .glass-card,
+  .auth-card {
+    padding: 2.5rem;
+  }
 }
 
 /* ─── BUTTONS ─── */

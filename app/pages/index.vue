@@ -207,7 +207,12 @@ const joinRoom = () => {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: 2rem;
+  padding: 1rem;
+}
+@media (min-width: 768px) {
+  .lobby-page {
+    padding: 2rem;
+  }
 }
 
 .hero-section {
@@ -217,16 +222,26 @@ const joinRoom = () => {
 }
 
 .hero-title {
-  font-size: 3.5rem;
+  font-size: 2.2rem;
   font-weight: 800;
   margin-bottom: 1rem;
 }
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: 3.5rem;
+  }
+}
 
 .hero-subtitle {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   color: var(--text-muted);
   max-width: 500px;
   margin: 0 auto;
+}
+@media (min-width: 768px) {
+  .hero-subtitle {
+    font-size: 1.25rem;
+  }
 }
 
 .main-card {
