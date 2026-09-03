@@ -34,6 +34,7 @@ const activeTab = ref<'info' | 'characters' | 'lines'>('info')
 const infoForm = reactive({
   title: scene.value?.title ?? '',
   description: scene.value?.description ?? '',
+  thumbnailUrl: scene.value?.thumbnailUrl ?? '',
 })
 const savingInfo = ref(false)
 
@@ -45,6 +46,50 @@ const saveInfo = async () => {
   } finally {
     savingInfo.value = false
   }
+}
+
+// ─── Upload Miniature ─────────────────────────────────────────────────────────
+const uploadState = reactive({
+  thumbnail: { progress: 0, url: scene.value?.thumbnailUrl ?? '', uploading: false },
+})
+
+async function uploadFile(file: File, type: 'thumbnail', contentType: string) {
+  const slot = uploadState[type]
+  slot.uploading = true
+  slot.progress = 0
+
+  try {
+    const { presignedUrl, publicUrl } = await $fetch('/api/admin/upload/presign', {
+      method: 'POST',
+      body: { filename: file.name, contentType, type },
+    })
+
+    await new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) slot.progress = Math.round((e.loaded / e.total) * 100)
+      }
+      xhr.onload = () =>
+        xhr.status === 200 ? resolve() : reject(new Error(`Upload failed: ${xhr.status}`))
+      xhr.onerror = () => reject(new Error('Upload network error'))
+      xhr.open('PUT', presignedUrl)
+      xhr.setRequestHeader('Content-Type', contentType)
+      xhr.send(file)
+    })
+
+    slot.url = publicUrl
+    slot.progress = 100
+    infoForm.thumbnailUrl = publicUrl
+    await saveInfo() // Sauvegarder automatiquement après upload
+  } finally {
+    slot.uploading = false
+  }
+}
+
+const onThumbnailChange = async (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  await uploadFile(file, 'thumbnail', file.type as 'image/jpeg' | 'image/png' | 'image/webp')
 }
 
 const togglePublish = async () => {
@@ -199,6 +244,62 @@ const deleteLine = async (lineId: string) => {
   await refresh()
 }
 
+// ─── Édition de réplique ─────────────────────────────────────────────────────
+
+const editingLineId = ref<string | null>(null)
+const editLineForm = reactive({
+  characterId: '',
+  text: '',
+  startMs: 0,
+  endMs: 0,
+})
+const savingLine = ref(false)
+
+const startEditLine = (line: Line) => {
+  editingLineId.value = line.id
+  editLineForm.characterId = line.characterId
+  editLineForm.text = line.text
+  editLineForm.startMs = line.startMs
+  editLineForm.endMs = line.endMs
+}
+
+const cancelEditLine = () => {
+  editingLineId.value = null
+  lineError.value = ''
+}
+
+const saveEditLine = async () => {
+  lineError.value = ''
+  if (!editingLineId.value) return
+  if (!editLineForm.characterId) {
+    lineError.value = 'Choisissez un personnage.'
+    return
+  }
+  if (!editLineForm.text) {
+    lineError.value = 'Entrez le texte de la réplique.'
+    return
+  }
+  if (editLineForm.endMs <= editLineForm.startMs) {
+    lineError.value = 'La fin doit être après le début.'
+    return
+  }
+
+  savingLine.value = true
+  try {
+    await $fetch(`/api/admin/scenes/${sceneId}/lines/${editingLineId.value}`, {
+      method: 'PATCH',
+      body: { ...editLineForm },
+    })
+    editingLineId.value = null
+    await refresh()
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string } }
+    lineError.value = err.data?.message ?? 'Erreur lors de la modification.'
+  } finally {
+    savingLine.value = false
+  }
+}
+
 // Export JSON des répliques
 const exportLines = () => {
   const exportData = {
@@ -348,6 +449,36 @@ const onTimeUpdate = () => {
           <label>Description</label>
           <textarea v-model="infoForm.description" rows="3" />
         </div>
+
+        <div class="form-group">
+          <label>Miniature</label>
+          <div class="upload-zone" :class="{ uploaded: uploadState.thumbnail.url }">
+            <input
+              id="thumb-input"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              :disabled="uploadState.thumbnail.uploading"
+              @change="onThumbnailChange"
+            />
+            <label for="thumb-input" class="upload-label">
+              <span v-if="uploadState.thumbnail.url">✅ Image uploadée</span>
+              <span v-else-if="uploadState.thumbnail.uploading"
+                >Upload... {{ uploadState.thumbnail.progress }}%</span
+              >
+              <span v-else>🖼️ Changer d'image (JPG, PNG, WebP)</span>
+            </label>
+            <div v-if="uploadState.thumbnail.uploading" class="progress-bar">
+              <div class="progress-fill" :style="{ width: `${uploadState.thumbnail.progress}%` }" />
+            </div>
+
+            <img
+              v-if="uploadState.thumbnail.url"
+              :src="uploadState.thumbnail.url"
+              class="thumbnail-preview"
+            />
+          </div>
+        </div>
+
         <button class="btn-primary" :disabled="savingInfo" @click="saveInfo">
           {{ savingInfo ? 'Sauvegarde...' : 'Sauvegarder' }}
         </button>
@@ -400,10 +531,10 @@ const onTimeUpdate = () => {
     </div>
 
     <!-- Tab : Répliques (éditeur timecodes) -->
-    <div v-if="activeTab === 'lines'" class="tab-content">
-      <div class="lines-editor">
-        <!-- Lecteur vidéo -->
-        <div class="video-panel">
+    <div v-if="activeTab === 'lines'" class="tab-content lines-layout">
+      <!-- Ligne 1 : Vidéo + Ajouter une réplique -->
+      <div class="lines-top-split">
+        <div class="video-wrapper">
           <video
             ref="videoRef"
             :src="scene.videoUrl"
@@ -411,9 +542,6 @@ const onTimeUpdate = () => {
             controls
             @timeupdate="onTimeUpdate"
           />
-          <!-- Container pour la forme d'onde -->
-          <div ref="waveformContainerRef" class="waveform-container" />
-
           <div class="timecode-display">
             ⏱ {{ formatMs(currentSecMs) }}
             <span
@@ -424,65 +552,98 @@ const onTimeUpdate = () => {
               ● {{ charName(activeLine.characterId) }}
             </span>
           </div>
+        </div>
 
-          <!-- Ajouter une réplique -->
-          <div class="add-line-form">
-            <h3 class="section-title">Nouvelle réplique</h3>
-            <select v-model="newLine.characterId" class="char-select">
-              <option value="">— Personnage —</option>
-              <option v-for="c in scene.characters as Character[]" :key="c.id" :value="c.id">
-                {{ c.name }}
-              </option>
-            </select>
-            <textarea
-              v-model="newLine.text"
-              rows="2"
-              placeholder="Texte de la réplique..."
-              class="line-text"
-            />
-            <div class="timecode-row">
-              <div class="tc-field">
-                <span class="tc-label">Début</span>
-                <span class="tc-value">{{ formatMs(newLine.startMs) }}</span>
-                <button class="btn-mark" @click="markStart">📍 Marquer</button>
-              </div>
-              <div class="tc-field">
-                <span class="tc-label">Fin</span>
-                <span class="tc-value">{{ formatMs(newLine.endMs) }}</span>
-                <button class="btn-mark" @click="markEnd">📍 Marquer</button>
-              </div>
+        <div class="add-line-form card">
+          <h3 class="section-title">Nouvelle réplique</h3>
+          <select v-model="newLine.characterId" class="char-select">
+            <option value="">— Personnage —</option>
+            <option v-for="c in scene.characters as Character[]" :key="c.id" :value="c.id">
+              {{ c.name }}
+            </option>
+          </select>
+          <textarea
+            v-model="newLine.text"
+            rows="2"
+            placeholder="Texte de la réplique..."
+            class="line-text"
+          />
+          <div class="timecode-row">
+            <div class="tc-field">
+              <span class="tc-label">Début</span>
+              <span class="tc-value">{{ formatMs(newLine.startMs) }}</span>
+              <button class="btn-mark" @click="markStart">📍 Marquer</button>
             </div>
-            <p v-if="lineError" class="form-error">{{ lineError }}</p>
-            <button class="btn-primary w-full" :disabled="addingLine" @click="addLine">
-              {{ addingLine ? '...' : '+ Ajouter la réplique' }}
-            </button>
+            <div class="tc-field">
+              <span class="tc-label">Fin</span>
+              <span class="tc-value">{{ formatMs(newLine.endMs) }}</span>
+              <button class="btn-mark" @click="markEnd">📍 Marquer</button>
+            </div>
+          </div>
+          <p v-if="lineError" class="form-error">{{ lineError }}</p>
+          <button class="btn-primary w-full" :disabled="addingLine" @click="addLine">
+            {{ addingLine ? '...' : '+ Ajouter la réplique' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Ligne 2 : Waveform pleine largeur -->
+      <div class="waveform-full-wrapper">
+        <div ref="waveformContainerRef" class="waveform-container" />
+      </div>
+
+      <!-- Ligne 3 : Liste des répliques -->
+      <div class="lines-panel card">
+        <div class="lines-header">
+          <h3 class="section-title">Répliques ({{ (scene.lines as Line[]).length }})</h3>
+          <div class="lines-actions">
+            <button class="btn-sm-ghost" @click="exportLines">⬇ Export JSON</button>
+            <label class="btn-sm-ghost" style="cursor: pointer">
+              ⬆ Import JSON
+              <input type="file" accept=".json" style="display: none" @change="importLines" />
+            </label>
           </div>
         </div>
 
-        <!-- Liste des répliques -->
-        <div class="lines-panel">
-          <div class="lines-header">
-            <h3 class="section-title">Répliques ({{ (scene.lines as Line[]).length }})</h3>
-            <div class="lines-actions">
-              <button class="btn-sm-ghost" @click="exportLines">⬇ Export JSON</button>
-              <label class="btn-sm-ghost" style="cursor: pointer">
-                ⬆ Import JSON
-                <input type="file" accept=".json" style="display: none" @change="importLines" />
-              </label>
+        <div v-if="(scene.lines as Line[]).length === 0" class="empty-state">
+          Aucune réplique. Utilisez le lecteur vidéo pour en ajouter.
+        </div>
+
+        <div v-else class="lines-list">
+          <div
+            v-for="line in scene.lines as Line[]"
+            :key="line.id"
+            class="line-row"
+            :class="{ 'is-active': activeLine?.id === line.id }"
+          >
+            <!-- Vue Edition -->
+            <div v-if="editingLineId === line.id" class="line-edit-form">
+              <select v-model="editLineForm.characterId" class="char-select">
+                <option v-for="c in scene.characters as Character[]" :key="c.id" :value="c.id">
+                  {{ c.name }}
+                </option>
+              </select>
+              <textarea v-model="editLineForm.text" rows="2" class="line-text" />
+              <div class="timecode-row">
+                <div class="tc-field">
+                  <span class="tc-label">Début (ms)</span>
+                  <input v-model="editLineForm.startMs" type="number" class="tc-input" />
+                </div>
+                <div class="tc-field">
+                  <span class="tc-label">Fin (ms)</span>
+                  <input v-model="editLineForm.endMs" type="number" class="tc-input" />
+                </div>
+              </div>
+              <div class="edit-actions">
+                <button class="btn-ghost" @click="cancelEditLine">Annuler</button>
+                <button class="btn-primary" :disabled="savingLine" @click="saveEditLine">
+                  {{ savingLine ? '...' : 'Sauvegarder' }}
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div v-if="(scene.lines as Line[]).length === 0" class="empty-state">
-            Aucune réplique. Utilisez le lecteur vidéo pour en ajouter.
-          </div>
-
-          <div v-else class="lines-list">
-            <div
-              v-for="line in scene.lines as Line[]"
-              :key="line.id"
-              class="line-row"
-              :class="{ 'is-active': activeLine?.id === line.id }"
-            >
+            <!-- Vue Lecture -->
+            <template v-else>
               <div class="line-char-dot" :style="{ background: charColor(line.characterId) }" />
               <div class="line-content">
                 <p class="line-char-name" :style="{ color: charColor(line.characterId) }">
@@ -491,8 +652,11 @@ const onTimeUpdate = () => {
                 <p class="line-text">{{ line.text }}</p>
                 <p class="line-times">{{ formatMs(line.startMs) }} → {{ formatMs(line.endMs) }}</p>
               </div>
-              <button class="btn-del" @click="deleteLine(line.id)">✕</button>
-            </div>
+              <div class="line-actions">
+                <button class="btn-edit" @click="startEditLine(line)">Éditer</button>
+                <button class="btn-del" @click="deleteLine(line.id)">✕</button>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -640,14 +804,113 @@ select:focus {
   border-color: var(--theme-accent);
 }
 
+.upload-zone {
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  position: relative;
+  transition: all 0.2s;
+  background: var(--bg-input);
+}
+.upload-zone:hover {
+  border-color: var(--text-muted);
+  background: var(--bg-hover);
+}
+.upload-zone.uploaded {
+  border-style: solid;
+}
+.upload-zone input[type='file'] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.upload-label {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  cursor: pointer;
+  pointer-events: none;
+}
+.progress-bar {
+  background: var(--bg-hover);
+  border-radius: 4px;
+  height: 6px;
+  margin-top: 0.75rem;
+  overflow: hidden;
+}
+.progress-fill {
+  background: var(--theme-accent);
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.2s;
+}
+.thumbnail-preview {
+  margin-top: 1rem;
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+}
+
 .char-form {
   display: grid;
   grid-template-columns: 1fr auto 1fr auto;
   gap: 0.75rem;
   align-items: end;
 }
-.char-name-input,
-.char-desc-input {
+.lines-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.lines-top-split {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.video-wrapper {
+  position: relative;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.video-player {
+  width: 100%;
+  aspect-ratio: 16/9;
+  display: block;
+}
+
+.waveform-full-wrapper {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 1rem 0;
+}
+
+.timecode-display {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 .color-field {
   display: flex;
@@ -703,49 +966,6 @@ select:focus {
   font-size: 0.75rem;
   color: var(--text-muted);
   margin-top: 2px;
-}
-
-.lines-editor {
-  display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 1.5rem;
-  align-items: start;
-}
-.video-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  position: sticky;
-  top: 1.5rem;
-}
-.video-player {
-  width: 100%;
-  aspect-ratio: 16/9;
-  background: #000;
-  display: block;
-}
-
-.waveform-container {
-  width: 100%;
-  background: rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: -4px; /* supprime l'espace sous la vidéo */
-}
-.timecode-display {
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 0.5rem 0.875rem;
-  font-size: 0.875rem;
-  color: #94a3b8;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-family: monospace;
-}
-.active-line-preview {
-  font-size: 0.8rem;
-  font-weight: 600;
 }
 
 .add-line-form {
@@ -850,28 +1070,78 @@ select:focus {
   margin-bottom: 3px;
 }
 .line-text {
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   color: var(--text-main);
+  line-height: 1.4;
+  margin-bottom: 4px;
 }
 .line-times {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
-  font-family: monospace;
-  margin-top: 4px;
+}
+
+.line-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.btn-edit {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  width: auto;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-edit:hover {
+  border-color: var(--text-main);
+  color: var(--text-main);
 }
 .btn-del {
-  background: none;
+  background: transparent;
   border: none;
-  color: #475569;
+  color: #ef4444;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9rem;
-  padding: 2px 6px;
-  border-radius: 4px;
-  flex-shrink: 0;
+  transition: background 0.15s;
 }
 .btn-del:hover {
-  color: #f87171;
-  background: #2d1515;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.line-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+.tc-input {
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-main);
+  padding: 0.4rem 0.5rem;
+  width: 100%;
+  font-size: 0.85rem;
+  font-family: inherit;
+  outline: none;
+}
+.tc-input:focus {
+  border-color: var(--theme-accent);
+}
+.edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
 }
 
 .btn-primary {
