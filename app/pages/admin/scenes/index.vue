@@ -107,27 +107,29 @@ function formatDuration(ms: number) {
   margin-bottom: 2rem;
 }
 .page-title {
+.page-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-main);
+  font-family: 'Cinzel', serif;
 }
 .count {
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 1.25rem;
 }
 
 .empty-state {
   text-align: center;
   padding: 3rem;
-  color: #64748b;
+  color: var(--text-muted);
 }
 .empty-state a {
-  color: #a78bfa;
+  color: var(--theme-accent);
   text-decoration: none;
 }
 
 .scenes-table {
-  border: 1px solid #2d2d3a;
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -135,9 +137,9 @@ function formatDuration(ms: number) {
   display: grid;
   grid-template-columns: 2fr 0.7fr 0.7fr 1fr 1fr;
   padding: 0.75rem 1rem;
-  background: #1e1e2e;
+  background: var(--bg-card);
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 600;
@@ -146,12 +148,12 @@ function formatDuration(ms: number) {
   display: grid;
   grid-template-columns: 2fr 0.7fr 0.7fr 1fr 1fr;
   padding: 0.875rem 1rem;
-  border-top: 1px solid #2d2d3a;
+  border-top: 1px solid var(--border-color);
   align-items: center;
   transition: background 0.1s;
 }
 .table-row:hover {
-  background: #16161d;
+  background: var(--bg-hover);
 }
 
 .scene-cell {
@@ -169,7 +171,7 @@ function formatDuration(ms: number) {
 .thumb-placeholder {
   width: 64px;
   height: 40px;
-  background: #1e1e2e;
+  background: var(--bg-hover);
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -178,22 +180,21 @@ function formatDuration(ms: number) {
   flex-shrink: 0;
 }
 .scene-title {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #e2e8f0;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 2px;
 }
 .scene-desc {
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-top: 2px;
-  white-space: nowrap;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 200px;
 }
 .cell-muted {
   font-size: 0.875rem;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .badge-btn {
@@ -206,7 +207,6 @@ function formatDuration(ms: number) {
   transition: opacity 0.15s;
 }
 .badge-btn.published {
-  background: #14532d;
   color: #4ade80;
 }
 .badge-btn.draft {

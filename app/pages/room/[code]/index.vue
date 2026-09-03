@@ -155,6 +155,16 @@ const isMyChar = (charId: string) => {
   const p = getPlayerByChar(charId)
   return p && p.userId === userId.value
 }
+
+const copied = ref(false)
+const copyCode = () => {
+  navigator.clipboard.writeText(code).then(() => {
+    copied.value = true
+    setTimeout(() => {
+      copied.value = false
+    }, 2000)
+  })
+}
 </script>
 
 <template>
@@ -162,8 +172,14 @@ const isMyChar = (charId: string) => {
     <div class="header">
       <div class="brand text-gradient">Doobleo</div>
       <div class="header-actions">
-        <div class="room-code">
+        <div
+          class="room-code"
+          title="Copier le code"
+          style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem"
+          @click="copyCode"
+        >
           Code: <strong>{{ code }}</strong>
+          <span v-if="copied" style="font-size: 0.75rem; color: var(--theme-accent)">Copié !</span>
         </div>
         <button class="btn-sm-ghost" title="Quitter la partie" @click="leaveRoom">Quitter</button>
       </div>

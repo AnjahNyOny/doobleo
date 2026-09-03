@@ -570,6 +570,13 @@ const leaveStudio = () => {
 
           <h1 class="main-text">{{ activeLine.text }}</h1>
 
+          <!-- Compte à rebours visuel -->
+          <transition name="fade">
+            <div v-if="countdown !== null" class="visual-countdown">
+              {{ countdown }}
+            </div>
+          </transition>
+
           <!-- Contrôles d'action -->
           <div v-if="activeLine.characterId === myCharId" class="controls">
             <button
@@ -1045,8 +1052,30 @@ const leaveStudio = () => {
   font-size: 1.2rem;
   font-weight: 800;
   line-height: 1.35;
-  color: #f8fafc;
+  color: var(--text-main);
   margin: 0 0 1rem 0;
+}
+.visual-countdown {
+  font-family: 'Cinzel', serif;
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--theme-accent);
+  margin: 0.5rem 0 1.5rem 0;
+  animation: pulse-scale 1s infinite;
+}
+@keyframes pulse-scale {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 @media (min-width: 600px) {
   .main-text {
@@ -1135,12 +1164,12 @@ const leaveStudio = () => {
   font-size: 0.65rem;
   text-transform: uppercase;
   font-weight: 700;
-  color: #94a3b8;
+  color: var(--text-muted);
   text-align: center;
 }
 .vu-bar {
   height: 6px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-color);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -1152,10 +1181,12 @@ const leaveStudio = () => {
 .studio-waveform-wrapper {
   width: 100%;
   max-width: 1200px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   overflow: hidden;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 .waveform-label {
   font-size: 0.75rem;
@@ -1164,10 +1195,10 @@ const leaveStudio = () => {
   padding: 0.5rem 1rem 0;
 }
 .label-ref {
-  color: #c4b5fd;
+  color: var(--text-main);
 }
 .label-take {
-  color: #86efac;
+  color: var(--theme-accent);
 }
 .waveforms-stack {
   position: relative;

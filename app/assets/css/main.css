@@ -1,24 +1,30 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=DM+Sans:wght@400;500;600&family=Montserrat:wght@500;600;700&display=swap');
 
 :root {
-  /* Default: Dark Theme */
-  --bg-main: #050505;
-  --bg-card: #111111;
-  --bg-input: #09090b;
+  /* Dynamic 5-color palette system (Dark Mode Default) */
+  --theme-bg: #050505;
+  --theme-surface: #111111;
+  --theme-border: #333333;
+  --theme-accent: #cb997e;
+  --theme-text: #f8fafc;
+
+  --bg-main: var(--theme-bg);
+  --bg-card: var(--theme-surface);
+  --bg-input: var(--theme-bg);
   --bg-hover: rgba(255, 255, 255, 0.05);
 
-  --border-color: rgba(255, 255, 255, 0.1);
-  --border-focus: rgba(255, 255, 255, 0.3);
+  --border-color: var(--theme-border);
+  --border-focus: var(--theme-accent);
 
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --text-inverse: #050505;
+  --text-main: var(--theme-text);
+  --text-muted: rgba(255, 255, 255, 0.5);
+  --text-inverse: var(--theme-bg);
 
   --shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.5);
 
   /* Fallback for legacy components */
-  --primary: var(--text-main);
+  --primary: var(--theme-accent);
   --primary-glow: var(--shadow-sm);
   --secondary: var(--text-muted);
 
@@ -27,24 +33,30 @@
 }
 
 .light {
-  /* Light Theme */
-  --bg-main: #f5f5f0;
-  --bg-card: #ffffff;
+  /* Light Theme (Warm Neutrals) */
+  --theme-bg: #fff1e6;
+  --theme-surface: #f0efeb;
+  --theme-border: #ddbea9;
+  --theme-accent: #cb997e;
+  --theme-text: #2c2a29; /* Darker for readability */
+
+  --bg-main: var(--theme-bg);
+  --bg-card: var(--theme-surface);
   --bg-input: #ffffff;
   --bg-hover: rgba(0, 0, 0, 0.04);
 
-  --border-color: rgba(0, 0, 0, 0.1);
-  --border-focus: rgba(0, 0, 0, 0.3);
+  --border-color: var(--theme-border);
+  --border-focus: var(--theme-accent);
 
-  --text-main: #171717;
-  --text-muted: #737373;
+  --text-main: var(--theme-text);
+  --text-muted: #a5a58d;
   --text-inverse: #ffffff;
 
   --shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.08);
 
   /* Fallback for legacy components */
-  --primary: var(--text-main);
+  --primary: var(--theme-accent);
   --primary-glow: var(--shadow-sm);
   --secondary: var(--text-muted);
 }
@@ -56,7 +68,7 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   background-color: var(--bg-main);
   color: var(--text-main);
   line-height: 1.5;
@@ -68,13 +80,17 @@ body {
 }
 
 h1,
-h2,
+h2 {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.02em;
+}
+
 h3,
 h4,
 h5,
 h6 {
-  font-family: 'Outfit', sans-serif;
-  letter-spacing: -0.02em;
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: -0.01em;
 }
 
 /* ─── MINIMALIST CARDS ─── */

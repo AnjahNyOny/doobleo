@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Film, CheckCircle2, FileEdit, Users } from 'lucide-vue-next'
+
 definePageMeta({ layout: 'admin', middleware: 'admin', title: 'Dashboard — Admin' })
 
 const { data: scenes } = await useFetch('/api/admin/scenes')
@@ -19,28 +21,28 @@ const totalChars = computed(
 
     <div class="stats-grid">
       <div class="stat-card">
-        <span class="stat-icon">🎬</span>
+        <span class="stat-icon"><Film :size="24" /></span>
         <div>
           <p class="stat-value">{{ scenes?.length ?? 0 }}</p>
           <p class="stat-label">Scènes totales</p>
         </div>
       </div>
       <div class="stat-card">
-        <span class="stat-icon">✅</span>
+        <span class="stat-icon"><CheckCircle2 :size="24" /></span>
         <div>
           <p class="stat-value">{{ published }}</p>
           <p class="stat-label">Publiées</p>
         </div>
       </div>
       <div class="stat-card">
-        <span class="stat-icon">📝</span>
+        <span class="stat-icon"><FileEdit :size="24" /></span>
         <div>
           <p class="stat-value">{{ drafts }}</p>
           <p class="stat-label">Brouillons</p>
         </div>
       </div>
       <div class="stat-card">
-        <span class="stat-icon">🎭</span>
+        <span class="stat-icon"><Users :size="24" /></span>
         <div>
           <p class="stat-value">{{ totalChars }}</p>
           <p class="stat-label">Personnages</p>
@@ -94,72 +96,92 @@ const totalChars = computed(
 .page-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-main);
+  font-family: 'Cinzel', serif;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  margin-bottom: 2.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
 }
+
 .stat-card {
-  background: #16161d;
-  border: 1px solid #2d2d3a;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 1.5rem;
   border-radius: 12px;
-  padding: 1.25rem;
   display: flex;
   align-items: center;
   gap: 1rem;
 }
+
 .stat-icon {
   font-size: 2rem;
+  color: var(--theme-accent);
 }
+
 .stat-value {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-main);
+  line-height: 1.2;
 }
+
 .stat-label {
-  font-size: 0.8rem;
-  color: #64748b;
-  margin-top: 2px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
 .section-title {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 600;
-  color: #e2e8f0;
   margin-bottom: 1rem;
+  color: var(--text-main);
+  font-family: 'Montserrat', sans-serif;
 }
+
 .empty-state {
-  color: #64748b;
-  padding: 2rem;
+  padding: 3rem;
   text-align: center;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-color);
+  border-radius: 12px;
+  color: var(--text-muted);
 }
 .empty-state a {
-  color: #a78bfa;
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--theme-accent);
   text-decoration: none;
+}
+.empty-state a:hover {
+  text-decoration: underline;
 }
 
 .scenes-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
+
 .scene-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.875rem 1rem;
-  background: #16161d;
-  border: 1px solid #2d2d3a;
-  border-radius: 10px;
+  padding: 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
   text-decoration: none;
-  transition: border-color 0.15s;
+  transition:
+    transform 0.2s,
+    border-color 0.2s;
 }
+
 .scene-row:hover {
-  border-color: #a78bfa;
+  transform: translateY(-2px);
+  border-color: var(--border-focus);
 }
 .scene-thumb {
   width: 56px;
