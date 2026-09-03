@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { Copy, Check } from 'lucide-vue-next'
 
 definePageMeta({ title: "Salle d'attente — Doobleo" })
 
@@ -179,6 +180,8 @@ const copyCode = () => {
           @click="copyCode"
         >
           Code: <strong>{{ code }}</strong>
+          <Copy v-if="!copied" :size="16" class="copy-icon" />
+          <Check v-else :size="16" style="color: var(--theme-accent)" />
           <span v-if="copied" style="font-size: 0.75rem; color: var(--theme-accent)">Copié !</span>
         </div>
         <button class="btn-sm-ghost" title="Quitter la partie" @click="leaveRoom">Quitter</button>
@@ -318,7 +321,7 @@ const copyCode = () => {
 
 .room-code {
   background: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
   padding: 0.5rem 1rem;
   border-radius: 4px;
   font-family: monospace;
@@ -326,7 +329,7 @@ const copyCode = () => {
   color: var(--text-muted);
 }
 .room-code strong {
-  color: white;
+  color: var(--text-main);
   letter-spacing: 2px;
 }
 
@@ -364,8 +367,8 @@ const copyCode = () => {
   flex: 1;
 }
 .player-card {
-  background: #111;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 0.75rem;
   display: flex;
@@ -389,6 +392,7 @@ const copyCode = () => {
   flex-direction: column;
 }
 .player-name {
+  color: var(--text-main);
   font-weight: 500;
   font-size: 0.95rem;
   display: flex;
@@ -396,7 +400,7 @@ const copyCode = () => {
   gap: 0.5rem;
 }
 .host-badge {
-  background: #f59e0b;
+  background: var(--theme-accent);
   color: #451a03;
   font-size: 0.6rem;
   font-weight: 700;
@@ -445,7 +449,7 @@ const copyCode = () => {
 }
 .scene-title {
   font-size: 2rem;
-  color: white;
+  color: var(--text-main);
 }
 .scene-duration {
   font-family: monospace;
@@ -479,8 +483,8 @@ const copyCode = () => {
 }
 
 .character-card {
-  background: #111;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 1rem;
   display: flex;
@@ -491,13 +495,13 @@ const copyCode = () => {
   text-align: left;
 }
 .character-card:hover:not(:disabled) {
-  background: #1a1a1a;
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--bg-hover);
+  border-color: var(--theme-accent);
   transform: translateY(-2px);
 }
 .character-card.is-mine {
   border-color: var(--char-color);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
+  background: var(--bg-hover);
 }
 .character-card.is-taken {
   opacity: 0.4;
@@ -516,7 +520,7 @@ const copyCode = () => {
   flex-direction: column;
 }
 .char-name {
-  color: white;
+  color: var(--text-main);
   font-weight: 600;
   font-size: 1.1rem;
 }
@@ -542,7 +546,7 @@ const copyCode = () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--text-main);
 }
 .countdown-overlay h2 {
   font-size: 2rem;
