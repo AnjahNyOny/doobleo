@@ -89,7 +89,7 @@ export const rooms = pgTable('rooms', {
 
 // ─── room_players ─────────────────────────────────────────────────────────────
 
-export const roomPlayers = pgTable('room_player_sessions', {
+export const roomPlayers = pgTable('room_players', {
   id: uuid('id').primaryKey().defaultRandom(),
   roomId: uuid('room_id')
     .notNull()
