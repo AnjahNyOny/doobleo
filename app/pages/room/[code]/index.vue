@@ -9,7 +9,7 @@ const router = useRouter()
 const code = route.params.code as string
 
 const { loggedIn, user } = useUserSession()
-const { connect } = useSocket()
+const { connect, disconnect } = useSocket()
 
 // ─── ETAT DU JOUEUR ────────────────────────────────────────────────────────
 const userId = ref('')

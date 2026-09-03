@@ -217,7 +217,7 @@ const hostRoomWithScene = async (sceneId: string) => {
 }
 .scene-title {
   font-size: 1.2rem;
-  color: white;
+  color: var(--text-main);
   margin-bottom: 0.5rem;
 }
 .scene-desc {
