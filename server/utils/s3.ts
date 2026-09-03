@@ -40,6 +40,26 @@ export async function generateUploadPresignedUrl(
   return getSignedUrl(s3, command, { expiresIn })
 }
 
+// ─── Uploader un fichier directement depuis le serveur ─────────────────────────
+
+export async function uploadFileToS3(
+  key: string,
+  body: Buffer | Uint8Array | string,
+  contentType: string
+): Promise<string> {
+  const config = useRuntimeConfig()
+  const s3 = getS3Client()
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: config.s3BucketName,
+      Key: key,
+      Body: body,
+      ContentType: contentType,
+    })
+  )
+  return getPublicUrl(key)
+}
+
 // ─── Générer une URL présignée pour téléchargement (lien temporaire) ────────
 
 export async function generateDownloadPresignedUrl(

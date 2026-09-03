@@ -278,10 +278,37 @@ export async function processHuggingFaceSeparation(
     })
     if (!s3UploadRes.ok) throw new Error(`Upload M&E failed: ${s3UploadRes.statusText}`)
 
+    // 8. Download Vocals track and upload to S3
+    let s3VocalsUrl = videoUrl
+    if (vocalsFileUrl) {
+      console.log(`[HF] Téléchargement et upload de la piste vocale...`)
+      const vocalsRes = await fetch(vocalsFileUrl, {
+        headers: { Authorization: `Bearer ${hfToken}` },
+      })
+      if (vocalsRes.ok && vocalsRes.body) {
+        const vocalsKey = `media/audio/${sceneId}_vocals_${Date.now()}.wav`
+        const vocalsArrayBuffer = await vocalsRes.arrayBuffer()
+        const vocalsBuffer = Buffer.from(vocalsArrayBuffer)
+        const s3VocalsUploadUrl = await generateUploadPresignedUrl(vocalsKey, 'audio/wav')
+        const s3VocalsUploadRes = await fetch(s3VocalsUploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'audio/wav' },
+          body: vocalsBuffer,
+        })
+        if (s3VocalsUploadRes.ok) {
+          s3VocalsUrl = getPublicUrl(vocalsKey)
+        } else {
+          console.error(`Upload Vocals failed: ${s3VocalsUploadRes.statusText}`)
+        }
+      } else {
+        console.error(`Failed to download vocals track from HF`)
+      }
+    }
+
     console.log(`[HF] ✅ Séparation IA terminée avec succès pour la scène ${sceneId}`)
 
     return {
-      vocalsUrl: vocalsFileUrl || videoUrl,
+      vocalsUrl: s3VocalsUrl,
       accompanimentUrl: getPublicUrl(meKey),
     }
   } finally {
