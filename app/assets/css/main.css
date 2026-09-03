@@ -1,27 +1,52 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap');
 
 :root {
-  /* Colors */
-  --bg-dark: #09090b;
-  --bg-card: rgba(24, 24, 27, 0.6);
-  --border-color: rgba(63, 63, 70, 0.4);
+  /* Default: Dark Theme */
+  --bg-main: #050505;
+  --bg-card: #111111;
+  --bg-input: #09090b;
+  --bg-hover: rgba(255, 255, 255, 0.05);
 
-  --primary: #7c3aed; /* Vibrant purple */
-  --primary-hover: #8b5cf6;
-  --primary-glow: rgba(124, 58, 237, 0.4);
-
-  --secondary: #06b6d4; /* Vibrant cyan */
-  --secondary-hover: #22d3ee;
-
-  --accent: #ec4899; /* Vibrant pink */
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-focus: rgba(255, 255, 255, 0.3);
 
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
+  --text-inverse: #050505;
 
-  /* Utilities */
-  --radius: 12px;
-  --radius-lg: 20px;
+  --shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.5);
+
+  /* Fallback for legacy components */
+  --primary: var(--text-main);
+  --primary-glow: var(--shadow-sm);
+  --secondary: var(--text-muted);
+
+  --radius: 8px;
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.light {
+  /* Light Theme */
+  --bg-main: #f5f5f0;
+  --bg-card: #ffffff;
+  --bg-input: #ffffff;
+  --bg-hover: rgba(0, 0, 0, 0.04);
+
+  --border-color: rgba(0, 0, 0, 0.1);
+  --border-focus: rgba(0, 0, 0, 0.3);
+
+  --text-main: #171717;
+  --text-muted: #737373;
+  --text-inverse: #ffffff;
+
+  --shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+  /* Fallback for legacy components */
+  --primary: var(--text-main);
+  --primary-glow: var(--shadow-sm);
+  --secondary: var(--text-muted);
 }
 
 * {
@@ -32,11 +57,14 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #050505; /* Deep cinema black */
+  background-color: var(--bg-main);
   color: var(--text-main);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 h1,
@@ -52,11 +80,14 @@ h6 {
 /* ─── MINIMALIST CARDS ─── */
 .glass-card,
 .auth-card {
-  background: #111111;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 8px; /* Sharper edges for minimal look */
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
   padding: 1.5rem;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-md);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
 @media (min-width: 768px) {
   .glass-card,
@@ -72,7 +103,7 @@ h6 {
   justify-content: center;
   gap: 0.5rem;
   background: var(--text-main);
-  color: #050505;
+  color: var(--text-inverse);
   font-weight: 600;
   font-size: 0.95rem;
   padding: 0.8rem 1.5rem;
@@ -84,12 +115,12 @@ h6 {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #d4d4d8;
+  opacity: 0.8;
   transform: translateY(-1px);
 }
 
 .btn-primary:disabled {
-  opacity: 0.6;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
@@ -104,18 +135,18 @@ h6 {
   font-size: 0.95rem;
   padding: 0.75rem 1.5rem;
   border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border-color);
   cursor: pointer;
   transition: var(--transition);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.4);
+  background: var(--bg-hover);
+  border-color: var(--border-focus);
 }
 
 .btn-secondary:disabled {
-  opacity: 0.5;
+  opacity: 0.3;
   cursor: not-allowed;
 }
 
@@ -134,9 +165,9 @@ h6 {
 }
 
 .btn-sm-ghost:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-hover);
   color: var(--text-main);
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-color);
 }
 
 /* ─── AUTHENTICATION PAGES (Login / Register) ─── */
@@ -157,6 +188,7 @@ h6 {
 .auth-logo {
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
+  color: var(--text-main);
 }
 
 .auth-title {
@@ -242,8 +274,8 @@ input[type='password'],
 textarea,
 select {
   width: 100%;
-  background: #09090b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
   color: var(--text-main);
   padding: 0.8rem 1rem;
   border-radius: 4px;
@@ -259,8 +291,8 @@ input[type='password']:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.3);
-  background: #111111;
+  border-color: var(--border-focus);
+  background: var(--bg-card);
 }
 
 .w-full {
@@ -272,8 +304,6 @@ select:focus {
 
 /* ─── TEXT UTILS ─── */
 .text-gradient {
-  background: linear-gradient(to right, var(--primary-hover), var(--secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  /* Replaced gradients with solid color for aesthetic look */
+  color: var(--text-main);
 }

@@ -557,10 +557,7 @@ const leaveStudio = () => {
       <div class="active-line-panel">
         <div v-if="activeLine" class="active-line-content">
           <div class="card-header">
-            <span
-              class="char-badge"
-              :style="{ background: getChar(activeLine.characterId)?.color || '#6366f1' }"
-            >
+            <span class="char-badge">
               {{ getChar(activeLine.characterId)?.name || 'Personnage' }}
             </span>
             <span v-if="recordedTakes[activeLine.id]" class="validated-tag"
@@ -577,50 +574,59 @@ const leaveStudio = () => {
           <div v-if="activeLine.characterId === myCharId" class="controls">
             <button
               class="btn-control btn-listen"
+              title="Écouter Référence"
               :disabled="isRecording || isReviewing || countdown !== null"
               @click="playReference"
             >
-              <span class="icon"><Play :size="16" /></span> Écouter Référence
+              <span class="icon"><Play :size="16" /></span>
             </button>
 
             <button
               v-if="!isRecording && countdown === null"
               class="btn-control btn-record"
+              :title="currentLineTake ? 'Réenregistrer' : 'Enregistrer'"
               :disabled="isReviewing"
               @click="recordTake"
             >
               <span class="icon"><Mic :size="16" /></span>
-              {{ currentLineTake ? 'Réenregistrer' : 'Enregistrer' }}
             </button>
             <button
               v-else-if="countdown !== null"
               class="btn-control btn-record countdown-btn"
+              :title="'Préparez-vous : ' + countdown"
               @click="stopTake"
             >
-              <span class="icon"><Timer :size="16" /></span> Préparez-vous : {{ countdown }}
+              <span class="icon"><Timer :size="16" /></span>
             </button>
-            <button v-else class="btn-control btn-stop-rec" @click="stopTake">
-              <span class="icon"><Square :size="16" fill="currentColor" /></span> Arrêter
+            <button v-else class="btn-control btn-stop-rec" title="Arrêter" @click="stopTake">
+              <span class="icon"><Square :size="16" fill="currentColor" /></span>
             </button>
 
             <button
               v-if="!isReviewing"
               class="btn-control btn-review"
+              title="Écouter ma prise"
               :disabled="!currentLineTake || isRecording || countdown !== null"
               @click="playMyTake"
             >
-              <span class="icon"><Headphones :size="16" /></span> Écouter ma prise
+              <span class="icon"><Headphones :size="16" /></span>
             </button>
-            <button v-else class="btn-control btn-review is-active-review" @click="stopPreview">
-              <span class="icon"><Pause :size="16" /></span> Pause
+            <button
+              v-else
+              class="btn-control btn-review is-active-review"
+              title="Pause"
+              @click="stopPreview"
+            >
+              <span class="icon"><Pause :size="16" /></span>
             </button>
 
             <button
               class="btn-control btn-validate"
+              title="Valider"
               :disabled="!currentLineTake || isRecording || isReviewing || countdown !== null"
               @click="validateTake"
             >
-              <span class="icon">✅</span> Valider
+              <span class="icon"><Check :size="16" /></span>
             </button>
           </div>
 
@@ -789,9 +795,9 @@ const leaveStudio = () => {
 }
 .progression-pill {
   display: inline-block;
-  background: rgba(168, 85, 247, 0.2);
-  border: 1px solid rgba(168, 85, 247, 0.4);
-  color: #d8b4fe;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
   padding: 0.25rem 0.6rem;
   border-radius: 20px;
   font-size: 0.75rem;
@@ -805,12 +811,12 @@ const leaveStudio = () => {
   flex-direction: column;
   gap: 0.5rem;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  scrollbar-color: var(--border-color) transparent;
 }
 .line-item {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
   padding: 0.85rem;
   cursor: pointer;
   transition: all 0.2s;
@@ -819,17 +825,18 @@ const leaveStudio = () => {
   gap: 0.35rem;
 }
 .line-item:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-hover);
 }
 .line-item.is-active {
-  background: rgba(168, 85, 247, 0.15);
-  border-color: rgba(168, 85, 247, 0.4);
+  background: var(--bg-input);
+  border-color: var(--text-main);
 }
 .line-item.is-mine {
-  border-left: 4px solid #a855f7;
+  /* subtly distinct for own lines */
+  border-style: dashed;
 }
 .line-item.is-done {
-  border-left-color: #22c55e;
+  opacity: 0.7;
 }
 .line-char {
   font-size: 0.75rem;
@@ -837,14 +844,15 @@ const leaveStudio = () => {
   text-transform: uppercase;
   display: flex;
   justify-content: space-between;
+  color: var(--text-muted);
 }
 .status-icon {
-  color: #22c55e;
+  color: var(--text-main);
   font-weight: 800;
 }
 .line-text {
   font-size: 0.85rem;
-  color: #cbd5e1;
+  color: var(--text-main);
   line-height: 1.4;
   /* limit to 3 lines */
   display: -webkit-box;
@@ -858,7 +866,7 @@ const leaveStudio = () => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(circle at top, #1a1a24 0%, #09090b 100%);
+  background: var(--bg-main);
   position: relative;
   overflow: hidden;
 }
@@ -928,19 +936,22 @@ const leaveStudio = () => {
   }
 }
 .btn-finish {
-  background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
-  color: white;
+  background: var(--text-main);
+  color: var(--text-inverse);
   border: none;
   padding: 0.6rem 1.25rem;
-  border-radius: 12px;
+  border-radius: 4px;
   font-weight: 700;
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 .btn-finish:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+  box-shadow: var(--shadow-md);
 }
 .btn-finish:disabled {
   opacity: 0.5;
@@ -1008,31 +1019,28 @@ const leaveStudio = () => {
   margin-bottom: 1rem;
 }
 .char-badge {
-  padding: 0.25rem 1rem;
-  border-radius: 20px;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
   font-weight: 800;
   font-size: 0.8rem;
   text-transform: uppercase;
-  color: white;
+  background: var(--bg-hover);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
 }
 .validated-tag,
 .recorded-tag {
   font-size: 0.75rem;
   font-weight: 700;
   padding: 0.25rem 0.75rem;
-  border-radius: 12px;
+  border-radius: 4px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
-.validated-tag {
-  background: rgba(34, 197, 94, 0.2);
-  border: 1px solid rgba(34, 197, 94, 0.4);
-  color: #4ade80;
-}
-.recorded-tag {
-  background: rgba(59, 130, 246, 0.2);
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  color: #93c5fd;
-}
-
 .main-text {
   font-size: 1.2rem;
   font-weight: 800;
@@ -1055,85 +1063,47 @@ const leaveStudio = () => {
   flex-wrap: wrap;
 }
 .btn-control {
-  padding: 0.75rem 1.25rem;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  border: 1px solid transparent;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  padding: 0;
+  border: 1px solid var(--border-color);
   cursor: pointer;
   transition: all 0.2s;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  color: white;
+  justify-content: center;
+  color: var(--text-main);
+  background: var(--bg-card);
+}
+.btn-control:hover:not(:disabled) {
+  background: var(--bg-hover);
+  border-color: var(--text-main);
+  transform: translateY(-2px);
 }
 .btn-control:disabled {
   opacity: 0.35;
   cursor: not-allowed;
-  filter: grayscale(0.8);
   transform: none !important;
-}
-
-.btn-listen {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
-}
-.btn-listen:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.16);
-}
-
-.btn-control.btn-record {
-  background: linear-gradient(135deg, #ef4444, #f43f5e);
-}
-.btn-control.btn-record:hover:not(:disabled) {
-  background: linear-gradient(135deg, #dc2626, #e11d48);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+  border-color: transparent;
 }
 .countdown-btn {
-  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-  animation: pulse-orange 1s infinite;
+  border-color: var(--text-main);
+  animation: pulse-border 1s infinite;
 }
-@keyframes pulse-orange {
+@keyframes pulse-border {
   0% {
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2);
   }
   70% {
-    box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
   }
 }
-
-.btn-stop-rec {
-  background: #b91c1c;
-  border: 1px solid #f87171;
-  animation: pulse 1s infinite;
-}
-.btn-review {
-  background: #3b82f6;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);
-}
-.btn-review:hover:not(:disabled) {
-  background: #2563eb;
-  transform: translateY(-2px);
-}
 .is-active-review {
-  background: #1d4ed8;
-  border-color: #60a5fa;
-}
-.btn-validate {
-  background: #22c55e;
-  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.35);
-}
-.btn-validate:hover:not(:disabled) {
-  background: #16a34a;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.6);
-}
-.btn-next {
-  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--text-main);
 }
 .waiting-turn {
   color: #94a3b8;

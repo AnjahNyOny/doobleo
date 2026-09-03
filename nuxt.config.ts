@@ -43,8 +43,14 @@ export default defineNuxtConfig({
     '@nuxt/eslint', // Gènère .nuxt/eslint.config.mjs
     'nuxt-auth-utils', // Auth sessions (httpOnly cookies)
     '@pinia/nuxt', // Gestion d'état
-    // '@nuxtjs/tailwindcss',   // Phase 6
+    '@nuxtjs/color-mode',
   ],
+
+  colorMode: {
+    preference: 'system', // default value of $colorMode.preference
+    fallback: 'dark', // fallback value if not system preference found
+    classSuffix: '', // so it adds .dark / .light instead of .dark-mode
+  },
 
   imports: {
     dirs: ['composables/**'],
