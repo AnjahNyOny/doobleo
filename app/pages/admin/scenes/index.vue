@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Clapperboard } from 'lucide-vue-next'
+
 definePageMeta({ layout: 'admin', middleware: 'admin', title: 'Scènes — Admin' })
 
 const { data: scenes, refresh } = await useFetch('/api/admin/scenes')
@@ -67,7 +69,9 @@ function formatDuration(ms: number) {
             :alt="scene.title"
             class="thumb"
           />
-          <div v-else class="thumb-placeholder">🎬</div>
+          <div v-else class="thumb-placeholder">
+            <Clapperboard :size="24" class="placeholder-icon" />
+          </div>
           <div>
             <p class="scene-title">{{ scene.title }}</p>
             <p v-if="scene.description" class="scene-desc">{{ scene.description }}</p>
@@ -162,21 +166,25 @@ function formatDuration(ms: number) {
 }
 .thumb {
   width: 64px;
-  height: 40px;
+  width: 56px;
+  height: 36px;
   object-fit: cover;
   border-radius: 6px;
   flex-shrink: 0;
 }
 .thumb-placeholder {
-  width: 64px;
-  height: 40px;
-  background: var(--bg-hover);
+  width: 56px;
+  height: 36px;
   border-radius: 6px;
+  background: var(--bg-hover);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
   flex-shrink: 0;
+}
+.placeholder-icon {
+  color: var(--text-muted);
+  opacity: 0.5;
 }
 .scene-title {
   font-weight: 600;

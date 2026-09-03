@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Film, CheckCircle2, FileEdit, Users } from 'lucide-vue-next'
+import { Film, CheckCircle2, FileEdit, Users, Clapperboard } from 'lucide-vue-next'
 
 definePageMeta({ layout: 'admin', middleware: 'admin', title: 'Dashboard — Admin' })
 
@@ -69,7 +69,9 @@ const totalChars = computed(
             :alt="scene.title"
             class="scene-thumb"
           />
-          <div v-else class="scene-thumb-placeholder">🎬</div>
+          <div v-else class="scene-thumb-placeholder">
+            <Clapperboard :size="24" class="placeholder-icon" />
+          </div>
           <div class="scene-info">
             <p class="scene-title">{{ scene.title }}</p>
             <p class="scene-meta">{{ scene.characterCount }} personnage(s)</p>
@@ -192,12 +194,16 @@ const totalChars = computed(
 .scene-thumb-placeholder {
   width: 56px;
   height: 36px;
-  background: var(--bg-hover);
   border-radius: 6px;
+  background: var(--bg-hover);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+.placeholder-icon {
+  color: var(--text-muted);
+  opacity: 0.5;
 }
 .scene-info {
   flex: 1;

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeft } from 'lucide-vue-next'
+import { ArrowLeft, Clapperboard } from 'lucide-vue-next'
 
 definePageMeta({ title: 'Bibliothèque — Doobleo' })
 
@@ -82,14 +82,9 @@ const hostRoomWithScene = async (sceneId: string) => {
       <div v-for="scene in scenes" :key="scene.id" class="scene-card glass-card">
         <div class="thumbnail-wrapper">
           <img v-if="scene.thumbnailUrl" :src="scene.thumbnailUrl" class="thumbnail" />
-          <video
-            v-else
-            :src="`${scene.videoUrl}#t=2`"
-            class="thumbnail video-thumbnail"
-            preload="metadata"
-            muted
-            playsinline
-          />
+          <div v-else class="thumbnail-placeholder">
+            <Clapperboard :size="48" class="placeholder-icon" />
+          </div>
           <div class="duration-badge">{{ Math.round(scene.durationMs / 1000) }}s</div>
         </div>
         <div class="scene-info">
@@ -195,6 +190,18 @@ const hostRoomWithScene = async (sceneId: string) => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+.thumbnail-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-input);
+}
+.placeholder-icon {
+  color: var(--text-muted);
+  opacity: 0.5;
 }
 .duration-badge {
   position: absolute;
