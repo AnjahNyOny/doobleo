@@ -107,7 +107,6 @@ function formatDuration(ms: number) {
   margin-bottom: 2rem;
 }
 .page-title {
-.page-title {
   font-size: 1.75rem;
   font-weight: 700;
   color: var(--text-main);
