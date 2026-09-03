@@ -7,6 +7,7 @@ import {
   boolean,
   timestamp,
   pgEnum,
+  jsonb,
 } from 'drizzle-orm/pg-core'
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
@@ -88,7 +89,7 @@ export const rooms = pgTable('rooms', {
 
 // ─── room_players ─────────────────────────────────────────────────────────────
 
-export const roomPlayers = pgTable('room_players', {
+export const roomPlayers = pgTable('room_player_sessions', {
   id: uuid('id').primaryKey().defaultRandom(),
   roomId: uuid('room_id')
     .notNull()
@@ -96,7 +97,7 @@ export const roomPlayers = pgTable('room_players', {
   userId: text('user_id').notNull(), // uuid ou guest_id
   username: varchar('username', { length: 30 }).notNull(),
   avatarUrl: text('avatar_url'),
-  characterId: uuid('character_id').references(() => characters.id),
+  characterIds: jsonb('character_ids').$type<string[]>().default([]).notNull(),
   isReady: boolean('is_ready').notNull().default(false),
   isGuest: boolean('is_guest').notNull().default(false),
   isConnected: boolean('is_connected').notNull().default(true),

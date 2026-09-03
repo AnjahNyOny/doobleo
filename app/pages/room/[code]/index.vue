@@ -128,14 +128,7 @@ const selectCharacter = (charId: string) => {
 
 const startGame = () => {
   if (!isHost.value) return
-  // Vérifier que tous les joueurs connectés ont un perso
-  const allSet = players.value.every((p: any) => p.characterId)
-  if (!allSet) {
-    socketError.value = 'Tous les joueurs doivent choisir un personnage.'
-    setTimeout(() => (socketError.value = ''), 3000)
-    return
-  }
-
+  // Optionnel: On peut avertir si des persos sont vides, mais on laisse l'hôte décider.
   socket.emit('host_start_game', { roomCode: code })
 }
 
@@ -146,7 +139,7 @@ const leaveRoom = () => {
 
 // Utilitaires UI
 const getPlayerByChar = (charId: string) => {
-  return players.value.find((p: any) => p.characterId === charId)
+  return players.value.find((p: any) => p.characterIds && p.characterIds.includes(charId))
 }
 const isCharTakenByOther = (charId: string) => {
   const p = getPlayerByChar(charId)
@@ -208,7 +201,11 @@ const copyCode = () => {
                 {{ player.userId === userId.value ? username : 'Joueur connecté' }}
                 <span v-if="player.userId === roomInfo?.hostUserId" class="host-badge">Hôte</span>
               </span>
-              <span v-if="player.characterId" class="status-ready">Prêt</span>
+              <span
+                v-if="player.characterIds && player.characterIds.length > 0"
+                class="status-ready"
+                >Prêt</span
+              >
               <span v-else class="status-choosing">Choisit...</span>
             </div>
           </div>

@@ -66,7 +66,7 @@ export interface RoomPlayer {
   userId: string
   username: string
   avatarUrl: string | null
-  characterId: string | null
+  characterIds: string[]
   isReady: boolean
   isGuest: boolean
 }

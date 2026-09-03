@@ -59,7 +59,7 @@ interface Line {
 }
 
 const state = ref<any>(null)
-const myCharId = ref<string>('')
+const myCharIds = ref<string[]>([])
 
 const videoRef = ref<HTMLVideoElement | null>(null)
 const waveformContainerRef = ref<HTMLElement | null>(null)
@@ -219,10 +219,10 @@ onMounted(async () => {
   socket.on('room_state_update', (roomState: any) => {
     state.value = roomState
     const me = roomState.players.find((p: any) => p.userId === userId.value)
-    if (me?.characterId) {
-      myCharId.value = me.characterId
-      // Pointer vers la première réplique de ce personnage
-      const firstMine = lines.value.findIndex((l) => l.characterId === myCharId.value)
+    if (me?.characterIds && me.characterIds.length > 0) {
+      myCharIds.value = me.characterIds
+      // Pointer vers la première réplique de l'un de ces personnages
+      const firstMine = lines.value.findIndex((l) => myCharIds.value.includes(l.characterId))
       if (firstMine !== -1) activeLineIndex.value = firstMine
     }
   })
@@ -351,9 +351,9 @@ const validateTake = () => {
   recordedTakes.value[activeLine.value.id] = currentLineTake.value
   pendingBlob.value = null
 
-  // Passer à la prochaine ligne de mon personnage
+  // Passer à la prochaine ligne de l'un de mes personnages
   const nextMine = lines.value.findIndex(
-    (l, i) => i > activeLineIndex.value && l.characterId === myCharId.value
+    (l, i) => i > activeLineIndex.value && myCharIds.value.includes(l.characterId)
   )
   if (nextMine !== -1) {
     activeLineIndex.value = nextMine
@@ -382,8 +382,8 @@ const selectLine = (index: number) => {
 
 // ─── MES RÉPLIQUES ─────────────────────────────────────────────────────────
 const myLines = computed(() => {
-  if (!myCharId.value) return []
-  return lines.value.filter((l) => l.characterId === myCharId.value)
+  if (!myCharIds.value.length) return []
+  return lines.value.filter((l) => myCharIds.value.includes(l.characterId))
 })
 
 const completedLinesCount = computed(() => {
@@ -404,7 +404,7 @@ const handleEnd = async () => {
     pendingBlob.value = null
   }
 
-  if (!myCharId.value) {
+  if (!myCharIds.value.length) {
     router.push(`/room/${code}/playback`)
     return
   }
@@ -443,7 +443,7 @@ const handleEnd = async () => {
     socket.emit('audio_uploaded_chunks', {
       roomCode: code,
       userId: userId.value,
-      characterId: myCharId.value,
+      characterId: myCharIds.value[0] || '', // Pour retrocompatibilité
       chunks,
     })
 
@@ -491,7 +491,7 @@ const leaveStudio = () => {
             <X :size="20" />
           </button>
         </div>
-        <span v-if="myCharId" class="progression-pill">
+        <span v-if="myCharIds.length > 0" class="progression-pill">
           {{ completedLinesCount }} / {{ myLines.length }} validées
         </span>
       </div>
@@ -503,7 +503,7 @@ const leaveStudio = () => {
           class="line-row"
           :class="{
             'is-active': activeLineIndex === index,
-            'not-my-turn': myCharId && line.characterId !== myCharId,
+            'not-my-turn': myCharIds.length > 0 && !myCharIds.includes(line.characterId),
             'is-done': !!recordedTakes[line.id],
           }"
           @click="selectLine(index)"
@@ -578,7 +578,7 @@ const leaveStudio = () => {
           </transition>
 
           <!-- Contrôles d'action -->
-          <div v-if="activeLine.characterId === myCharId" class="controls">
+          <div v-if="myCharIds.includes(activeLine.characterId)" class="controls">
             <button
               class="btn-control btn-listen"
               title="Écouter Référence"

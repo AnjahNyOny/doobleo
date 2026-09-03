@@ -68,20 +68,31 @@ export const initSocketManager = (io: SocketServer) => {
       const state = activeRooms.get(roomCode)
       if (!state) return
 
-      // Vérifier si le perso est déjà pris par un autre
-      const isTaken = state.players.some(
-        (p) => p.characterId === characterId && p.userId !== userId
-      )
-      if (isTaken) {
-        socket.emit('character_locked_error', { message: 'Personnage déjà sélectionné.' })
+      const player = state.players.find((p) => p.userId === userId)
+      if (!player) return
+
+      // Si le joueur a déjà ce perso, on le retire
+      if (player.characterIds && player.characterIds.includes(characterId)) {
+        player.characterIds = player.characterIds.filter((id) => id !== characterId)
+        io.to(roomCode).emit('room_state_update', state)
         return
       }
 
-      const player = state.players.find((p) => p.userId === userId)
-      if (player) {
-        player.characterId = characterId
-        io.to(roomCode).emit('room_state_update', state)
+      // Sinon, on vérifie si un AUTRE joueur l'a déjà
+      const isTaken = state.players.some(
+        (p) => p.characterIds && p.characterIds.includes(characterId) && p.userId !== userId
+      )
+      if (isTaken) {
+        socket.emit('character_locked_error', {
+          message: 'Personnage déjà sélectionné par un autre joueur.',
+        })
+        return
       }
+
+      // On l'ajoute au joueur
+      player.characterIds = player.characterIds || []
+      player.characterIds.push(characterId)
+      io.to(roomCode).emit('room_state_update', state)
     })
 
     // ─── ORCHESTRATION DU JEU ────────────────────────────────────────────────
@@ -121,8 +132,10 @@ export const initSocketManager = (io: SocketServer) => {
           state.mixesReady++
         }
 
-        // Si tous les joueurs (ayant un perso) ont uploadé
-        const playersWithChars = state.players.filter((p) => p.characterId)
+        // Si tous les joueurs (ayant au moins un perso) ont uploadé
+        const playersWithChars = state.players.filter(
+          (p) => p.characterIds && p.characterIds.length > 0
+        )
         if (state.mixesReady >= playersWithChars.length) {
           state.status = 'mixing'
           io.to(roomCode).emit('room_state_update', state)
@@ -130,7 +143,7 @@ export const initSocketManager = (io: SocketServer) => {
           // 🚀 DÉCLENCHER LE JOB BULLMQ
           const blobs = playersWithChars.map((p) => ({
             userId: p.userId,
-            characterId: p.characterId!,
+            characterId: p.characterIds[0] || '', // Pour retrocompatibilité
             chunks: p.chunks || [],
           }))
 
