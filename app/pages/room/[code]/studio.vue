@@ -837,6 +837,7 @@ const leaveStudio = () => {
 .line-row.is-active {
   border-color: var(--text-main);
   background: var(--bg-input);
+}
 .line-row.is-mine {
   border-style: dashed;
 }
