@@ -312,7 +312,7 @@ const joinRoom = () => {
 .username {
   font-size: 1.1rem;
   font-weight: 600;
-  color: white;
+  color: var(--text-main);
 }
 
 .divider {
@@ -322,37 +322,32 @@ const joinRoom = () => {
 }
 
 .actions-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 2rem;
-  position: relative;
 }
 
 @media (min-width: 600px) {
   .actions-grid {
-    flex-direction: row;
-    align-items: stretch;
-  }
-  .action-box {
-    flex: 1;
-  }
-  .action-divider {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    background: var(--bg-card);
-    padding: 0.5rem;
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    font-weight: 600;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1.5rem;
   }
 }
 
 .box-title {
   font-size: 1.1rem;
-  color: white;
+  color: var(--text-main);
   margin-bottom: 0.5rem;
+}
+
+.action-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .box-desc {
@@ -405,7 +400,7 @@ const joinRoom = () => {
   transition: var(--transition);
 }
 .admin-link:hover {
-  color: white;
+  color: var(--text-main);
 }
 
 /* Animations */

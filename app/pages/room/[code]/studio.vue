@@ -500,10 +500,10 @@ const leaveStudio = () => {
         <div
           v-for="(line, index) in lines"
           :key="line.id"
-          class="line-item"
+          class="line-row"
           :class="{
-            'is-active': index === activeLineIndex,
-            'is-mine': line.characterId === myCharId,
+            'is-active': activeLineIndex === index,
+            'not-my-turn': myCharId && line.characterId !== myCharId,
             'is-done': !!recordedTakes[line.id],
           }"
           @click="selectLine(index)"
@@ -820,7 +820,7 @@ const leaveStudio = () => {
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
 }
-.line-item {
+.line-row {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -831,21 +831,23 @@ const leaveStudio = () => {
   flex-direction: column;
   gap: 0.35rem;
 }
-.line-item:hover {
+.line-row:hover {
   background: var(--bg-hover);
 }
-.line-item.is-active {
-  background: var(--bg-input);
+.line-row.is-active {
   border-color: var(--text-main);
-}
-.line-item.is-mine {
-  /* subtly distinct for own lines */
+  background: var(--bg-input);
+.line-row.is-mine {
   border-style: dashed;
 }
-.line-item.is-done {
+.line-row.not-my-turn {
+  opacity: 0.45;
+  filter: grayscale(100%);
+}
+.line-row.is-done {
   opacity: 0.7;
 }
-.line-char {
+.line-row-char {
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1049,11 +1051,13 @@ const leaveStudio = () => {
   gap: 0.35rem;
 }
 .main-text {
+  font-family: 'DM Sans', sans-serif;
   font-size: 1.2rem;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.35;
   color: var(--text-main);
   margin: 0 0 1rem 0;
+  text-transform: none;
 }
 .visual-countdown {
   font-family: 'Cinzel', serif;
