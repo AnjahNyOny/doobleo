@@ -38,7 +38,7 @@
   --theme-surface: #f0efeb;
   --theme-border: #ddbea9;
   --theme-accent: #cb997e;
-  --theme-text: #2c2a29; /* Darker for readability */
+  --theme-text: #4a3b32; /* Warm dark brown, not black */
 
   --bg-main: var(--theme-bg);
   --bg-card: var(--theme-surface);
@@ -118,8 +118,8 @@ h6 {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background: var(--text-main);
-  color: var(--text-inverse);
+  background: var(--theme-accent);
+  color: #fff;
   font-weight: 600;
   font-size: 0.95rem;
   padding: 0.8rem 1.5rem;

@@ -192,7 +192,7 @@ const totalChars = computed(
 .scene-thumb-placeholder {
   width: 56px;
   height: 36px;
-  background: #1e1e2e;
+  background: var(--bg-hover);
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -205,11 +205,11 @@ const totalChars = computed(
 .scene-title {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #e2e8f0;
+  color: var(--text-main);
 }
 .scene-meta {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-muted);
   margin-top: 2px;
 }
 .scene-badge {
@@ -231,12 +231,12 @@ const totalChars = computed(
   display: inline-block;
   margin-top: 1rem;
   font-size: 0.85rem;
-  color: #a78bfa;
+  color: var(--theme-accent);
   text-decoration: none;
 }
 
 .btn-primary {
-  background: #7c3aed;
+  background: var(--theme-accent);
   color: #fff;
   padding: 0.6rem 1.25rem;
   border-radius: 8px;

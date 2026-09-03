@@ -262,13 +262,13 @@ const formatMs = (ms: number) => {
   max-width: 1000px;
   margin: 0 auto;
   padding: 2rem;
-  color: #e2e8f0;
+  color: var(--text-main);
   font-family: 'Inter', sans-serif;
 }
 
 .poc-header {
   margin-bottom: 2rem;
-  border-bottom: 1px solid #2d2d3a;
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 1rem;
 }
 
@@ -279,8 +279,8 @@ const formatMs = (ms: number) => {
 }
 
 .panel {
-  background: #16161d;
-  border: 1px solid #2d2d3a;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 1.5rem;
   display: flex;
@@ -290,14 +290,14 @@ const formatMs = (ms: number) => {
 
 h2 {
   font-size: 1.1rem;
-  color: #a78bfa;
+  color: var(--theme-accent);
   margin-bottom: 0.5rem;
 }
 
 .scene-select {
-  background: #0f0f13;
+  background: var(--bg-input);
   color: white;
-  border: 1px solid #2d2d3a;
+  border: 1px solid var(--border-color);
   padding: 0.5rem;
   border-radius: 6px;
   width: 100%;
@@ -320,13 +320,13 @@ video {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: #0f0f13;
+  background: var(--bg-input);
   padding: 0.5rem;
   border-radius: 8px;
 }
 
 .btn-icon {
-  background: #2d2d3a;
+  background: var(--border-color);
   border: none;
   color: white;
   border-radius: 4px;
@@ -341,7 +341,7 @@ video {
 }
 
 .btn-primary {
-  background: #7c3aed;
+  background: var(--theme-accent);
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -354,8 +354,8 @@ video {
 }
 
 .btn-secondary {
-  background: #1e1e2e;
-  color: #a78bfa;
+  background: var(--bg-hover);
+  color: var(--theme-accent);
   border: 1px solid #3730a3;
   padding: 0.5rem 1rem;
   border-radius: 6px;
@@ -389,10 +389,10 @@ video {
 .vu-meter-bar {
   flex: 1;
   height: 12px;
-  background: #0f0f13;
+  background: var(--bg-input);
   border-radius: 6px;
   overflow: hidden;
-  border: 1px solid #2d2d3a;
+  border: 1px solid var(--border-color);
 }
 .vu-meter-fill {
   height: 100%;
@@ -409,8 +409,8 @@ video {
   width: 100%;
   padding: 0.75rem;
   border-radius: 8px;
-  border: 1px solid #2d2d3a;
-  background: #1e1e2e;
+  border: 1px solid var(--border-color);
+  background: var(--bg-hover);
   color: white;
   cursor: pointer;
   font-weight: 600;
@@ -451,7 +451,7 @@ video {
 
 .hint {
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--text-muted);
   text-align: center;
   margin-top: -0.5rem;
 }
@@ -459,7 +459,7 @@ video {
 .result-panel {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px dashed #2d2d3a;
+  border-top: 1px dashed var(--border-color);
   display: flex;
   flex-direction: column;
   gap: 1rem;

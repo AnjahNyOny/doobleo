@@ -57,7 +57,7 @@ const togglePublish = async () => {
 
 // ─── Personnages ──────────────────────────────────────────────────────────────
 
-const newChar = reactive({ name: '', color: '#7c3aed', description: '' })
+const newChar = reactive({ name: '', color: 'var(--theme-accent)', description: '' })
 const addingChar = ref(false)
 
 const addCharacter = async () => {
@@ -284,7 +284,8 @@ const importLines = async (e: Event) => {
 
 // Couleur du personnage par id
 const charColor = (charId: string) =>
-  ((scene.value?.characters as Character[]) ?? []).find((c) => c.id === charId)?.color ?? '#fff'
+  ((scene.value?.characters as Character[]) ?? []).find((c) => c.id === charId)?.color ??
+  'var(--text-main)'
 const charName = (charId: string) =>
   ((scene.value?.characters as Character[]) ?? []).find((c) => c.id === charId)?.name ?? '?'
 
@@ -510,12 +511,12 @@ const onTimeUpdate = () => {
   margin-bottom: 0.5rem;
 }
 .back-link {
-  color: #64748b;
+  color: var(--text-muted);
   text-decoration: none;
   font-size: 0.875rem;
 }
 .back-link:hover {
-  color: #a78bfa;
+  color: var(--theme-accent);
 }
 .header-right {
   display: flex;
@@ -529,30 +530,30 @@ const onTimeUpdate = () => {
   font-weight: 600;
 }
 .status-badge.published {
-  background: #14532d;
-  color: #4ade80;
+  background: rgba(16, 185, 129, 0.1);
+  color: #34d399;
 }
 .status-badge.draft {
-  background: #1e1b4b;
-  color: #818cf8;
+  background: var(--bg-hover);
+  color: var(--theme-accent);
 }
 .btn-toggle {
-  background: #1e1e2e;
+  background: var(--bg-hover);
   color: #94a3b8;
-  border: 1px solid #2d2d3a;
+  border: 1px solid var(--border-color);
   padding: 5px 14px;
   border-radius: 7px;
   font-size: 0.8rem;
   cursor: pointer;
 }
 .btn-toggle:hover {
-  border-color: #a78bfa;
-  color: #a78bfa;
+  border-color: var(--theme-accent);
+  color: var(--theme-accent);
 }
 .editor-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-main);
   margin-bottom: 1.5rem;
 }
 
@@ -560,7 +561,7 @@ const onTimeUpdate = () => {
   display: flex;
   gap: 4px;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid #2d2d3a;
+  border-bottom: 1px solid var(--border-color);
 }
 .tab {
   background: none;
@@ -568,7 +569,7 @@ const onTimeUpdate = () => {
   border-bottom: 2px solid transparent;
   padding: 0.6rem 1rem;
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -576,14 +577,14 @@ const onTimeUpdate = () => {
   transition: all 0.15s;
 }
 .tab:hover {
-  color: #e2e8f0;
+  color: var(--text-main);
 }
 .tab.active {
-  color: #a78bfa;
-  border-bottom-color: #a78bfa;
+  color: var(--theme-accent);
+  border-bottom-color: var(--theme-accent);
 }
 .tab-count {
-  background: #2d2d3a;
+  background: var(--border-color);
   color: #94a3b8;
   font-size: 0.7rem;
   padding: 1px 7px;
@@ -596,15 +597,15 @@ const onTimeUpdate = () => {
   gap: 1rem;
 }
 .card {
-  background: #16161d;
-  border: 1px solid #2d2d3a;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 1.5rem;
 }
 .section-title {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-main);
   margin-bottom: 1rem;
 }
 .form-group {
@@ -620,10 +621,10 @@ label {
 input[type='text'],
 textarea,
 select {
-  background: #0f0f13;
-  border: 1px solid #2d2d3a;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  color: #e2e8f0;
+  color: var(--text-main);
   padding: 0.6rem 0.875rem;
   font-size: 0.875rem;
   outline: none;
@@ -636,7 +637,7 @@ select {
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: #7c3aed;
+  border-color: var(--theme-accent);
 }
 
 .char-form {
@@ -657,7 +658,7 @@ select:focus {
 .color-picker {
   width: 40px;
   height: 36px;
-  border: 1px solid #2d2d3a;
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   background: none;
   cursor: pointer;
@@ -666,7 +667,7 @@ select:focus {
 .empty-state {
   text-align: center;
   padding: 2rem;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.875rem;
 }
 
@@ -679,8 +680,8 @@ select:focus {
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: #16161d;
-  border: 1px solid #2d2d3a;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 0.875rem 1rem;
 }
@@ -696,11 +697,11 @@ select:focus {
 .char-name {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #e2e8f0;
+  color: var(--text-main);
 }
 .char-desc {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
@@ -731,8 +732,8 @@ select:focus {
   margin-top: -4px; /* supprime l'espace sous la vidéo */
 }
 .timecode-display {
-  background: #0f0f13;
-  border: 1px solid #2d2d3a;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 0.5rem 0.875rem;
   font-size: 0.875rem;
@@ -748,8 +749,8 @@ select:focus {
 }
 
 .add-line-form {
-  background: #16161d;
-  border: 1px solid #2d2d3a;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 1.25rem;
   display: flex;
@@ -766,8 +767,8 @@ select:focus {
   gap: 0.75rem;
 }
 .tc-field {
-  background: #0f0f13;
-  border: 1px solid #2d2d3a;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 0.6rem 0.75rem;
   display: flex;
@@ -776,18 +777,18 @@ select:focus {
 }
 .tc-label {
   font-size: 0.7rem;
-  color: #64748b;
+  color: var(--text-muted);
   text-transform: uppercase;
 }
 .tc-value {
   font-size: 0.9rem;
   font-family: monospace;
-  color: #e2e8f0;
+  color: var(--text-main);
 }
 .btn-mark {
-  background: #1e1e2e;
+  background: var(--bg-hover);
   border: 1px solid #3730a3;
-  color: #a78bfa;
+  color: var(--theme-accent);
   padding: 3px 8px;
   border-radius: 5px;
   font-size: 0.7rem;
@@ -823,15 +824,15 @@ select:focus {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  background: #16161d;
-  border: 1px solid #2d2d3a;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 0.875rem;
   transition: border-color 0.15s;
 }
 .line-row.is-active {
-  border-color: #7c3aed;
-  background: #1a1030;
+  border-color: var(--theme-accent);
+  background: var(--bg-hover);
 }
 .line-char-dot {
   width: 10px;
@@ -850,11 +851,11 @@ select:focus {
 }
 .line-text {
   font-size: 0.875rem;
-  color: #e2e8f0;
+  color: var(--text-main);
 }
 .line-times {
   font-size: 0.7rem;
-  color: #64748b;
+  color: var(--text-muted);
   font-family: monospace;
   margin-top: 4px;
 }
@@ -874,8 +875,8 @@ select:focus {
 }
 
 .btn-primary {
-  background: #7c3aed;
-  color: #fff;
+  background: var(--theme-accent);
+  color: var(--text-main);
   padding: 0.6rem 1.25rem;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -906,17 +907,17 @@ select:focus {
   background: #2d1515;
 }
 .btn-sm-ghost {
-  background: #1e1e2e;
+  background: var(--bg-hover);
   color: #94a3b8;
-  border: 1px solid #2d2d3a;
+  border: 1px solid var(--border-color);
   padding: 5px 10px;
   border-radius: 6px;
   font-size: 0.75rem;
   cursor: pointer;
 }
 .btn-sm-ghost:hover {
-  border-color: #64748b;
-  color: #e2e8f0;
+  border-color: var(--text-muted);
+  color: var(--text-main);
 }
 .form-error {
   color: #f87171;

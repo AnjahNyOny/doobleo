@@ -216,19 +216,19 @@ const handleCreate = async () => {
   margin-bottom: 2rem;
 }
 .back-link {
-  color: #64748b;
+  color: var(--text-muted);
   text-decoration: none;
   font-size: 0.875rem;
   display: block;
   margin-bottom: 0.75rem;
 }
 .back-link:hover {
-  color: #a78bfa;
+  color: var(--theme-accent);
 }
 .page-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-main);
 }
 
 .create-form {
@@ -237,20 +237,20 @@ const handleCreate = async () => {
   gap: 1.5rem;
 }
 .card {
-  background: #16161d;
-  border: 1px solid #2d2d3a;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 1.5rem;
 }
 .card-title {
   font-size: 1rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-main);
   margin-bottom: 1rem;
 }
 .card-hint {
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--text-muted);
   margin-bottom: 0.75rem;
   margin-top: -0.5rem;
 }
@@ -271,10 +271,10 @@ label {
 }
 input[type='text'],
 textarea {
-  background: #0f0f13;
-  border: 1px solid #2d2d3a;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  color: #e2e8f0;
+  color: var(--text-main);
   padding: 0.625rem 0.875rem;
   font-size: 0.9rem;
   outline: none;
@@ -284,11 +284,11 @@ textarea {
 }
 input:focus,
 textarea:focus {
-  border-color: #7c3aed;
+  border-color: var(--theme-accent);
 }
 
 .upload-zone {
-  border: 2px dashed #2d2d3a;
+  border: 2px dashed var(--border-color);
   border-radius: 10px;
   padding: 1.5rem;
   text-align: center;
@@ -314,21 +314,21 @@ textarea:focus {
   pointer-events: none;
 }
 .progress-bar {
-  background: #1e1e2e;
+  background: var(--bg-hover);
   border-radius: 4px;
   height: 6px;
   margin-top: 0.75rem;
   overflow: hidden;
 }
 .progress-fill {
-  background: #7c3aed;
+  background: var(--theme-accent);
   height: 100%;
   border-radius: 4px;
   transition: width 0.2s;
 }
 .duration-hint {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-muted);
   margin-top: 0.5rem;
 }
 
@@ -342,8 +342,8 @@ textarea:focus {
   justify-content: flex-end;
 }
 .btn-primary {
-  background: #7c3aed;
-  color: #fff;
+  background: var(--theme-accent);
+  color: var(--text-main);
   padding: 0.6rem 1.5rem;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -360,15 +360,15 @@ textarea:focus {
 }
 .btn-ghost {
   background: transparent;
-  color: #64748b;
+  color: var(--text-muted);
   padding: 0.6rem 1.25rem;
   border-radius: 8px;
   font-size: 0.875rem;
   text-decoration: none;
-  border: 1px solid #2d2d3a;
+  border: 1px solid var(--border-color);
 }
 .btn-ghost:hover {
-  border-color: #64748b;
+  border-color: var(--text-muted);
   color: #94a3b8;
 }
 </style>

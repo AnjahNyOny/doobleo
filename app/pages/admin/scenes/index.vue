@@ -231,8 +231,8 @@ function formatDuration(ms: number) {
   display: inline-block;
 }
 .btn-edit {
-  background: #1e1e2e;
-  color: #a78bfa;
+  background: var(--bg-hover);
+  color: var(--theme-accent);
   border: 1px solid #3730a3;
 }
 .btn-edit:hover {
@@ -251,7 +251,7 @@ function formatDuration(ms: number) {
   cursor: not-allowed;
 }
 .btn-primary {
-  background: #7c3aed;
+  background: var(--theme-accent);
   color: #fff;
   padding: 0.6rem 1.25rem;
   border-radius: 8px;
