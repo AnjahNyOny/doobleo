@@ -89,7 +89,16 @@ async function uploadFile(file: File, type: 'thumbnail', contentType: string) {
 const onThumbnailChange = async (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (!file) return
-  await uploadFile(file, 'thumbnail', file.type as 'image/jpeg' | 'image/png' | 'image/webp')
+
+  let type = file.type
+  if (type === 'image/jpg') type = 'image/jpeg'
+
+  try {
+    await uploadFile(file, 'thumbnail', type)
+  } catch (err: any) {
+    alert(err.message || "Erreur lors de l'upload")
+    console.error(err)
+  }
 }
 
 const togglePublish = async () => {

@@ -41,10 +41,12 @@ onUnmounted(() => {
 const downloadVideo = () => {
   if (!finalVideoUrl.value) return
   const a = document.createElement('a')
-  a.href = finalVideoUrl.value
+  // On utilise notre proxy pour forcer le téléchargement et éviter l'ouverture dans un nouvel onglet
+  a.href = `/api/download?url=${encodeURIComponent(finalVideoUrl.value)}`
   a.download = `Doobleo_${code}.mp4`
-  a.target = '_blank'
+  document.body.appendChild(a)
   a.click()
+  document.body.removeChild(a)
 }
 </script>
 
