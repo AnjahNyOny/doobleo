@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { LayoutDashboard, Clapperboard, Globe, LogOut, Mic2, Menu, X } from 'lucide-vue-next'
+import { LayoutDashboard, Clapperboard, Globe, LogOut, Menu, X } from 'lucide-vue-next'
 
 const { logout } = useAuth()
 const route = useRoute()
@@ -15,7 +15,27 @@ const toggleSidebar = () => {
   <div class="admin-shell" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
     <aside class="admin-sidebar">
       <div class="sidebar-brand">
-        <span class="brand-icon"><Mic2 :size="24" /></span>
+        <span class="brand-icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect width="8" height="14" x="8" y="2" rx="4" />
+            <path d="M8 6h8" />
+            <path d="M8 10h8" />
+            <path d="M8 14h8" />
+            <path d="M17 10v2a5 5 0 0 1-10 0v-2" />
+            <line x1="12" x2="12" y1="17" y2="22" />
+            <line x1="9" x2="15" y1="22" y2="22" />
+          </svg>
+        </span>
         <span v-show="!isSidebarCollapsed" class="brand-name">Doobleo <em>Admin</em></span>
         <button class="toggle-btn" @click="toggleSidebar">
           <Menu v-if="isSidebarCollapsed" :size="20" />

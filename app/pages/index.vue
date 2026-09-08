@@ -117,6 +117,7 @@ const joinRoom = () => {
     <nav class="top-nav">
       <div class="logo">
         <svg
+          xmlns="http://www.w3.org/2000/svg"
           width="28"
           height="28"
           viewBox="0 0 24 24"
@@ -126,12 +127,13 @@ const joinRoom = () => {
           stroke-linecap="round"
           stroke-linejoin="round"
         >
-          <path
-            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5z"
-          />
-          <path
-            d="M12 9.5c-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5 2.5-1.12 2.5-2.5-1.12-2.5-2.5-2.5z"
-          />
+          <rect width="8" height="14" x="8" y="2" rx="4" />
+          <path d="M8 6h8" />
+          <path d="M8 10h8" />
+          <path d="M8 14h8" />
+          <path d="M17 10v2a5 5 0 0 1-10 0v-2" />
+          <line x1="12" x2="12" y1="17" y2="22" />
+          <line x1="9" x2="15" y1="22" y2="22" />
         </svg>
         <span>Doobleo</span>
       </div>
@@ -625,11 +627,13 @@ const joinRoom = () => {
 }
 .btn-primary {
   background: var(--text-main);
-  color: var(--bg-body);
+  color: var(--bg-main);
 }
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: var(--theme-accent);
+  color: #fff;
 }
 .btn-secondary {
   background: var(--theme-secondary);
