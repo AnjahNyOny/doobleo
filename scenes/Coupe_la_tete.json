@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "characters": [
+    {
+      "id": "char-unknown",
+      "name": "À définir",
+      "color": "#94a3b8",
+      "description": "Personnage générique à assigner"
+    }
+  ],
+  "lines": [
+    {
+      "id": "line-1",
+      "characterId": "char-unknown",
+      "text": "QUELQUIEN SE PERMIT DE VOLER 3 DE MES TARTES",
+      "startMs": 0,
+      "endMs": 4000,
+      "order": 1
+    },
+    {
+      "id": "line-2",
+      "characterId": "char-unknown",
+      "text": "C'est vous le voleur ?",
+      "startMs": 12000,
+      "endMs": 13000,
+      "order": 2
+    },
+    {
+      "id": "line-3",
+      "characterId": "char-unknown",
+      "text": "Non votre Majesté",
+      "startMs": 13000,
+      "endMs": 14000,
+      "order": 3
+    },
+    {
+      "id": "line-4",
+      "characterId": "char-unknown",
+      "text": "Vous ?",
+      "startMs": 15000,
+      "endMs": 16000,
+      "order": 4
+    },
+    {
+      "id": "line-5",
+      "characterId": "char-unknown",
+      "text": "Non votre Majesté",
+      "startMs": 16000,
+      "endMs": 17000,
+      "order": 5
+    },
+    {
+      "id": "line-6",
+      "characterId": "char-unknown",
+      "text": "Alors c'est vous ?",
+      "startMs": 17000,
+      "endMs": 18000,
+      "order": 6
+    },
+    {
+      "id": "line-7",
+      "characterId": "char-unknown",
+      "text": "Non votre Majesté",
+      "startMs": 18000,
+      "endMs": 19000,
+      "order": 7
+    },
+    {
+      "id": "line-8",
+      "characterId": "char-unknown",
+      "text": "...",
+      "startMs": 30000,
+      "endMs": 35000,
+      "order": 8
+    },
+    {
+      "id": "line-9",
+      "characterId": "char-unknown",
+      "text": "Est-ce vous qui avez l'olimite ?",
+      "startMs": 51000,
+      "endMs": 53000,
+      "order": 9
+    },
+    {
+      "id": "line-10",
+      "characterId": "char-unknown",
+      "text": "Non votre Majesté",
+      "startMs": 53000,
+      "endMs": 55000,
+      "order": 10
+    },
+    {
+      "id": "line-11",
+      "characterId": "char-unknown",
+      "text": "Syros de mon copoise",
+      "startMs": 61000,
+      "endMs": 63000,
+      "order": 11
+    },
+    {
+      "id": "line-12",
+      "characterId": "char-unknown",
+      "text": "Colucoplatate !",
+      "startMs": 65000,
+      "endMs": 66000,
+      "order": 12
+    }
+  ]
+}

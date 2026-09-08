@@ -90,7 +90,7 @@ const onThumbnailChange = async (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (!file) return
 
-  let type = file.type
+  let type = file.type || 'image/jpeg'
   if (type === 'image/jpg') type = 'image/jpeg'
 
   try {

@@ -4,15 +4,7 @@ import { generateUploadPresignedUrl, generateMediaKey } from '../../../utils/s3'
 
 const presignSchema = z.object({
   filename: z.string().min(1).max(255),
-  contentType: z.enum([
-    'video/mp4',
-    'audio/mpeg',
-    'audio/wav',
-    'audio/ogg',
-    'image/jpeg',
-    'image/png',
-    'image/webp',
-  ]),
+  contentType: z.string().min(1),
   type: z.enum(['video', 'audio', 'thumbnail', 'recording']),
 })
 

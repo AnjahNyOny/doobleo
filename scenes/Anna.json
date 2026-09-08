@@ -1,0 +1,661 @@
+{
+  "version": 1,
+  "characters": [
+    {
+      "id": "char-unknown",
+      "name": "À définir",
+      "color": "#94a3b8",
+      "description": "Personnage générique à assigner"
+    }
+  ],
+  "lines": [
+    {
+      "id": "line-1",
+      "characterId": "char-unknown",
+      "text": "Je t'aime !",
+      "startMs": 0,
+      "endMs": 1000,
+      "order": 1
+    },
+    {
+      "id": "line-2",
+      "characterId": "char-unknown",
+      "text": "A quand chez vous ?",
+      "startMs": 5000,
+      "endMs": 6000,
+      "order": 2
+    },
+    {
+      "id": "line-3",
+      "characterId": "char-unknown",
+      "text": "On est malévite !",
+      "startMs": 6000,
+      "endMs": 7000,
+      "order": 3
+    },
+    {
+      "id": "line-4",
+      "characterId": "char-unknown",
+      "text": "J'adore la vitesse !",
+      "startMs": 7000,
+      "endMs": 8000,
+      "order": 4
+    },
+    {
+      "id": "line-5",
+      "characterId": "char-unknown",
+      "text": "Retirez vos pieds ! Je viens de venir !",
+      "startMs": 9000,
+      "endMs": 11000,
+      "order": 5
+    },
+    {
+      "id": "line-6",
+      "characterId": "char-unknown",
+      "text": "Je ne sais pas où vous avez été élevés !",
+      "startMs": 11000,
+      "endMs": 13000,
+      "order": 6
+    },
+    {
+      "id": "line-7",
+      "characterId": "char-unknown",
+      "text": "J'ai été élevée dans un château !",
+      "startMs": 14000,
+      "endMs": 16000,
+      "order": 7
+    },
+    {
+      "id": "line-8",
+      "characterId": "char-unknown",
+      "text": "Alors, dites-moi, pourquoi la reine nous a plongés dans l'hiver ?",
+      "startMs": 18000,
+      "endMs": 22000,
+      "order": 8
+    },
+    {
+      "id": "line-9",
+      "characterId": "char-unknown",
+      "text": "Eh bien, tout est de ma faute, je...",
+      "startMs": 22000,
+      "endMs": 25000,
+      "order": 9
+    },
+    {
+      "id": "line-10",
+      "characterId": "char-unknown",
+      "text": "Je me suis fiancée et ça l'a mise en colère car, d'après elle,",
+      "startMs": 25000,
+      "endMs": 28000,
+      "order": 10
+    },
+    {
+      "id": "line-11",
+      "characterId": "char-unknown",
+      "text": "on n'épouse pas un homme que l'on vient de rencontrer.",
+      "startMs": 28000,
+      "endMs": 30000,
+      "order": 11
+    },
+    {
+      "id": "line-12",
+      "characterId": "char-unknown",
+      "text": "Elle s'est opposée à notre mariage et...",
+      "startMs": 30000,
+      "endMs": 32000,
+      "order": 12
+    },
+    {
+      "id": "line-13",
+      "characterId": "char-unknown",
+      "text": "Quoi ?",
+      "startMs": 32000,
+      "endMs": 33000,
+      "order": 13
+    },
+    {
+      "id": "line-14",
+      "characterId": "char-unknown",
+      "text": "Vous vous êtes fiancée à un homme que vous veniez de rencontrer ?",
+      "startMs": 33000,
+      "endMs": 36000,
+      "order": 14
+    },
+    {
+      "id": "line-15",
+      "characterId": "char-unknown",
+      "text": "Oui ! Et alors, j'étais furieuse, alors elle s'est mise en colère",
+      "startMs": 36000,
+      "endMs": 39000,
+      "order": 15
+    },
+    {
+      "id": "line-16",
+      "characterId": "char-unknown",
+      "text": "et elle a voulu quitter la pièce alors j'ai attrapé son gant et ensuite...",
+      "startMs": 39000,
+      "endMs": 41000,
+      "order": 16
+    },
+    {
+      "id": "line-17",
+      "characterId": "char-unknown",
+      "text": "Monsieur, c'est quand même incroyable !",
+      "startMs": 41000,
+      "endMs": 43000,
+      "order": 17
+    },
+    {
+      "id": "line-18",
+      "characterId": "char-unknown",
+      "text": "Vous êtes en train de me dire que vous étiez prête à épouser un homme que vous veniez de rencontrer ?",
+      "startMs": 43000,
+      "endMs": 47000,
+      "order": 18
+    },
+    {
+      "id": "line-19",
+      "characterId": "char-unknown",
+      "text": "Oui, je viens de vous le dire.",
+      "startMs": 47000,
+      "endMs": 48000,
+      "order": 19
+    },
+    {
+      "id": "line-20",
+      "characterId": "char-unknown",
+      "text": "Mais le truc, c'est que ma soeur porte des gants tout le temps.",
+      "startMs": 48000,
+      "endMs": 51000,
+      "order": 20
+    },
+    {
+      "id": "line-21",
+      "characterId": "char-unknown",
+      "text": "Et moi, j'ai toujours cru qu'elle ne supportait pas la poussière.",
+      "startMs": 51000,
+      "endMs": 54000,
+      "order": 21
+    },
+    {
+      "id": "line-22",
+      "characterId": "char-unknown",
+      "text": "Vos parents ne vous ont pas appris à vous méfier des inconnus ?",
+      "startMs": 54000,
+      "endMs": 57000,
+      "order": 22
+    },
+    {
+      "id": "line-23",
+      "characterId": "char-unknown",
+      "text": "Si, bien sûr que si.",
+      "startMs": 58000,
+      "endMs": 60000,
+      "order": 23
+    },
+    {
+      "id": "line-24",
+      "characterId": "char-unknown",
+      "text": "Mais Hans n'est pas un incognum.",
+      "startMs": 60000,
+      "endMs": 63000,
+      "order": 24
+    },
+    {
+      "id": "line-25",
+      "characterId": "char-unknown",
+      "text": "Ah ouais ? Quel est son nom de famille ?",
+      "startMs": 63000,
+      "endMs": 65000,
+      "order": 25
+    },
+    {
+      "id": "line-26",
+      "characterId": "char-unknown",
+      "text": "Bézil du Sud.",
+      "startMs": 65000,
+      "endMs": 67000,
+      "order": 26
+    },
+    {
+      "id": "line-27",
+      "characterId": "char-unknown",
+      "text": "Son plat préféré ?",
+      "startMs": 67000,
+      "endMs": 68000,
+      "order": 27
+    },
+    {
+      "id": "line-28",
+      "characterId": "char-unknown",
+      "text": "Les sandwichs ?",
+      "startMs": 68000,
+      "endMs": 69000,
+      "order": 28
+    },
+    {
+      "id": "line-29",
+      "characterId": "char-unknown",
+      "text": "Son iranien ?",
+      "startMs": 69000,
+      "endMs": 70000,
+      "order": 29
+    },
+    {
+      "id": "line-30",
+      "characterId": "char-unknown",
+      "text": "Probablement John.",
+      "startMs": 70000,
+      "endMs": 71000,
+      "order": 30
+    },
+    {
+      "id": "line-31",
+      "characterId": "char-unknown",
+      "text": "La couleur de ses yeux ?",
+      "startMs": 71000,
+      "endMs": 72000,
+      "order": 31
+    },
+    {
+      "id": "line-32",
+      "characterId": "char-unknown",
+      "text": "Sa poiture ?",
+      "startMs": 72000,
+      "endMs": 73000,
+      "order": 32
+    },
+    {
+      "id": "line-33",
+      "characterId": "char-unknown",
+      "text": "Sa poiture n'a aucune importance.",
+      "startMs": 73000,
+      "endMs": 74000,
+      "order": 33
+    },
+    {
+      "id": "line-34",
+      "characterId": "char-unknown",
+      "text": "Vous avez déjà mangé avec lui et s'il mangeait comme un cochon, peut-être même qu'il mange ses crottes de nez.",
+      "startMs": 74000,
+      "endMs": 77000,
+      "order": 34
+    },
+    {
+      "id": "line-35",
+      "characterId": "char-unknown",
+      "text": "Qu'il mange quoi ?",
+      "startMs": 77000,
+      "endMs": 78000,
+      "order": 35
+    },
+    {
+      "id": "line-36",
+      "characterId": "char-unknown",
+      "text": "Ses crottes de nez.",
+      "startMs": 78000,
+      "endMs": 80000,
+      "order": 36
+    },
+    {
+      "id": "line-37",
+      "characterId": "char-unknown",
+      "text": "Excusez-moi, monsieur, c'est un prince.",
+      "startMs": 80000,
+      "endMs": 83000,
+      "order": 37
+    },
+    {
+      "id": "line-38",
+      "characterId": "char-unknown",
+      "text": "Tous les hommes le font ?",
+      "startMs": 83000,
+      "endMs": 84000,
+      "order": 38
+    },
+    {
+      "id": "line-39",
+      "characterId": "char-unknown",
+      "text": "Quel horreur !",
+      "startMs": 84000,
+      "endMs": 85000,
+      "order": 39
+    },
+    {
+      "id": "line-40",
+      "characterId": "char-unknown",
+      "text": "Tout ça n'a aucune importance, car c'est le grand amour.",
+      "startMs": 85000,
+      "endMs": 88000,
+      "order": 40
+    },
+    {
+      "id": "line-41",
+      "characterId": "char-unknown",
+      "text": "J'en ai pas l'impression.",
+      "startMs": 88000,
+      "endMs": 89000,
+      "order": 41
+    },
+    {
+      "id": "line-42",
+      "characterId": "char-unknown",
+      "text": "Vous êtes un expert en amour, c'est ça ?",
+      "startMs": 89000,
+      "endMs": 92000,
+      "order": 42
+    },
+    {
+      "id": "line-43",
+      "characterId": "char-unknown",
+      "text": "Non, mais j'ai des amis qui le sont.",
+      "startMs": 92000,
+      "endMs": 95000,
+      "order": 43
+    },
+    {
+      "id": "line-44",
+      "characterId": "char-unknown",
+      "text": "Vous avez des amis qui sont des experts en amour.",
+      "startMs": 95000,
+      "endMs": 98000,
+      "order": 44
+    },
+    {
+      "id": "line-45",
+      "characterId": "char-unknown",
+      "text": "J'en crois pas un mot.",
+      "startMs": 98000,
+      "endMs": 99000,
+      "order": 45
+    },
+    {
+      "id": "line-46",
+      "characterId": "char-unknown",
+      "text": "Désévois.",
+      "startMs": 99000,
+      "endMs": 100000,
+      "order": 46
+    },
+    {
+      "id": "line-47",
+      "characterId": "char-unknown",
+      "text": "Non, non, non, non, j'aimerais bien les rencontrer.",
+      "startMs": 100000,
+      "endMs": 102000,
+      "order": 47
+    },
+    {
+      "id": "line-48",
+      "characterId": "char-unknown",
+      "text": "Je suis sérieux.",
+      "startMs": 102000,
+      "endMs": 103000,
+      "order": 48
+    },
+    {
+      "id": "line-49",
+      "characterId": "char-unknown",
+      "text": "Zven, avance.",
+      "startMs": 116000,
+      "endMs": 118000,
+      "order": 49
+    },
+    {
+      "id": "line-50",
+      "characterId": "char-unknown",
+      "text": "Qu'est-ce que c'est ?",
+      "startMs": 118000,
+      "endMs": 120000,
+      "order": 50
+    },
+    {
+      "id": "line-51",
+      "characterId": "char-unknown",
+      "text": "Des loups.",
+      "startMs": 120000,
+      "endMs": 121000,
+      "order": 51
+    },
+    {
+      "id": "line-52",
+      "characterId": "char-unknown",
+      "text": "Des loups ?",
+      "startMs": 121000,
+      "endMs": 122000,
+      "order": 52
+    },
+    {
+      "id": "line-53",
+      "characterId": "char-unknown",
+      "text": "Qu'est-ce qu'il faut faire ?",
+      "startMs": 124000,
+      "endMs": 126000,
+      "order": 53
+    },
+    {
+      "id": "line-54",
+      "characterId": "char-unknown",
+      "text": "Je m'en occupe que vous vous essayez de ne pas tomber et de ne pas vous faire dévorer.",
+      "startMs": 126000,
+      "endMs": 129000,
+      "order": 54
+    },
+    {
+      "id": "line-55",
+      "characterId": "char-unknown",
+      "text": "Mais je veux vous aider.",
+      "startMs": 129000,
+      "endMs": 130000,
+      "order": 55
+    },
+    {
+      "id": "line-56",
+      "characterId": "char-unknown",
+      "text": "Non.",
+      "startMs": 130000,
+      "endMs": 131000,
+      "order": 56
+    },
+    {
+      "id": "line-57",
+      "characterId": "char-unknown",
+      "text": "Pourquoi ?",
+      "startMs": 131000,
+      "endMs": 132000,
+      "order": 57
+    },
+    {
+      "id": "line-58",
+      "characterId": "char-unknown",
+      "text": "Parce que je n'ai pas confiance en votre jugement.",
+      "startMs": 132000,
+      "endMs": 133000,
+      "order": 58
+    },
+    {
+      "id": "line-59",
+      "characterId": "char-unknown",
+      "text": "Je vous demande pardon.",
+      "startMs": 133000,
+      "endMs": 134000,
+      "order": 59
+    },
+    {
+      "id": "line-60",
+      "characterId": "char-unknown",
+      "text": "Qui vous dure ?",
+      "startMs": 134000,
+      "endMs": 135000,
+      "order": 60
+    },
+    {
+      "id": "line-61",
+      "characterId": "char-unknown",
+      "text": "Vous êtes un inconnu.",
+      "startMs": 135000,
+      "endMs": 136000,
+      "order": 61
+    },
+    {
+      "id": "line-62",
+      "characterId": "char-unknown",
+      "text": "C'est le grand amour.",
+      "startMs": 136000,
+      "endMs": 137000,
+      "order": 62
+    },
+    {
+      "id": "line-63",
+      "characterId": "char-unknown",
+      "text": "C'est Christophe !",
+      "startMs": 139000,
+      "endMs": 140000,
+      "order": 63
+    },
+    {
+      "id": "line-64",
+      "characterId": "char-unknown",
+      "text": "Non, c'est Christophe !",
+      "startMs": 140000,
+      "endMs": 142000,
+      "order": 64
+    },
+    {
+      "id": "line-65",
+      "characterId": "char-unknown",
+      "text": "C'est Christophe !",
+      "startMs": 142000,
+      "endMs": 143000,
+      "order": 65
+    },
+    {
+      "id": "line-66",
+      "characterId": "char-unknown",
+      "text": "Faites-vous !",
+      "startMs": 147000,
+      "endMs": 148000,
+      "order": 66
+    },
+    {
+      "id": "line-67",
+      "characterId": "char-unknown",
+      "text": "J'ai failli prendre feu.",
+      "startMs": 153000,
+      "endMs": 154000,
+      "order": 67
+    },
+    {
+      "id": "line-68",
+      "characterId": "char-unknown",
+      "text": "Mais c'est pas arrivé.",
+      "startMs": 154000,
+      "endMs": 155000,
+      "order": 68
+    },
+    {
+      "id": "line-69",
+      "characterId": "char-unknown",
+      "text": "Prépare-toi à s'entrer, Sven !",
+      "startMs": 162000,
+      "endMs": 163000,
+      "order": 69
+    },
+    {
+      "id": "line-70",
+      "characterId": "char-unknown",
+      "text": "Je vous interdit de lui dire pas faire.",
+      "startMs": 163000,
+      "endMs": 165000,
+      "order": 70
+    },
+    {
+      "id": "line-71",
+      "characterId": "char-unknown",
+      "text": "C'est mon boulot !",
+      "startMs": 165000,
+      "endMs": 166000,
+      "order": 71
+    },
+    {
+      "id": "line-72",
+      "characterId": "char-unknown",
+      "text": "Sautes, Sven !",
+      "startMs": 167000,
+      "endMs": 168000,
+      "order": 72
+    },
+    {
+      "id": "line-73",
+      "characterId": "char-unknown",
+      "text": "Sautes !",
+      "startMs": 172000,
+      "endMs": 173000,
+      "order": 73
+    },
+    {
+      "id": "line-74",
+      "characterId": "char-unknown",
+      "text": "Je venais de les rembourser.",
+      "startMs": 183000,
+      "endMs": 184000,
+      "order": 74
+    },
+    {
+      "id": "line-75",
+      "characterId": "char-unknown",
+      "text": "Non.",
+      "startMs": 185000,
+      "endMs": 186000,
+      "order": 75
+    },
+    {
+      "id": "line-76",
+      "characterId": "char-unknown",
+      "text": "Non.",
+      "startMs": 186000,
+      "endMs": 187000,
+      "order": 76
+    },
+    {
+      "id": "line-77",
+      "characterId": "char-unknown",
+      "text": "Non.",
+      "startMs": 187000,
+      "endMs": 188000,
+      "order": 77
+    },
+    {
+      "id": "line-78",
+      "characterId": "char-unknown",
+      "text": "Non.",
+      "startMs": 188000,
+      "endMs": 189000,
+      "order": 78
+    },
+    {
+      "id": "line-79",
+      "characterId": "char-unknown",
+      "text": "Non.",
+      "startMs": 189000,
+      "endMs": 190000,
+      "order": 79
+    },
+    {
+      "id": "line-80",
+      "characterId": "char-unknown",
+      "text": "Attrapez ça !",
+      "startMs": 190000,
+      "endMs": 191000,
+      "order": 80
+    },
+    {
+      "id": "line-81",
+      "characterId": "char-unknown",
+      "text": "Tire, Sven ! Tire !",
+      "startMs": 191000,
+      "endMs": 193000,
+      "order": 81
+    }
+  ]
+}

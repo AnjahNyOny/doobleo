@@ -1,0 +1,445 @@
+{
+  "version": 1,
+  "characters": [
+    {
+      "id": "char-unknown",
+      "name": "À définir",
+      "color": "#94a3b8",
+      "description": "Personnage générique à assigner"
+    }
+  ],
+  "lines": [
+    {
+      "id": "line-1",
+      "characterId": "char-unknown",
+      "text": "Et si vous commandez immédiatement vous aurez l'appareil photo, vous aurez l'imprimante et le zoom optique douce fois",
+      "startMs": 0,
+      "endMs": 6000,
+      "order": 1
+    },
+    {
+      "id": "line-2",
+      "characterId": "char-unknown",
+      "text": "l'imprimante photo, la carte mémoire et une sacoche en cuir vérifiée",
+      "startMs": 6000,
+      "endMs": 11000,
+      "order": 2
+    },
+    {
+      "id": "line-3",
+      "characterId": "char-unknown",
+      "text": "Bonjour Madame Monsieur, je m'appelle Russell",
+      "startMs": 12000,
+      "endMs": 15000,
+      "order": 3
+    },
+    {
+      "id": "line-4",
+      "characterId": "char-unknown",
+      "text": "et je suis un explorateur de la tribu des WAPI T section 54, 12ème, campement",
+      "startMs": 15000,
+      "endMs": 20000,
+      "order": 4
+    },
+    {
+      "id": "line-5",
+      "characterId": "char-unknown",
+      "text": "Avez-vous besoin que je vous rends service aujourd'hui Monsieur ?",
+      "startMs": 20000,
+      "endMs": 23000,
+      "order": 5
+    },
+    {
+      "id": "line-6",
+      "characterId": "char-unknown",
+      "text": "Non",
+      "startMs": 23000,
+      "endMs": 24000,
+      "order": 6
+    },
+    {
+      "id": "line-7",
+      "characterId": "char-unknown",
+      "text": "Je peux vous aider à traverser la rue ?",
+      "startMs": 24000,
+      "endMs": 27000,
+      "order": 7
+    },
+    {
+      "id": "line-8",
+      "characterId": "char-unknown",
+      "text": "Non",
+      "startMs": 27000,
+      "endMs": 28000,
+      "order": 8
+    },
+    {
+      "id": "line-9",
+      "characterId": "char-unknown",
+      "text": "Alors je peux vous aider à traverser votre couloir ?",
+      "startMs": 28000,
+      "endMs": 31000,
+      "order": 9
+    },
+    {
+      "id": "line-10",
+      "characterId": "char-unknown",
+      "text": "Mais il faut bien que vous aurez à traverser quelque chose moi",
+      "startMs": 31000,
+      "endMs": 34000,
+      "order": 10
+    },
+    {
+      "id": "line-11",
+      "characterId": "char-unknown",
+      "text": "Non, il n'est besoin de rien",
+      "startMs": 34000,
+      "endMs": 36000,
+      "order": 11
+    },
+    {
+      "id": "line-12",
+      "characterId": "char-unknown",
+      "text": "Bonjour Madame Monsieur, je m'appelle Russell",
+      "startMs": 42000,
+      "endMs": 45000,
+      "order": 12
+    },
+    {
+      "id": "line-13",
+      "characterId": "char-unknown",
+      "text": "et je suis un explorateur de la tribu des WAPI T section 54",
+      "startMs": 45000,
+      "endMs": 49000,
+      "order": 13
+    },
+    {
+      "id": "line-14",
+      "characterId": "char-unknown",
+      "text": "Pas si vite",
+      "startMs": 49000,
+      "endMs": 50000,
+      "order": 14
+    },
+    {
+      "id": "line-15",
+      "characterId": "char-unknown",
+      "text": "12ème, campement",
+      "startMs": 50000,
+      "endMs": 51000,
+      "order": 15
+    },
+    {
+      "id": "line-16",
+      "characterId": "char-unknown",
+      "text": "Petit",
+      "startMs": 51000,
+      "endMs": 52000,
+      "order": 16
+    },
+    {
+      "id": "line-17",
+      "characterId": "char-unknown",
+      "text": "Avez-vous besoin que je vous rends service aujourd'hui ?",
+      "startMs": 52000,
+      "endMs": 54000,
+      "order": 17
+    },
+    {
+      "id": "line-18",
+      "characterId": "char-unknown",
+      "text": "Non merci, je n'ai besoin de rien",
+      "startMs": 54000,
+      "endMs": 56000,
+      "order": 18
+    },
+    {
+      "id": "line-19",
+      "characterId": "char-unknown",
+      "text": "Aïe",
+      "startMs": 56000,
+      "endMs": 57000,
+      "order": 19
+    },
+    {
+      "id": "line-20",
+      "characterId": "char-unknown",
+      "text": "Bon, je t'écoute",
+      "startMs": 60000,
+      "endMs": 62000,
+      "order": 20
+    },
+    {
+      "id": "line-21",
+      "characterId": "char-unknown",
+      "text": "Bonjour Madame Monsieur",
+      "startMs": 62000,
+      "endMs": 63000,
+      "order": 21
+    },
+    {
+      "id": "line-22",
+      "characterId": "char-unknown",
+      "text": "Oh ça va, commence par la fin",
+      "startMs": 63000,
+      "endMs": 65000,
+      "order": 22
+    },
+    {
+      "id": "line-23",
+      "characterId": "char-unknown",
+      "text": "Vous voyez ça ?",
+      "startMs": 66000,
+      "endMs": 67000,
+      "order": 23
+    },
+    {
+      "id": "line-24",
+      "characterId": "char-unknown",
+      "text": "C'est tous les bâtes que j'ai gagnées dans ma vie d'explorateur",
+      "startMs": 67000,
+      "endMs": 70000,
+      "order": 24
+    },
+    {
+      "id": "line-25",
+      "characterId": "char-unknown",
+      "text": "Si vous remarquez bien, il en manque un",
+      "startMs": 70000,
+      "endMs": 72000,
+      "order": 25
+    },
+    {
+      "id": "line-26",
+      "characterId": "char-unknown",
+      "text": "C'est le bâte d'assistance aux personnes âgées",
+      "startMs": 72000,
+      "endMs": 75000,
+      "order": 26
+    },
+    {
+      "id": "line-27",
+      "characterId": "char-unknown",
+      "text": "Si je obtiens celui-là",
+      "startMs": 75000,
+      "endMs": 76000,
+      "order": 27
+    },
+    {
+      "id": "line-28",
+      "characterId": "char-unknown",
+      "text": "Je passerai dans la tribu sacrée des explorateurs confirmés",
+      "startMs": 76000,
+      "endMs": 79000,
+      "order": 28
+    },
+    {
+      "id": "line-29",
+      "characterId": "char-unknown",
+      "text": "Les WAPI T, la nature doit être bien",
+      "startMs": 79000,
+      "endMs": 81000,
+      "order": 29
+    },
+    {
+      "id": "line-30",
+      "characterId": "char-unknown",
+      "text": "Je passerai dans la tribu sacrée des explorateurs confirmés",
+      "startMs": 81000,
+      "endMs": 84000,
+      "order": 30
+    },
+    {
+      "id": "line-31",
+      "characterId": "char-unknown",
+      "text": "Les WAPI T, la nature doit être explorée",
+      "startMs": 84000,
+      "endMs": 87000,
+      "order": 31
+    },
+    {
+      "id": "line-32",
+      "characterId": "char-unknown",
+      "text": "Go, go, waaaaaah",
+      "startMs": 87000,
+      "endMs": 89000,
+      "order": 32
+    },
+    {
+      "id": "line-33",
+      "characterId": "char-unknown",
+      "text": "Ce sera fantastique",
+      "startMs": 90000,
+      "endMs": 91000,
+      "order": 33
+    },
+    {
+      "id": "line-34",
+      "characterId": "char-unknown",
+      "text": "Il y a une belle surmonie",
+      "startMs": 91000,
+      "endMs": 93000,
+      "order": 34
+    },
+    {
+      "id": "line-35",
+      "characterId": "char-unknown",
+      "text": "à laquelle les papas sont conviés pour nous remettre nos badges",
+      "startMs": 93000,
+      "endMs": 96000,
+      "order": 35
+    },
+    {
+      "id": "line-36",
+      "characterId": "char-unknown",
+      "text": "Tu veux donc rendre service à une personne âgée ?",
+      "startMs": 96000,
+      "endMs": 98000,
+      "order": 36
+    },
+    {
+      "id": "line-37",
+      "characterId": "char-unknown",
+      "text": "Oui",
+      "startMs": 98000,
+      "endMs": 99000,
+      "order": 37
+    },
+    {
+      "id": "line-38",
+      "characterId": "char-unknown",
+      "text": "C'est comme ça que je deviendrai un explorateur confirmé",
+      "startMs": 99000,
+      "endMs": 102000,
+      "order": 38
+    },
+    {
+      "id": "line-39",
+      "characterId": "char-unknown",
+      "text": "As-tu entendu parler du tabou ?",
+      "startMs": 103000,
+      "endMs": 105000,
+      "order": 39
+    },
+    {
+      "id": "line-40",
+      "characterId": "char-unknown",
+      "text": "Le tabou ?",
+      "startMs": 105000,
+      "endMs": 106000,
+      "order": 40
+    },
+    {
+      "id": "line-41",
+      "characterId": "char-unknown",
+      "text": "Un oiseau, avec de gros yeux",
+      "startMs": 106000,
+      "endMs": 108000,
+      "order": 41
+    },
+    {
+      "id": "line-42",
+      "characterId": "char-unknown",
+      "text": "Des nuits s'introduit dans mon jardin et des vœux",
+      "startMs": 108000,
+      "endMs": 110000,
+      "order": 42
+    },
+    {
+      "id": "line-43",
+      "characterId": "char-unknown",
+      "text": "Mais pauvres as-alais",
+      "startMs": 110000,
+      "endMs": 112000,
+      "order": 43
+    },
+    {
+      "id": "line-44",
+      "characterId": "char-unknown",
+      "text": "Moi je suis vieux et infirme",
+      "startMs": 112000,
+      "endMs": 114000,
+      "order": 44
+    },
+    {
+      "id": "line-45",
+      "characterId": "char-unknown",
+      "text": "Je peux pas l'attraper",
+      "startMs": 114000,
+      "endMs": 115000,
+      "order": 45
+    },
+    {
+      "id": "line-46",
+      "characterId": "char-unknown",
+      "text": "Si seulement quelqu'un pouvait m'aider",
+      "startMs": 115000,
+      "endMs": 117000,
+      "order": 46
+    },
+    {
+      "id": "line-47",
+      "characterId": "char-unknown",
+      "text": "Moi, moi, moi, je peux le faire",
+      "startMs": 117000,
+      "endMs": 118000,
+      "order": 47
+    },
+    {
+      "id": "line-48",
+      "characterId": "char-unknown",
+      "text": "Oh, je ne sais pas, cet oiseau est très rusé",
+      "startMs": 118000,
+      "endMs": 120000,
+      "order": 48
+    },
+    {
+      "id": "line-49",
+      "characterId": "char-unknown",
+      "text": "Faut frapper dans ses mains 3 fois de suite pour l'attirer",
+      "startMs": 120000,
+      "endMs": 123000,
+      "order": 49
+    },
+    {
+      "id": "line-50",
+      "characterId": "char-unknown",
+      "text": "Je l'attraperai, monsieur Frédéric Seine",
+      "startMs": 123000,
+      "endMs": 125000,
+      "order": 50
+    },
+    {
+      "id": "line-51",
+      "characterId": "char-unknown",
+      "text": "Son lit se trouve deux rues plus bas",
+      "startMs": 125000,
+      "endMs": 127000,
+      "order": 51
+    },
+    {
+      "id": "line-52",
+      "characterId": "char-unknown",
+      "text": "Deux rues plus bas, là-dedans",
+      "startMs": 127000,
+      "endMs": 129000,
+      "order": 52
+    },
+    {
+      "id": "line-53",
+      "characterId": "char-unknown",
+      "text": "Tabou",
+      "startMs": 129000,
+      "endMs": 131000,
+      "order": 53
+    },
+    {
+      "id": "line-54",
+      "characterId": "char-unknown",
+      "text": "Tabou, tabou, petit tabou",
+      "startMs": 131000,
+      "endMs": 133000,
+      "order": 54
+    }
+  ]
+}

@@ -1,0 +1,669 @@
+{
+  "version": 1,
+  "characters": [
+    {
+      "id": "char-unknown",
+      "name": "À définir",
+      "color": "#94a3b8",
+      "description": "Personnage générique à assigner"
+    }
+  ],
+  "lines": [
+    {
+      "id": "line-1",
+      "characterId": "char-unknown",
+      "text": "Flash, c'est le type le plus rapide là dedans. T'as besoin d'un truc ?",
+      "startMs": 0,
+      "endMs": 4000,
+      "order": 1
+    },
+    {
+      "id": "line-2",
+      "characterId": "char-unknown",
+      "text": "J'espère bien. C'est une course contre la montra, alors chaque minute compte.",
+      "startMs": 4000,
+      "endMs": 8000,
+      "order": 2
+    },
+    {
+      "id": "line-3",
+      "characterId": "char-unknown",
+      "text": "Attendez, y'a que des paraissus ?",
+      "startMs": 8000,
+      "endMs": 11000,
+      "order": 3
+    },
+    {
+      "id": "line-4",
+      "characterId": "char-unknown",
+      "text": "Vous avez dit que ce serait rapide ?",
+      "startMs": 30000,
+      "endMs": 32000,
+      "order": 4
+    },
+    {
+      "id": "line-5",
+      "characterId": "char-unknown",
+      "text": "Quoi ? Tu veux dire que parce que c'est un paraisseur, il peut pas être rapide ?",
+      "startMs": 32000,
+      "endMs": 35000,
+      "order": 5
+    },
+    {
+      "id": "line-6",
+      "characterId": "char-unknown",
+      "text": "Qu'est-ce qu'a dit Casottopi ? Chacun peut être ce qu'il veut.",
+      "startMs": 35000,
+      "endMs": 38000,
+      "order": 6
+    },
+    {
+      "id": "line-7",
+      "characterId": "char-unknown",
+      "text": "Flash, Flash ! Rapide comme une flèche !",
+      "startMs": 38000,
+      "endMs": 40000,
+      "order": 7
+    },
+    {
+      "id": "line-8",
+      "characterId": "char-unknown",
+      "text": "Mon gars, je suis content de te voir.",
+      "startMs": 40000,
+      "endMs": 42000,
+      "order": 8
+    },
+    {
+      "id": "line-9",
+      "characterId": "char-unknown",
+      "text": "Content de te voir... aussi.",
+      "startMs": 42000,
+      "endMs": 49000,
+      "order": 9
+    },
+    {
+      "id": "line-10",
+      "characterId": "char-unknown",
+      "text": "Flash, j'aimerais te voir.",
+      "startMs": 49000,
+      "endMs": 51000,
+      "order": 10
+    },
+    {
+      "id": "line-11",
+      "characterId": "char-unknown",
+      "text": "Je suis réellement oublié ton nom.",
+      "startMs": 51000,
+      "endMs": 54000,
+      "order": 11
+    },
+    {
+      "id": "line-12",
+      "characterId": "char-unknown",
+      "text": "Lieutenant Judy Hopps, police de Zotopee, comment ça va ?",
+      "startMs": 54000,
+      "endMs": 57000,
+      "order": 12
+    },
+    {
+      "id": "line-13",
+      "characterId": "char-unknown",
+      "text": "Disons que je vais...",
+      "startMs": 57000,
+      "endMs": 62000,
+      "order": 13
+    },
+    {
+      "id": "line-14",
+      "characterId": "char-unknown",
+      "text": "Bien ?",
+      "startMs": 62000,
+      "endMs": 63000,
+      "order": 14
+    },
+    {
+      "id": "line-15",
+      "characterId": "char-unknown",
+      "text": "Aussi bien que je puisse aller.",
+      "startMs": 63000,
+      "endMs": 68000,
+      "order": 15
+    },
+    {
+      "id": "line-16",
+      "characterId": "char-unknown",
+      "text": "Accroche-toi.",
+      "startMs": 68000,
+      "endMs": 70000,
+      "order": 16
+    },
+    {
+      "id": "line-17",
+      "characterId": "char-unknown",
+      "text": "Oui.",
+      "startMs": 70000,
+      "endMs": 71000,
+      "order": 17
+    },
+    {
+      "id": "line-18",
+      "characterId": "char-unknown",
+      "text": "Je vais te voir.",
+      "startMs": 71000,
+      "endMs": 73000,
+      "order": 18
+    },
+    {
+      "id": "line-19",
+      "characterId": "char-unknown",
+      "text": "Je vais te voir.",
+      "startMs": 73000,
+      "endMs": 75000,
+      "order": 19
+    },
+    {
+      "id": "line-20",
+      "characterId": "char-unknown",
+      "text": "Je vais te voir.",
+      "startMs": 75000,
+      "endMs": 77000,
+      "order": 20
+    },
+    {
+      "id": "line-21",
+      "characterId": "char-unknown",
+      "text": "Allez.",
+      "startMs": 77000,
+      "endMs": 78000,
+      "order": 21
+    },
+    {
+      "id": "line-22",
+      "characterId": "char-unknown",
+      "text": "Accroche-toi.",
+      "startMs": 78000,
+      "endMs": 80000,
+      "order": 22
+    },
+    {
+      "id": "line-23",
+      "characterId": "char-unknown",
+      "text": "Oui.",
+      "startMs": 80000,
+      "endMs": 81000,
+      "order": 23
+    },
+    {
+      "id": "line-24",
+      "characterId": "char-unknown",
+      "text": "Fais...",
+      "startMs": 81000,
+      "endMs": 82000,
+      "order": 24
+    },
+    {
+      "id": "line-25",
+      "characterId": "char-unknown",
+      "text": "Eh bien j'espérais que vous puissiez...",
+      "startMs": 82000,
+      "endMs": 83000,
+      "order": 25
+    },
+    {
+      "id": "line-26",
+      "characterId": "char-unknown",
+      "text": "Pour vous.",
+      "startMs": 83000,
+      "endMs": 84000,
+      "order": 26
+    },
+    {
+      "id": "line-27",
+      "characterId": "char-unknown",
+      "text": "Eh bien j'espérais que...",
+      "startMs": 84000,
+      "endMs": 85000,
+      "order": 27
+    },
+    {
+      "id": "line-28",
+      "characterId": "char-unknown",
+      "text": "Aujourd'hui.",
+      "startMs": 85000,
+      "endMs": 87000,
+      "order": 28
+    },
+    {
+      "id": "line-29",
+      "characterId": "char-unknown",
+      "text": "Eh bien j'espérais que vous puissiez identifier une plaque pour nous et on est vraiment super pressé.",
+      "startMs": 89000,
+      "endMs": 95000,
+      "order": 29
+    },
+    {
+      "id": "line-30",
+      "characterId": "char-unknown",
+      "text": "Oui.",
+      "startMs": 95000,
+      "endMs": 96000,
+      "order": 30
+    },
+    {
+      "id": "line-31",
+      "characterId": "char-unknown",
+      "text": "Quelle est le...",
+      "startMs": 96000,
+      "endMs": 98000,
+      "order": 31
+    },
+    {
+      "id": "line-32",
+      "characterId": "char-unknown",
+      "text": "Numéro...",
+      "startMs": 98000,
+      "endMs": 99000,
+      "order": 32
+    },
+    {
+      "id": "line-33",
+      "characterId": "char-unknown",
+      "text": "29, T...",
+      "startMs": 99000,
+      "endMs": 100000,
+      "order": 33
+    },
+    {
+      "id": "line-34",
+      "characterId": "char-unknown",
+      "text": "De la plaque.",
+      "startMs": 100000,
+      "endMs": 102000,
+      "order": 34
+    },
+    {
+      "id": "line-35",
+      "characterId": "char-unknown",
+      "text": "29, THD03.",
+      "startMs": 102000,
+      "endMs": 106000,
+      "order": 35
+    },
+    {
+      "id": "line-36",
+      "characterId": "char-unknown",
+      "text": "De...",
+      "startMs": 108000,
+      "endMs": 109000,
+      "order": 36
+    },
+    {
+      "id": "line-37",
+      "characterId": "char-unknown",
+      "text": "9, THD03.",
+      "startMs": 111000,
+      "endMs": 114000,
+      "order": 37
+    },
+    {
+      "id": "line-38",
+      "characterId": "char-unknown",
+      "text": "T...",
+      "startMs": 116000,
+      "endMs": 117000,
+      "order": 38
+    },
+    {
+      "id": "line-39",
+      "characterId": "char-unknown",
+      "text": "HD03.",
+      "startMs": 117000,
+      "endMs": 119000,
+      "order": 39
+    },
+    {
+      "id": "line-40",
+      "characterId": "char-unknown",
+      "text": "H...",
+      "startMs": 119000,
+      "endMs": 120000,
+      "order": 40
+    },
+    {
+      "id": "line-41",
+      "characterId": "char-unknown",
+      "text": "D03.",
+      "startMs": 120000,
+      "endMs": 123000,
+      "order": 41
+    },
+    {
+      "id": "line-42",
+      "characterId": "char-unknown",
+      "text": "D03.",
+      "startMs": 126000,
+      "endMs": 127000,
+      "order": 42
+    },
+    {
+      "id": "line-43",
+      "characterId": "char-unknown",
+      "text": "D03.",
+      "startMs": 127000,
+      "endMs": 128000,
+      "order": 43
+    },
+    {
+      "id": "line-44",
+      "characterId": "char-unknown",
+      "text": "D03.",
+      "startMs": 130000,
+      "endMs": 131000,
+      "order": 44
+    },
+    {
+      "id": "line-45",
+      "characterId": "char-unknown",
+      "text": "D03.",
+      "startMs": 131000,
+      "endMs": 132000,
+      "order": 45
+    },
+    {
+      "id": "line-46",
+      "characterId": "char-unknown",
+      "text": "D03.",
+      "startMs": 132000,
+      "endMs": 133000,
+      "order": 46
+    },
+    {
+      "id": "line-47",
+      "characterId": "char-unknown",
+      "text": "D03.",
+      "startMs": 133000,
+      "endMs": 134000,
+      "order": 47
+    },
+    {
+      "id": "line-48",
+      "characterId": "char-unknown",
+      "text": "D03.",
+      "startMs": 134000,
+      "endMs": 135000,
+      "order": 48
+    },
+    {
+      "id": "line-49",
+      "characterId": "char-unknown",
+      "text": "0.",
+      "startMs": 136000,
+      "endMs": 137000,
+      "order": 49
+    },
+    {
+      "id": "line-50",
+      "characterId": "char-unknown",
+      "text": "3.",
+      "startMs": 137000,
+      "endMs": 138000,
+      "order": 50
+    },
+    {
+      "id": "line-51",
+      "characterId": "char-unknown",
+      "text": "Eh Flash, je t'en raconte une bien bonne.",
+      "startMs": 140000,
+      "endMs": 142000,
+      "order": 51
+    },
+    {
+      "id": "line-52",
+      "characterId": "char-unknown",
+      "text": "Oui.",
+      "startMs": 143000,
+      "endMs": 144000,
+      "order": 52
+    },
+    {
+      "id": "line-53",
+      "characterId": "char-unknown",
+      "text": "Alors, quel mot qualifie une chamelle à trois bosses?",
+      "startMs": 144000,
+      "endMs": 149000,
+      "order": 53
+    },
+    {
+      "id": "line-54",
+      "characterId": "char-unknown",
+      "text": "Je sais pas.",
+      "startMs": 150000,
+      "endMs": 152000,
+      "order": 54
+    },
+    {
+      "id": "line-55",
+      "characterId": "char-unknown",
+      "text": "Quel mot qualifie une...",
+      "startMs": 152000,
+      "endMs": 157000,
+      "order": 55
+    },
+    {
+      "id": "line-56",
+      "characterId": "char-unknown",
+      "text": "Une chamelle à trois bosses.",
+      "startMs": 157000,
+      "endMs": 159000,
+      "order": 56
+    },
+    {
+      "id": "line-57",
+      "characterId": "char-unknown",
+      "text": "Chamelle à trois bosses.",
+      "startMs": 159000,
+      "endMs": 162000,
+      "order": 57
+    },
+    {
+      "id": "line-58",
+      "characterId": "char-unknown",
+      "text": "Enceinte.",
+      "startMs": 162000,
+      "endMs": 163000,
+      "order": 58
+    },
+    {
+      "id": "line-59",
+      "characterId": "char-unknown",
+      "text": "Très amusant, très amusant.",
+      "startMs": 166000,
+      "endMs": 168000,
+      "order": 59
+    },
+    {
+      "id": "line-60",
+      "characterId": "char-unknown",
+      "text": "Est-ce qu'on pourrait se concentrer sur l'amguet...?",
+      "startMs": 168000,
+      "endMs": 171000,
+      "order": 60
+    },
+    {
+      "id": "line-61",
+      "characterId": "char-unknown",
+      "text": "Non non non.",
+      "startMs": 171000,
+      "endMs": 172000,
+      "order": 61
+    },
+    {
+      "id": "line-62",
+      "characterId": "char-unknown",
+      "text": "Très s'est là.",
+      "startMs": 172000,
+      "endMs": 173000,
+      "order": 62
+    },
+    {
+      "id": "line-63",
+      "characterId": "char-unknown",
+      "text": "Oh non.",
+      "startMs": 173000,
+      "endMs": 174000,
+      "order": 63
+    },
+    {
+      "id": "line-64",
+      "characterId": "char-unknown",
+      "text": "Oui.",
+      "startMs": 175000,
+      "endMs": 176000,
+      "order": 64
+    },
+    {
+      "id": "line-65",
+      "characterId": "char-unknown",
+      "text": "Flash.",
+      "startMs": 177000,
+      "endMs": 178000,
+      "order": 65
+    },
+    {
+      "id": "line-66",
+      "characterId": "char-unknown",
+      "text": "Quelle...",
+      "startMs": 178000,
+      "endMs": 179000,
+      "order": 66
+    },
+    {
+      "id": "line-67",
+      "characterId": "char-unknown",
+      "text": "mot...",
+      "startMs": 179000,
+      "endMs": 180000,
+      "order": 67
+    },
+    {
+      "id": "line-68",
+      "characterId": "char-unknown",
+      "text": "Nooooon.",
+      "startMs": 180000,
+      "endMs": 181000,
+      "order": 68
+    },
+    {
+      "id": "line-69",
+      "characterId": "char-unknown",
+      "text": "Califie une chamelle à trois bosses.",
+      "startMs": 181000,
+      "endMs": 183000,
+      "order": 69
+    },
+    {
+      "id": "line-70",
+      "characterId": "char-unknown",
+      "text": "Ah non.",
+      "startMs": 184000,
+      "endMs": 185000,
+      "order": 70
+    },
+    {
+      "id": "line-71",
+      "characterId": "char-unknown",
+      "text": "Je sais pas.",
+      "startMs": 185000,
+      "endMs": 186000,
+      "order": 71
+    },
+    {
+      "id": "line-72",
+      "characterId": "char-unknown",
+      "text": "Je sais pas.",
+      "startMs": 186000,
+      "endMs": 187000,
+      "order": 72
+    },
+    {
+      "id": "line-73",
+      "characterId": "char-unknown",
+      "text": "Je sais pas.",
+      "startMs": 187000,
+      "endMs": 188000,
+      "order": 73
+    },
+    {
+      "id": "line-74",
+      "characterId": "char-unknown",
+      "text": "Je sais pas.",
+      "startMs": 188000,
+      "endMs": 192000,
+      "order": 74
+    },
+    {
+      "id": "line-75",
+      "characterId": "char-unknown",
+      "text": "Non, une chamelle à trois bosses. Enceinte, OK ? Super, on a compris.",
+      "startMs": 192000,
+      "endMs": 197000,
+      "order": 75
+    },
+    {
+      "id": "line-76",
+      "characterId": "char-unknown",
+      "text": "Une chamelle...",
+      "startMs": 197000,
+      "endMs": 199000,
+      "order": 76
+    },
+    {
+      "id": "line-77",
+      "characterId": "char-unknown",
+      "text": "C'est...",
+      "startMs": 211000,
+      "endMs": 212000,
+      "order": 77
+    },
+    {
+      "id": "line-78",
+      "characterId": "char-unknown",
+      "text": "Oui, allez. Merci. 29thd03, elle appartient à...",
+      "startMs": 212000,
+      "endMs": 217000,
+      "order": 78
+    },
+    {
+      "id": "line-79",
+      "characterId": "char-unknown",
+      "text": "Tient à... Toundravil limo service. Il apprenne limousine et elle est à Toundravil.",
+      "startMs": 217000,
+      "endMs": 222000,
+      "order": 79
+    },
+    {
+      "id": "line-80",
+      "characterId": "char-unknown",
+      "text": "Elle est à Toundravil !",
+      "startMs": 222000,
+      "endMs": 223000,
+      "order": 80
+    },
+    {
+      "id": "line-81",
+      "characterId": "char-unknown",
+      "text": "Ça, c'est du boulot. T'es le meilleur. Je te remoudrai ça.",
+      "startMs": 223000,
+      "endMs": 225000,
+      "order": 81
+    },
+    {
+      "id": "line-82",
+      "characterId": "char-unknown",
+      "text": "Vite, il faut éviter l'heure de pointer. Il fait nuit !",
+      "startMs": 225000,
+      "endMs": 228000,
+      "order": 82
+    }
+  ]
+}

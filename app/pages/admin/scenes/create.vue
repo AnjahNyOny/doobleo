@@ -66,13 +66,28 @@ const onVideoChange = async (e: Event) => {
   form.durationMs = Math.round(videoEl.duration * 1000)
   URL.revokeObjectURL(videoEl.src)
 
-  await uploadFile(file, 'video', 'video/mp4')
+  let type = file.type || 'video/mp4'
+  if (type === 'video/quicktime') type = 'video/mp4' // Fallback for iPhone videos (.mov)
+
+  try {
+    await uploadFile(file, 'video', type)
+  } catch (err: any) {
+    error.value = err.message || "Erreur lors de l'upload de la vidéo"
+  }
 }
 
 const onThumbnailChange = async (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (!file) return
-  await uploadFile(file, 'thumbnail', file.type as 'image/jpeg' | 'image/png' | 'image/webp')
+
+  let type = file.type || 'image/jpeg'
+  if (type === 'image/jpg') type = 'image/jpeg'
+
+  try {
+    await uploadFile(file, 'thumbnail', type)
+  } catch (err: any) {
+    error.value = err.message || "Erreur lors de l'upload"
+  }
 }
 
 // ─── Création de la scène ─────────────────────────────────────────────────────
