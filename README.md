@@ -35,15 +35,25 @@ Le système inclut un prompteur synchronisé avec la vidéo, un système d'enreg
 
 ## 📸 Captures d'écran
 
-_(Ajoutez ici les captures d'écran de l'application)_
+|                  Le Lobby (Accueil)                   |                   Connexion / Inscription                    |
+| :---------------------------------------------------: | :----------------------------------------------------------: |
+| <img src="public/screenshot/lobby.png" width="400" /> | <img src="public/screenshot/login%20page.png" width="400" /> |
 
-|                                Le Lobby (Accueil)                                |                                Le Studio d'Enregistrement                                |
-| :------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: |
-| <img src="https://via.placeholder.com/600x350?text=Lobby+Doobleo" width="400" /> | <img src="https://via.placeholder.com/600x350?text=Studio+Enregistrement" width="400" /> |
+|                      La Bibliothèque de Scènes                      |                     Studio - Préparation                      |
+| :-----------------------------------------------------------------: | :-----------------------------------------------------------: |
+| <img src="public/screenshot/bibliotheque_scenes.png" width="400" /> | <img src="public/screenshot/preparez-vous.png" width="400" /> |
 
-|                            La Bibliothèque de Scènes                            |                                   Le Panel Admin                                   |
-| :-----------------------------------------------------------------------------: | :--------------------------------------------------------------------------------: |
-| <img src="https://via.placeholder.com/600x350?text=Bibliotheque" width="400" /> | <img src="https://via.placeholder.com/600x350?text=Admin+Dashboard" width="400" /> |
+|               Le Studio d'Enregistrement               |                           Mixage en cours                           |
+| :----------------------------------------------------: | :-----------------------------------------------------------------: |
+| <img src="public/screenshot/studio.png" width="400" /> | <img src="public/screenshot/mixage%20en%20cours.png" width="400" /> |
+
+|                   Le Panel Admin (Dashboard)                    |                      Gestion des scènes                      |
+| :-------------------------------------------------------------: | :----------------------------------------------------------: |
+| <img src="public/screenshot/dashboard_admin.png" width="400" /> | <img src="public/screenshot/scenes_admin.png" width="400" /> |
+
+|                       Éditeur de répliques (Admin)                        |                         Résultat & Téléchargement                          |
+| :-----------------------------------------------------------------------: | :------------------------------------------------------------------------: |
+| <img src="public/screenshot/interface_repliques_admin.png" width="400" /> | <img src="public/screenshot/page%20de%20telechargement.png" width="400" /> |
 
 ---
 
