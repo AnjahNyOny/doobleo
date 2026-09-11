@@ -48,12 +48,13 @@ const saveInfo = async () => {
   }
 }
 
-// ─── Upload Miniature ─────────────────────────────────────────────────────────
+// ─── Upload Miniature & Audio ───────────────────────────────────────────────────
 const uploadState = reactive({
   thumbnail: { progress: 0, url: scene.value?.thumbnailUrl ?? '', uploading: false },
+  audioMe: { progress: 0, url: scene.value?.audioMeUrl ?? '', uploading: false },
 })
 
-async function uploadFile(file: File, type: 'thumbnail', contentType: string) {
+async function uploadFile(file: File, type: 'thumbnail' | 'audioMe', contentType: string) {
   const slot = uploadState[type]
   slot.uploading = true
   slot.progress = 0
@@ -79,8 +80,15 @@ async function uploadFile(file: File, type: 'thumbnail', contentType: string) {
 
     slot.url = publicUrl
     slot.progress = 100
-    infoForm.thumbnailUrl = publicUrl
-    await saveInfo() // Sauvegarder automatiquement après upload
+    if (type === 'thumbnail') infoForm.thumbnailUrl = publicUrl
+    if (type === 'audioMe') {
+      await $fetch(`/api/admin/scenes/${sceneId}`, {
+        method: 'PATCH',
+        body: { audioMeUrl: publicUrl },
+      })
+      await refresh()
+    }
+    if (type === 'thumbnail') await saveInfo() // Sauvegarder automatiquement après upload
   } finally {
     slot.uploading = false
   }
@@ -95,6 +103,21 @@ const onThumbnailChange = async (e: Event) => {
 
   try {
     await uploadFile(file, 'thumbnail', type)
+  } catch (err: any) {
+    alert(err.message || "Erreur lors de l'upload")
+    console.error(err)
+  }
+}
+
+const onAudioMeChange = async (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+
+  let type = file.type || 'audio/wav'
+  if (file.name.endsWith('.mp3')) type = 'audio/mpeg'
+
+  try {
+    await uploadFile(file, 'audioMe', type)
   } catch (err: any) {
     alert(err.message || "Erreur lors de l'upload")
     console.error(err)
@@ -488,6 +511,36 @@ const onTimeUpdate = () => {
           </div>
         </div>
 
+        <div class="form-group">
+          <label>Piste M&E (Musique & Effets sans voix)</label>
+          <div class="upload-zone" :class="{ uploaded: uploadState.audioMe.url }">
+            <input
+              id="audio-me-input"
+              type="file"
+              accept="audio/mpeg,audio/wav"
+              :disabled="uploadState.audioMe.uploading"
+              @change="onAudioMeChange"
+            />
+            <label for="audio-me-input" class="upload-label">
+              <span v-if="uploadState.audioMe.url">✅ Piste audio M&E uploadée</span>
+              <span v-else-if="uploadState.audioMe.uploading"
+                >Upload... {{ uploadState.audioMe.progress }}%</span
+              >
+              <span v-else>🎵 Uploader la piste M&E (.mp3, .wav) générée localement</span>
+            </label>
+            <div v-if="uploadState.audioMe.uploading" class="progress-bar">
+              <div class="progress-fill" :style="{ width: `${uploadState.audioMe.progress}%` }" />
+            </div>
+
+            <audio
+              v-if="uploadState.audioMe.url"
+              :src="uploadState.audioMe.url"
+              controls
+              class="audio-preview"
+            />
+          </div>
+        </div>
+
         <button class="btn-primary" :disabled="savingInfo" @click="saveInfo">
           {{ savingInfo ? 'Sauvegarde...' : 'Sauvegarder' }}
         </button>
@@ -806,6 +859,11 @@ select {
   resize: vertical;
   width: 100%;
   box-sizing: border-box;
+}
+.audio-preview {
+  margin-top: 10px;
+  width: 100%;
+  height: 36px;
 }
 input:focus,
 textarea:focus,

@@ -10,7 +10,7 @@ try:
     import whisper
 except ImportError:
     print("Erreur : Veuillez installer les dépendances manquantes.")
-    print("Exécutez : pip install yt-dlp openai-whisper torch")
+    print("Exécutez : pip install yt-dlp openai-whisper torch demucs")
     sys.exit(1)
 
 import shutil
@@ -60,6 +60,36 @@ def transcribe_audio_local(audio_path: str):
     print("✍️ Transcription de l'audio en cours...")
     result = model.transcribe(audio_path, language="fr", fp16=False)
     return result["segments"]
+
+def separate_audio_local(audio_path: str) -> tuple[str, str]:
+    print("🎵 Séparation de l'audio avec Demucs (Cela peut prendre un peu de temps sur CPU)...")
+    try:
+        subprocess.run([
+            sys.executable, "-m", "demucs.separate", 
+            "-n", "htdemucs", 
+            "--two-stems", "vocals", 
+            "-d", "cpu", 
+            "-o", "scenes", 
+            audio_path
+        ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+        
+        # Demucs place les fichiers dans: scenes/htdemucs/<nom_fichier>/
+        base_name = os.path.splitext(os.path.basename(audio_path))[0]
+        out_dir = os.path.join("scenes", "htdemucs", base_name)
+        
+        me_path = os.path.join("scenes", "scene_me.wav")
+        vocals_path = os.path.join("scenes", "scene_vocals.wav")
+        
+        shutil.move(os.path.join(out_dir, "no_vocals.wav"), me_path)
+        shutil.move(os.path.join(out_dir, "vocals.wav"), vocals_path)
+        
+        # Cleanup du dossier temporaire de demucs
+        shutil.rmtree(os.path.join("scenes", "htdemucs"), ignore_errors=True)
+        
+        return me_path, vocals_path
+    except Exception as e:
+        print(f"Erreur lors de la séparation Demucs: {e}")
+        return "", ""
 
 def build_doobleo_json(segments: list) -> str:
     print("🧠 Formatage du JSON pour Doobleo...")
@@ -113,6 +143,9 @@ def main():
         audio_file, video_file = download_audio_and_video(url)
         segments = transcribe_audio_local(audio_file)
         
+        # Séparation de la musique et des effets
+        me_file, vocals_file = separate_audio_local(audio_file)
+        
         json_result = build_doobleo_json(segments)
         
         # Sauvegarde du résultat final
@@ -123,7 +156,9 @@ def main():
         print("✅ Terminé !")
         print(f"🎥 Vidéo téléchargée : {video_file}")
         print(f"📄 Sous-titres JSON : {json_path}")
-        print("\n💡 Étape suivante : Créez une scène dans l'admin Doobleo, uploadez la vidéo mp4, puis allez dans l'onglet 'Répliques' et importez le JSON !")
+        if me_file:
+            print(f"🎧 Piste M&E (Musique et Effets) : {me_file}")
+        print("\n💡 Étape suivante : Créez une scène dans l'admin Doobleo, uploadez la vidéo mp4, la piste M&E, puis allez dans l'onglet 'Répliques' et importez le JSON !")
         
     except Exception as e:
         print(f"❌ Une erreur est survenue : {e}")

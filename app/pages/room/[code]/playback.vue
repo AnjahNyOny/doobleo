@@ -9,10 +9,23 @@ const code = route.params.code as string
 
 const { getSocket, disconnect } = useSocket()
 const socket = getSocket()
+const router = useRouter()
 
 const isMixing = ref(true)
 const finalVideoUrl = ref<string | null>(null)
 const errorMsg = ref('')
+
+const { data: roomInfo } = await useFetch(`/api/rooms/${code}`)
+const { loggedIn, user } = useUserSession()
+const userId = ref('')
+
+const isHost = computed(() => roomInfo.value?.hostUserId === userId.value)
+
+const returnToLobby = () => {
+  if (socket && isHost.value) {
+    socket.emit('host_return_lobby', { roomCode: code, userId: userId.value })
+  }
+}
 
 onMounted(() => {
   if (!socket) {
@@ -32,6 +45,20 @@ onMounted(() => {
     errorMsg.value = message
     isMixing.value = false
   })
+
+  socket.on('room_state_update', (state: any) => {
+    if (state.status === 'waiting') {
+      router.push(`/room/${code}`)
+    }
+  })
+})
+
+onMounted(() => {
+  if (loggedIn.value && user.value) {
+    userId.value = user.value.id
+  } else {
+    userId.value = sessionStorage.getItem('guestId') || ''
+  }
 })
 
 onUnmounted(() => {
@@ -86,7 +113,31 @@ const downloadVideo = () => {
             </p>
           </div>
 
-          <NuxtLink to="/" class="btn-secondary w-full mt-4"> Quitter le salon </NuxtLink>
+          <button v-if="isHost" class="btn-secondary w-full mt-4" @click="returnToLobby">
+            Retour au salon (Choix d'une nouvelle scène)
+          </button>
+          <div
+            v-else
+            class="mt-4 text-center text-muted"
+            style="color: var(--text-muted); font-size: 0.9rem"
+          >
+            En attente du retour au salon par l'hôte...
+          </div>
+
+          <NuxtLink
+            to="/"
+            class="btn-ghost w-full mt-2"
+            style="
+              text-align: center;
+              display: block;
+              color: var(--text-muted);
+              text-decoration: none;
+              font-size: 0.85rem;
+            "
+            @click="disconnect"
+          >
+            Quitter définitivement
+          </NuxtLink>
         </div>
       </div>
     </div>

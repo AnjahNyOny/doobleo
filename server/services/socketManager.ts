@@ -18,6 +18,7 @@ interface RoomState {
   }[]
   status: 'waiting' | 'countdown' | 'playing' | 'review' | 'mixing' | 'finished'
   mixesReady: number
+  votes?: Record<string, string> // userId -> sceneId
 }
 
 const activeRooms = new Map<string, RoomState>()
@@ -38,10 +39,11 @@ export const initSocketManager = (io: SocketServer) => {
           state = {
             code: roomCode,
             hostId: roomData.hostUserId,
-            sceneId: roomData.sceneId!,
+            sceneId: roomData.sceneId || '',
             players: [],
             status: roomData.status as RoomState['status'],
             mixesReady: 0,
+            votes: {},
           }
           activeRooms.set(roomCode, state)
         }
@@ -118,6 +120,41 @@ export const initSocketManager = (io: SocketServer) => {
       }
     })
 
+    // ─── RETOUR AU SALON / VOTES ─────────────────────────────────────────────
+    socket.on('player_vote_scene', ({ roomCode, userId, sceneId }) => {
+      const state = activeRooms.get(roomCode)
+      if (state) {
+        state.votes = state.votes || {}
+        state.votes[userId] = sceneId
+        io.to(roomCode).emit('room_state_update', state)
+      }
+    })
+
+    socket.on('host_return_lobby', async ({ roomCode, userId }) => {
+      const state = activeRooms.get(roomCode)
+      if (state && state.hostId === userId) {
+        state.status = 'waiting'
+        state.sceneId = ''
+        state.mixesReady = 0
+        state.votes = {}
+        state.players.forEach((p) => {
+          p.chunks = []
+          p.characterIds = []
+          p.isReady = false
+          ;(p as any).hasUploaded = false
+        })
+
+        // Mettre à jour la base de données
+        const db = useDb()
+        await db
+          .update(rooms)
+          .set({ sceneId: null, status: 'waiting' })
+          .where(eq(rooms.code, roomCode))
+
+        io.to(roomCode).emit('room_state_update', state)
+      }
+    })
+
     // ─── FIN DE L'ENREGISTREMENT ET UPLOAD ───────────────────────────────────
     socket.on(
       'audio_uploaded_chunks',
@@ -184,6 +221,7 @@ export const updateRoomScene = (io: SocketServer, roomCode: string, sceneId: str
   const state = activeRooms.get(roomCode)
   if (state) {
     state.sceneId = sceneId
+    state.votes = {} // On reset les votes quand une scène est choisie
     io.to(roomCode).emit('room_state_update', state)
   }
 }

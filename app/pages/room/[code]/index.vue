@@ -44,10 +44,8 @@ const socketError = ref('')
 const countdown = ref<number | null>(null)
 const availableScenes = ref<any[]>([])
 
-if (!roomInfo.value?.sceneId) {
-  const scenes = await $fetch('/api/scenes')
-  availableScenes.value = scenes as any[]
-}
+const scenes = await $fetch('/api/scenes')
+availableScenes.value = scenes as any[]
 
 const isHost = computed(() => roomInfo.value?.hostUserId === userId.value)
 const players = computed(() => socketState.value?.players || [])
@@ -69,6 +67,18 @@ const selectScene = async (sceneId: string) => {
   }
 }
 
+const voteForScene = (sceneId: string) => {
+  socket.emit('player_vote_scene', { roomCode: code, userId: userId.value, sceneId })
+}
+
+const getVotersForScene = (sceneId: string) => {
+  if (!socketState.value?.votes) return []
+  return Object.entries(socketState.value.votes)
+    .filter(([_, votedSceneId]) => votedSceneId === sceneId)
+    .map(([uid, _]) => players.value.find((p: any) => p.userId === uid))
+    .filter(Boolean)
+}
+
 // ─── SOCKET ────────────────────────────────────────────────────────────────
 let socket: any
 
@@ -80,8 +90,8 @@ onMounted(() => {
   socket.emit('join_room', { roomCode: code, userId: userId.value, isHost: isHost.value })
 
   socket.on('room_state_update', async (state: any) => {
-    // Si la scène a été modifiée, on rafraîchit les infos de la room
-    if (state.sceneId && roomInfo.value && state.sceneId !== roomInfo.value.sceneId) {
+    // Si la scène a été modifiée ou annulée (retour au lobby), on rafraîchit les infos de la room
+    if (roomInfo.value && state.sceneId !== (roomInfo.value.sceneId || '')) {
       await refresh()
     }
 
@@ -222,25 +232,34 @@ const copyCode = () => {
       <div class="scene-panel glass-card">
         <!-- ETAT 1 : Pas de scène choisie -->
         <template v-if="!roomInfo?.sceneId">
-          <div v-if="isHost" class="scene-selection">
-            <h2 class="panel-title mb-4">Choisissez une scène à doubler</h2>
+          <div class="scene-selection">
+            <h2 class="panel-title mb-4">
+              {{ isHost ? 'Choisissez une scène à doubler' : 'Votez pour la prochaine scène' }}
+            </h2>
             <div class="scenes-grid">
               <button
                 v-for="scene in availableScenes"
                 :key="scene.id"
                 class="scene-card"
-                @click="selectScene(scene.id)"
+                :class="{ 'has-my-vote': socketState?.votes?.[userId] === scene.id }"
+                @click="isHost ? selectScene(scene.id) : voteForScene(scene.id)"
               >
                 <div class="scene-card-content">
                   <h3 class="scene-card-title">{{ scene.title }}</h3>
                   <p class="scene-card-desc">{{ scene.description }}</p>
                 </div>
+                <!-- Affichage des votes -->
+                <div v-if="getVotersForScene(scene.id).length > 0" class="votes-container">
+                  <span
+                    v-for="voter in getVotersForScene(scene.id)"
+                    :key="voter.userId"
+                    class="voter-dot"
+                  >
+                    {{ voter.userId === userId ? username.charAt(0).toUpperCase() : '?' }}
+                  </span>
+                </div>
               </button>
             </div>
-          </div>
-          <div v-else class="guest-msg waiting-scene">
-            <h2>En attente de l'hôte...</h2>
-            <p>L'hôte est en train de choisir la scène à doubler.</p>
           </div>
         </template>
 
@@ -466,6 +485,56 @@ const copyCode = () => {
   .scenes-grid {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
+}
+
+.scene-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.scene-card:hover {
+  border-color: var(--theme-accent);
+  transform: translateY(-2px);
+}
+.scene-card.has-my-vote {
+  border-color: var(--theme-accent);
+  background: var(--bg-hover);
+}
+.scene-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+.scene-card-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.votes-container {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+.voter-dot {
+  width: 24px;
+  height: 24px;
+  background: var(--primary-glow);
+  border: 1px solid var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: white;
 }
 
 .characters-grid {
