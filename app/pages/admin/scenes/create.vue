@@ -156,7 +156,7 @@ const handleCreate = async () => {
 
       <!-- Upload vidéo -->
       <div class="card">
-        <h2 class="card-title">Vidéo muette (MP4) *</h2>
+        <h2 class="card-title">Vidéo (MP4) *</h2>
         <div class="upload-zone" :class="{ uploaded: uploadState.video.url }">
           <input
             id="video-input"
