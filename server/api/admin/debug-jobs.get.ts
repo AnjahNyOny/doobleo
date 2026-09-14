@@ -1,19 +1,12 @@
-import { Queue } from 'bullmq'
-import { getRedisConnection } from '../../utils/redis'
+import { mixingQueue, audioSeparationQueue } from '../../services/queue'
 
 export default defineEventHandler(async (_event) => {
-  const audioQueue = new Queue('audio_separation', { connection: getRedisConnection() })
-  const mixQueue = new Queue('mixing', { connection: getRedisConnection() })
-
-  const failedAudio = await audioQueue.getFailed(0, 10)
-  const failedMix = await mixQueue.getFailed(0, 10)
+  const mixingCounts = await mixingQueue.getJobCounts()
+  const audioCounts = await audioSeparationQueue.getJobCounts()
 
   return {
-    audio: {
-      failed: failedAudio.map((j) => ({ id: j.id, failedReason: j.failedReason, data: j.data })),
-    },
-    mix: {
-      failed: failedMix.map((j) => ({ id: j.id, failedReason: j.failedReason, data: j.data })),
-    },
+    success: true,
+    mixing: mixingCounts,
+    audioSeparation: audioCounts,
   }
 })
