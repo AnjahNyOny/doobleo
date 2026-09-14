@@ -48,14 +48,7 @@ export interface MixJobData {
 }
 
 export const mixingQueue = new InMemoryQueue<MixJobData>('mixing')
-export const audioSeparationQueue = new InMemoryQueue<{ sceneId: string; videoUrl: string }>(
-  'audio_separation'
-)
 
 export const addMixJob = async (roomCode: string, sceneId: string, blobs: MixJobData['blobs']) => {
   await mixingQueue.add('mix_scene', { roomCode, sceneId, blobs })
-}
-
-export const addAudioSeparationJob = async (sceneId: string, videoUrl: string) => {
-  await audioSeparationQueue.add('separate_audio', { sceneId, videoUrl })
 }

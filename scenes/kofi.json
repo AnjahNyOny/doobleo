@@ -1,0 +1,613 @@
+{
+  "version": 1,
+  "characters": [
+    {
+      "id": "char-unknown",
+      "name": "À définir",
+      "color": "#94a3b8",
+      "description": "Personnage générique à assigner"
+    }
+  ],
+  "lines": [
+    {
+      "id": "line-1",
+      "characterId": "char-unknown",
+      "text": "Bonjour messieurs.",
+      "startMs": 0,
+      "endMs": 1120,
+      "order": 1
+    },
+    {
+      "id": "line-2",
+      "characterId": "char-unknown",
+      "text": "Bonjour Laurence, ça va bien ?",
+      "startMs": 1120,
+      "endMs": 2520,
+      "order": 2
+    },
+    {
+      "id": "line-3",
+      "characterId": "char-unknown",
+      "text": "Bien et toi Viviane.",
+      "startMs": 2520,
+      "endMs": 3720,
+      "order": 3
+    },
+    {
+      "id": "line-4",
+      "characterId": "char-unknown",
+      "text": "Mais toi que quitte là-bas.",
+      "startMs": 3720,
+      "endMs": 5240,
+      "order": 4
+    },
+    {
+      "id": "line-5",
+      "characterId": "char-unknown",
+      "text": "Mes parents ne sont pas là.",
+      "startMs": 5960,
+      "endMs": 7080,
+      "order": 5
+    },
+    {
+      "id": "line-6",
+      "characterId": "char-unknown",
+      "text": "On avait dit 18 heures, non ?",
+      "startMs": 7080,
+      "endMs": 9080,
+      "order": 6
+    },
+    {
+      "id": "line-7",
+      "characterId": "char-unknown",
+      "text": "Ah ! Bah les voilà.",
+      "startMs": 9080,
+      "endMs": 11080,
+      "order": 7
+    },
+    {
+      "id": "line-8",
+      "characterId": "char-unknown",
+      "text": "Je vais vous asseoir.",
+      "startMs": 11080,
+      "endMs": 12360,
+      "order": 8
+    },
+    {
+      "id": "line-9",
+      "characterId": "char-unknown",
+      "text": "Moi se mette derrière.",
+      "startMs": 12360,
+      "endMs": 14360,
+      "order": 9
+    },
+    {
+      "id": "line-10",
+      "characterId": "char-unknown",
+      "text": "Bonjour.",
+      "startMs": 19360,
+      "endMs": 20360,
+      "order": 10
+    },
+    {
+      "id": "line-11",
+      "characterId": "char-unknown",
+      "text": "Nous sommes enchantés de vous rencontrer enfin monsieur Madame Coffy.",
+      "startMs": 20360,
+      "endMs": 23800,
+      "order": 11
+    },
+    {
+      "id": "line-12",
+      "characterId": "char-unknown",
+      "text": "Nous aussi nous sommes ravis.",
+      "startMs": 23800,
+      "endMs": 25800,
+      "order": 12
+    },
+    {
+      "id": "line-13",
+      "characterId": "char-unknown",
+      "text": "Et en vrai.",
+      "startMs": 25800,
+      "endMs": 26800,
+      "order": 13
+    },
+    {
+      "id": "line-14",
+      "characterId": "char-unknown",
+      "text": "Bon, on commence par quoi ?",
+      "startMs": 27800,
+      "endMs": 29800,
+      "order": 14
+    },
+    {
+      "id": "line-15",
+      "characterId": "char-unknown",
+      "text": "Le repas de mariage ?",
+      "startMs": 29800,
+      "endMs": 30800,
+      "order": 15
+    },
+    {
+      "id": "line-16",
+      "characterId": "char-unknown",
+      "text": "On va faire dans le traditionnel, non ?",
+      "startMs": 30800,
+      "endMs": 31800,
+      "order": 16
+    },
+    {
+      "id": "line-17",
+      "characterId": "char-unknown",
+      "text": "Traditionnel c'est-à-dire.",
+      "startMs": 31800,
+      "endMs": 33800,
+      "order": 17
+    },
+    {
+      "id": "line-18",
+      "characterId": "char-unknown",
+      "text": "Bah euh, français, nous sommes en France.",
+      "startMs": 33800,
+      "endMs": 35800,
+      "order": 18
+    },
+    {
+      "id": "line-19",
+      "characterId": "char-unknown",
+      "text": "Et pourquoi pas traditionnel africain ?",
+      "startMs": 35800,
+      "endMs": 37800,
+      "order": 19
+    },
+    {
+      "id": "line-20",
+      "characterId": "char-unknown",
+      "text": "Pardon ?",
+      "startMs": 37800,
+      "endMs": 38800,
+      "order": 20
+    },
+    {
+      "id": "line-21",
+      "characterId": "char-unknown",
+      "text": "Faisons un mixte.",
+      "startMs": 38800,
+      "endMs": 39800,
+      "order": 21
+    },
+    {
+      "id": "line-22",
+      "characterId": "char-unknown",
+      "text": "On fait une entrée africaine et un plat principal français.",
+      "startMs": 39800,
+      "endMs": 41800,
+      "order": 22
+    },
+    {
+      "id": "line-23",
+      "characterId": "char-unknown",
+      "text": "Mais oui c'est bien ça.",
+      "startMs": 41800,
+      "endMs": 42800,
+      "order": 23
+    },
+    {
+      "id": "line-24",
+      "characterId": "char-unknown",
+      "text": "Super à l'image de notre couple.",
+      "startMs": 42800,
+      "endMs": 44800,
+      "order": 24
+    },
+    {
+      "id": "line-25",
+      "characterId": "char-unknown",
+      "text": "D'accord.",
+      "startMs": 44800,
+      "endMs": 45800,
+      "order": 25
+    },
+    {
+      "id": "line-26",
+      "characterId": "char-unknown",
+      "text": "Mais on fait africain pour le plat principal.",
+      "startMs": 45800,
+      "endMs": 47800,
+      "order": 26
+    },
+    {
+      "id": "line-27",
+      "characterId": "char-unknown",
+      "text": "Il n'y a rien à manger par la sienne des blancs.",
+      "startMs": 47800,
+      "endMs": 49800,
+      "order": 27
+    },
+    {
+      "id": "line-28",
+      "characterId": "char-unknown",
+      "text": "Oui oh.",
+      "startMs": 49800,
+      "endMs": 50800,
+      "order": 28
+    },
+    {
+      "id": "line-29",
+      "characterId": "char-unknown",
+      "text": "On voit bien que vous ne connaissez pas le cassoulet monsieur.",
+      "startMs": 50800,
+      "endMs": 52800,
+      "order": 29
+    },
+    {
+      "id": "line-30",
+      "characterId": "char-unknown",
+      "text": "Je connais parfaitement le cassoulet messieurs.",
+      "startMs": 53800,
+      "endMs": 55800,
+      "order": 30
+    },
+    {
+      "id": "line-31",
+      "characterId": "char-unknown",
+      "text": "Et je maintiens, il n'y a rien à manger.",
+      "startMs": 55800,
+      "endMs": 57800,
+      "order": 31
+    },
+    {
+      "id": "line-32",
+      "characterId": "char-unknown",
+      "text": "Ne le prenez pas mal Claude.",
+      "startMs": 58800,
+      "endMs": 59800,
+      "order": 32
+    },
+    {
+      "id": "line-33",
+      "characterId": "char-unknown",
+      "text": "Mais ce que veut dire mon père c'est que dans l'image africain",
+      "startMs": 59800,
+      "endMs": 61800,
+      "order": 33
+    },
+    {
+      "id": "line-34",
+      "characterId": "char-unknown",
+      "text": "on mange vraiment beaucoup, beaucoup.",
+      "startMs": 61800,
+      "endMs": 62800,
+      "order": 34
+    },
+    {
+      "id": "line-35",
+      "characterId": "char-unknown",
+      "text": "Oui, il va falloir assasier tous les cousins.",
+      "startMs": 62800,
+      "endMs": 65800,
+      "order": 35
+    },
+    {
+      "id": "line-36",
+      "characterId": "char-unknown",
+      "text": "Comment ça ? Tous les cousins vous serez combien ?",
+      "startMs": 65800,
+      "endMs": 67800,
+      "order": 36
+    },
+    {
+      "id": "line-37",
+      "characterId": "char-unknown",
+      "text": "Si on compte ceux qui vivent en France, ceux qui sont ici à Bichang,",
+      "startMs": 67800,
+      "endMs": 70800,
+      "order": 37
+    },
+    {
+      "id": "line-38",
+      "characterId": "char-unknown",
+      "text": "les Travorets en Allemagne, les Coulibali en Italie,",
+      "startMs": 70800,
+      "endMs": 73800,
+      "order": 38
+    },
+    {
+      "id": "line-39",
+      "characterId": "char-unknown",
+      "text": "on sera dans les 400.",
+      "startMs": 73800,
+      "endMs": 75800,
+      "order": 39
+    },
+    {
+      "id": "line-40",
+      "characterId": "char-unknown",
+      "text": "Papa, on n'est pas obligés d'inviter tout le monde.",
+      "startMs": 76800,
+      "endMs": 78800,
+      "order": 40
+    },
+    {
+      "id": "line-41",
+      "characterId": "char-unknown",
+      "text": "Tu racontes de ta famille ?",
+      "startMs": 78800,
+      "endMs": 79800,
+      "order": 41
+    },
+    {
+      "id": "line-42",
+      "characterId": "char-unknown",
+      "text": "Pas du tout, mais je ne le connais même pas les Travorets.",
+      "startMs": 79800,
+      "endMs": 81800,
+      "order": 42
+    },
+    {
+      "id": "line-43",
+      "characterId": "char-unknown",
+      "text": "C'est qui les plus belles ?",
+      "startMs": 81800,
+      "endMs": 82800,
+      "order": 43
+    },
+    {
+      "id": "line-44",
+      "characterId": "char-unknown",
+      "text": "Toi, tu te débrouilles.",
+      "startMs": 83800,
+      "endMs": 85800,
+      "order": 44
+    },
+    {
+      "id": "line-45",
+      "characterId": "char-unknown",
+      "text": "Pour nous messieurs, la famille c'est important.",
+      "startMs": 87800,
+      "endMs": 89800,
+      "order": 45
+    },
+    {
+      "id": "line-46",
+      "characterId": "char-unknown",
+      "text": "Mais pour nous aussi, c'est très important, qu'est-ce que vous croyez ?",
+      "startMs": 89800,
+      "endMs": 92800,
+      "order": 46
+    },
+    {
+      "id": "line-47",
+      "characterId": "char-unknown",
+      "text": "C'est-à-dire que 400 personnes ça va être compliqué à loger.",
+      "startMs": 93800,
+      "endMs": 95800,
+      "order": 47
+    },
+    {
+      "id": "line-48",
+      "characterId": "char-unknown",
+      "text": "Alors il y a très peu d'hôtels aux alentours.",
+      "startMs": 95800,
+      "endMs": 97800,
+      "order": 48
+    },
+    {
+      "id": "line-49",
+      "characterId": "char-unknown",
+      "text": "Mon fils m'a dit que vous aviez une grande propriété, non ?",
+      "startMs": 98800,
+      "endMs": 101800,
+      "order": 49
+    },
+    {
+      "id": "line-50",
+      "characterId": "char-unknown",
+      "text": "Mais vous imaginez quoi, que c'est le château de chambord ?",
+      "startMs": 101800,
+      "endMs": 104800,
+      "order": 50
+    },
+    {
+      "id": "line-51",
+      "characterId": "char-unknown",
+      "text": "Non, non, non, c'est impossible.",
+      "startMs": 104800,
+      "endMs": 106800,
+      "order": 51
+    },
+    {
+      "id": "line-52",
+      "characterId": "char-unknown",
+      "text": "À moins qu'on installe des tents dans le jardin.",
+      "startMs": 106800,
+      "endMs": 108800,
+      "order": 52
+    },
+    {
+      "id": "line-53",
+      "characterId": "char-unknown",
+      "text": "Mais pourquoi pas des cases ?",
+      "startMs": 108800,
+      "endMs": 110800,
+      "order": 53
+    },
+    {
+      "id": "line-54",
+      "characterId": "char-unknown",
+      "text": "Papa...",
+      "startMs": 110800,
+      "endMs": 111800,
+      "order": 54
+    },
+    {
+      "id": "line-55",
+      "characterId": "char-unknown",
+      "text": "Pour le mariage de Rashid, ils étaient très nombreux aussi.",
+      "startMs": 111800,
+      "endMs": 114800,
+      "order": 55
+    },
+    {
+      "id": "line-56",
+      "characterId": "char-unknown",
+      "text": "Nous avons installé des tents dans le jardin.",
+      "startMs": 114800,
+      "endMs": 116800,
+      "order": 56
+    },
+    {
+      "id": "line-57",
+      "characterId": "char-unknown",
+      "text": "C'était très sympathique.",
+      "startMs": 116800,
+      "endMs": 118800,
+      "order": 57
+    },
+    {
+      "id": "line-58",
+      "characterId": "char-unknown",
+      "text": "Rashid, c'est des bédouins ça. Ils sont habitués à nous habitants.",
+      "startMs": 118800,
+      "endMs": 122800,
+      "order": 58
+    },
+    {
+      "id": "line-59",
+      "characterId": "char-unknown",
+      "text": "On dort à les maisons en cure.",
+      "startMs": 122800,
+      "endMs": 124800,
+      "order": 59
+    },
+    {
+      "id": "line-60",
+      "characterId": "char-unknown",
+      "text": "Et au niveau financier, on s'organise comment ?",
+      "startMs": 127800,
+      "endMs": 129800,
+      "order": 60
+    },
+    {
+      "id": "line-61",
+      "characterId": "char-unknown",
+      "text": "Ça, on fera après.",
+      "startMs": 129800,
+      "endMs": 130800,
+      "order": 61
+    },
+    {
+      "id": "line-62",
+      "characterId": "char-unknown",
+      "text": "Ah non, bah ça, je préférerais qu'on en parle tout de suite.",
+      "startMs": 130800,
+      "endMs": 132800,
+      "order": 62
+    },
+    {
+      "id": "line-63",
+      "characterId": "char-unknown",
+      "text": "Qu'on voit ça, justement.",
+      "startMs": 132800,
+      "endMs": 133800,
+      "order": 63
+    },
+    {
+      "id": "line-64",
+      "characterId": "char-unknown",
+      "text": "Qu'est-ce qu'il y a ?",
+      "startMs": 133800,
+      "endMs": 134800,
+      "order": 64
+    },
+    {
+      "id": "line-65",
+      "characterId": "char-unknown",
+      "text": "Vous n'avez pas confiance ?",
+      "startMs": 134800,
+      "endMs": 135800,
+      "order": 65
+    },
+    {
+      "id": "line-66",
+      "characterId": "char-unknown",
+      "text": "Bon, c'est bon, papa. On part d'autre chose.",
+      "startMs": 136800,
+      "endMs": 138800,
+      "order": 66
+    },
+    {
+      "id": "line-67",
+      "characterId": "char-unknown",
+      "text": "Bonne idée, parlons de la soirée dansante.",
+      "startMs": 138800,
+      "endMs": 141800,
+      "order": 67
+    },
+    {
+      "id": "line-68",
+      "characterId": "char-unknown",
+      "text": "J'espère que vous appréciez...",
+      "startMs": 142800,
+      "endMs": 144800,
+      "order": 68
+    },
+    {
+      "id": "line-69",
+      "characterId": "char-unknown",
+      "text": "Au couper des calais, M. Verneuil.",
+      "startMs": 144800,
+      "endMs": 146800,
+      "order": 69
+    },
+    {
+      "id": "line-70",
+      "characterId": "char-unknown",
+      "text": "Je ne connais pas, malheureusement.",
+      "startMs": 146800,
+      "endMs": 148800,
+      "order": 70
+    },
+    {
+      "id": "line-71",
+      "characterId": "char-unknown",
+      "text": "Qu'est-ce qu'il fait ?",
+      "startMs": 160800,
+      "endMs": 162800,
+      "order": 71
+    },
+    {
+      "id": "line-72",
+      "characterId": "char-unknown",
+      "text": "Ça dansa lui.",
+      "startMs": 162800,
+      "endMs": 163800,
+      "order": 72
+    },
+    {
+      "id": "line-73",
+      "characterId": "char-unknown",
+      "text": "Hm ?",
+      "startMs": 163800,
+      "endMs": 164800,
+      "order": 73
+    },
+    {
+      "id": "line-74",
+      "characterId": "char-unknown",
+      "text": "Ça dansa lui.",
+      "startMs": 164800,
+      "endMs": 165800,
+      "order": 74
+    },
+    {
+      "id": "line-75",
+      "characterId": "char-unknown",
+      "text": "Ça va, oui ?",
+      "startMs": 168800,
+      "endMs": 170800,
+      "order": 75
+    }
+  ]
+}
