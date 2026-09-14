@@ -60,9 +60,10 @@ async function uploadFile(file: File, type: 'thumbnail' | 'audioMe', contentType
   slot.progress = 0
 
   try {
+    const apiType = type === 'audioMe' ? 'audio' : type
     const { presignedUrl, publicUrl } = await $fetch('/api/admin/upload/presign', {
       method: 'POST',
-      body: { filename: file.name, contentType, type },
+      body: { filename: file.name, contentType, type: apiType },
     })
 
     await new Promise<void>((resolve, reject) => {
