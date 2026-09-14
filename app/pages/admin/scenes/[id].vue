@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import WaveSurfer from 'wavesurfer.js'
+import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js'
 
 definePageMeta({ layout: 'admin', middleware: 'admin' })
 
@@ -89,7 +90,7 @@ async function uploadFile(file: File, type: 'thumbnail' | 'audioMe', contentType
       })
       await refresh()
     }
-    if (type === 'thumbnail') await saveInfo() // Sauvegarder automatiquement après upload
+    if (type === 'thumbnail') await saveInfo()
   } finally {
     slot.uploading = false
   }
@@ -169,52 +170,268 @@ const deleteCharacter = async (charId: string, name: string) => {
   }
 }
 
-// ─── Éditeur de répliques (timecodes) ─────────────────────────────────────────
+// ─── Éditeur de répliques (Timeline) ──────────────────────────────────────────
 
 const videoRef = ref<HTMLVideoElement | null>(null)
 const waveformContainerRef = ref<HTMLElement | null>(null)
 let wavesurfer: WaveSurfer | null = null
+let wsRegions: ReturnType<typeof RegionsPlugin.create> | null = null
 
 const currentSecMs = ref(0)
 const isPlaying = ref(false)
+const selectedLineId = ref<string | null>(null)
+const zoomLevel = ref(100)
+const isRegionDragging = ref(false)
 
-// Init WaveSurfer when elements are ready
+let regionUpdateTimer: ReturnType<typeof setTimeout> | null = null
+
+const regionToLine = new Map<string, string>()
+const lineToRegion = new Map<string, string>()
+
+// Detect overlapping lines
+const overlappingLines = computed(() => {
+  const lines = (scene.value?.lines as Line[]) ?? []
+  const overlaps = new Set<string>()
+  for (let i = 0; i < lines.length; i++) {
+    for (let j = i + 1; j < lines.length; j++) {
+      if (lines[i].startMs < lines[j].endMs && lines[j].startMs < lines[i].endMs) {
+        overlaps.add(lines[i].id)
+        overlaps.add(lines[j].id)
+      }
+    }
+  }
+  return overlaps
+})
+
+// Build regions from lines
+function syncRegionsToLines() {
+  if (!wsRegions) return
+  wsRegions.clearRegions()
+  regionToLine.clear()
+  lineToRegion.clear()
+
+  const lines = (scene.value?.lines as Line[]) ?? []
+  const chars = (scene.value?.characters as Character[]) ?? []
+
+  for (const line of lines) {
+    const char = chars.find((c) => c.id === line.characterId)
+    const color = char?.color ?? '#94a3b8'
+
+    const r = parseInt(color.slice(1, 3), 16) || 148
+    const g = parseInt(color.slice(3, 5), 16) || 163
+    const b = parseInt(color.slice(5, 7), 16) || 184
+
+    const region = wsRegions.addRegion({
+      start: line.startMs / 1000,
+      end: line.endMs / 1000,
+      color: `rgba(${r}, ${g}, ${b}, 0.25)`,
+      drag: true,
+      resize: true,
+      content: char?.name ?? '?',
+    })
+
+    regionToLine.set(region.id, line.id)
+    lineToRegion.set(line.id, region.id)
+  }
+}
+
+// Init WaveSurfer
 watch(
   [videoRef, waveformContainerRef],
   async ([videoEl, containerEl]) => {
     if (videoEl && containerEl && scene.value?.videoUrl && !wavesurfer) {
+      wsRegions = RegionsPlugin.create()
+
       wavesurfer = WaveSurfer.create({
         container: containerEl,
         waveColor: '#4c1d95',
         progressColor: '#8b5cf6',
         cursorColor: '#c4b5fd',
-        height: 120, // Plus grand verticalement pour mieux voir
+        height: 140,
         normalize: true,
-        barWidth: 2, // Barres plus fines pour plus de détails
-        barGap: 1, // Moins d'espace
+        barWidth: 2,
+        barGap: 1,
         barRadius: 2,
-        minPxPerSec: 100, // 100 pixels par seconde : TRES détaillé (ajoute un scroll horizontal)
-        autoScroll: true, // Suit automatiquement la lecture
-        media: videoEl, // Synchronise avec la vidéo
+        minPxPerSec: zoomLevel.value,
+        autoScroll: true,
+        media: videoEl,
+        plugins: [wsRegions],
       })
 
-      // On charge l'URL explicitement via notre proxy local pour éviter les erreurs CORS de Cloudflare R2
       try {
         await wavesurfer.load(scene.value.videoUrl)
       } catch (err) {
         console.warn('Impossible de dessiner les pics audio (CORS probable).', err)
       }
+
+      wavesurfer.on('ready', () => {
+        syncRegionsToLines()
+      })
+
+      wsRegions.on('region-clicked', (region, e) => {
+        e.stopPropagation()
+        const lineId = regionToLine.get(region.id)
+        if (lineId) {
+          selectedLineId.value = lineId
+          scrollToLine(lineId)
+        }
+      })
+
+      wsRegions.on('region-updated', (region) => {
+        isRegionDragging.value = true
+        const lineId = regionToLine.get(region.id)
+        if (!lineId) return
+
+        if (regionUpdateTimer) clearTimeout(regionUpdateTimer)
+        regionUpdateTimer = setTimeout(async () => {
+          const newStartMs = Math.round(region.start * 1000)
+          const newEndMs = Math.round(region.end * 1000)
+
+          try {
+            await $fetch(`/api/admin/scenes/${sceneId}/lines/${lineId}`, {
+              method: 'PATCH',
+              body: { startMs: newStartMs, endMs: newEndMs },
+            })
+            await refresh()
+          } catch (err) {
+            console.error('Failed to update line from region drag:', err)
+          }
+          isRegionDragging.value = false
+        }, 500)
+      })
     }
   },
   { immediate: true }
+)
+
+watch(zoomLevel, (val) => {
+  if (wavesurfer) {
+    wavesurfer.zoom(val)
+  }
+})
+
+watch(
+  () => scene.value?.lines,
+  () => {
+    if (!isRegionDragging.value) {
+      syncRegionsToLines()
+    }
+  },
+  { deep: true }
 )
 
 onUnmounted(() => {
   if (wavesurfer) {
     wavesurfer.destroy()
     wavesurfer = null
+    wsRegions = null
   }
 })
+
+// ─── Timeline controls ───────────────────────────────────────────────────────
+
+let linePlayTimer: ReturnType<typeof setTimeout> | null = null
+
+const playLine = (line: Line) => {
+  if (!videoRef.value) return
+  selectedLineId.value = line.id
+
+  videoRef.value.currentTime = line.startMs / 1000
+  videoRef.value.play()
+
+  if (wavesurfer) {
+    const duration = wavesurfer.getDuration()
+    if (duration > 0) {
+      wavesurfer.seekTo(line.startMs / 1000 / duration)
+    }
+  }
+
+  if (linePlayTimer) clearTimeout(linePlayTimer)
+  const dur = line.endMs - line.startMs
+  linePlayTimer = setTimeout(() => {
+    if (videoRef.value) videoRef.value.pause()
+  }, dur)
+}
+
+const selectLine = (line: Line) => {
+  selectedLineId.value = line.id
+  if (videoRef.value) {
+    videoRef.value.currentTime = line.startMs / 1000
+  }
+  if (wavesurfer) {
+    const duration = wavesurfer.getDuration()
+    if (duration > 0) {
+      wavesurfer.seekTo(line.startMs / 1000 / duration)
+    }
+  }
+}
+
+const scrollToLine = (lineId: string) => {
+  const el = document.getElementById(`line-${lineId}`)
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+}
+
+// ─── Keyboard shortcuts ──────────────────────────────────────────────────────
+
+const handleKeydown = (e: KeyboardEvent) => {
+  if (activeTab.value !== 'lines') return
+  const tag = (e.target as HTMLElement)?.tagName
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+
+  const lines = (scene.value?.lines as Line[]) ?? []
+
+  switch (e.code) {
+    case 'Space': {
+      e.preventDefault()
+      if (videoRef.value) {
+        if (videoRef.value.paused) videoRef.value.play()
+        else videoRef.value.pause()
+      }
+      break
+    }
+    case 'ArrowLeft': {
+      e.preventDefault()
+      if (videoRef.value) {
+        if (e.shiftKey) {
+          const currentIdx = lines.findIndex((l) => l.id === selectedLineId.value)
+          if (currentIdx > 0) {
+            selectLine(lines[currentIdx - 1])
+            scrollToLine(lines[currentIdx - 1].id)
+          }
+        } else {
+          videoRef.value.currentTime = Math.max(0, videoRef.value.currentTime - 1)
+        }
+      }
+      break
+    }
+    case 'ArrowRight': {
+      e.preventDefault()
+      if (videoRef.value) {
+        if (e.shiftKey) {
+          const currentIdx = lines.findIndex((l) => l.id === selectedLineId.value)
+          if (currentIdx < lines.length - 1) {
+            selectLine(lines[currentIdx + 1])
+            scrollToLine(lines[currentIdx + 1].id)
+          }
+        } else {
+          videoRef.value.currentTime += 1
+        }
+      }
+      break
+    }
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown)
+})
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown)
+})
+
+// ─── Line CRUD ────────────────────────────────────────────────────────────────
 
 const newLine = reactive({ characterId: '', text: '', startMs: 0, endMs: 0 })
 const addingLine = ref(false)
@@ -274,6 +491,7 @@ const addLine = async () => {
 
 const deleteLine = async (lineId: string) => {
   await $fetch(`/api/admin/scenes/${sceneId}/lines/${lineId}`, { method: 'DELETE' })
+  if (selectedLineId.value === lineId) selectedLineId.value = null
   await refresh()
 }
 
@@ -503,7 +721,6 @@ const onTimeUpdate = () => {
             <div v-if="uploadState.thumbnail.uploading" class="progress-bar">
               <div class="progress-fill" :style="{ width: `${uploadState.thumbnail.progress}%` }" />
             </div>
-
             <img
               v-if="uploadState.thumbnail.url"
               :src="uploadState.thumbnail.url"
@@ -532,7 +749,6 @@ const onTimeUpdate = () => {
             <div v-if="uploadState.audioMe.uploading" class="progress-bar">
               <div class="progress-fill" :style="{ width: `${uploadState.audioMe.progress}%` }" />
             </div>
-
             <audio
               v-if="uploadState.audioMe.url"
               :src="uploadState.audioMe.url"
@@ -593,9 +809,18 @@ const onTimeUpdate = () => {
       </div>
     </div>
 
-    <!-- Tab : Répliques (éditeur timecodes) -->
+    <!-- Tab : Répliques (éditeur timeline) -->
     <div v-if="activeTab === 'lines'" class="tab-content lines-layout">
-      <!-- Ligne 1 : Vidéo + Ajouter une réplique -->
+      <!-- Shortcuts bar -->
+      <div class="shortcuts-bar">
+        <span class="shortcut-item">⏯ <kbd>Espace</kbd></span>
+        <span class="shortcut-item">◀ <kbd>←</kbd> 1s</span>
+        <span class="shortcut-item">▶ <kbd>→</kbd> 1s</span>
+        <span class="shortcut-item">⏮ <kbd>Shift+←</kbd> Répl. préc.</span>
+        <span class="shortcut-item">⏭ <kbd>Shift+→</kbd> Répl. suiv.</span>
+      </div>
+
+      <!-- Vidéo + Ajouter réplique -->
       <div class="lines-top-split">
         <div class="video-wrapper">
           <video
@@ -629,7 +854,7 @@ const onTimeUpdate = () => {
             v-model="newLine.text"
             rows="2"
             placeholder="Texte de la réplique..."
-            class="line-text"
+            class="line-text-input"
           />
           <div class="timecode-row">
             <div class="tc-field">
@@ -650,12 +875,30 @@ const onTimeUpdate = () => {
         </div>
       </div>
 
-      <!-- Ligne 2 : Waveform pleine largeur -->
-      <div class="waveform-full-wrapper">
-        <div ref="waveformContainerRef" class="waveform-container" />
+      <!-- Waveform + Zoom -->
+      <div class="waveform-section">
+        <div class="waveform-toolbar">
+          <span class="zoom-label">🔍 Zoom</span>
+          <input
+            v-model.number="zoomLevel"
+            type="range"
+            min="20"
+            max="500"
+            step="10"
+            class="zoom-slider"
+          />
+          <span class="zoom-value">{{ zoomLevel }}px/s</span>
+        </div>
+        <div class="waveform-full-wrapper">
+          <div ref="waveformContainerRef" class="waveform-container" />
+        </div>
+        <p class="waveform-hint">
+          Glissez et redimensionnez les régions colorées pour ajuster les timecodes directement sur
+          la timeline.
+        </p>
       </div>
 
-      <!-- Ligne 3 : Liste des répliques -->
+      <!-- Liste des répliques -->
       <div class="lines-panel card">
         <div class="lines-header">
           <h3 class="section-title">Répliques ({{ (scene.lines as Line[]).length }})</h3>
@@ -668,6 +911,10 @@ const onTimeUpdate = () => {
           </div>
         </div>
 
+        <div v-if="overlappingLines.size > 0" class="overlap-warning">
+          ⚠️ {{ overlappingLines.size }} réplique(s) se chevauchent ! Elles sont indiquées en rouge.
+        </div>
+
         <div v-if="(scene.lines as Line[]).length === 0" class="empty-state">
           Aucune réplique. Utilisez le lecteur vidéo pour en ajouter.
         </div>
@@ -675,26 +922,32 @@ const onTimeUpdate = () => {
         <div v-else class="lines-list">
           <div
             v-for="line in scene.lines as Line[]"
+            :id="`line-${line.id}`"
             :key="line.id"
             class="line-row"
-            :class="{ 'is-active': activeLine?.id === line.id }"
+            :class="{
+              'is-active': activeLine?.id === line.id,
+              'is-selected': selectedLineId === line.id,
+              'is-overlapping': overlappingLines.has(line.id),
+            }"
+            @click="selectLine(line)"
           >
             <!-- Vue Edition -->
-            <div v-if="editingLineId === line.id" class="line-edit-form">
+            <div v-if="editingLineId === line.id" class="line-edit-form" @click.stop>
               <select v-model="editLineForm.characterId" class="char-select">
                 <option v-for="c in scene.characters as Character[]" :key="c.id" :value="c.id">
                   {{ c.name }}
                 </option>
               </select>
-              <textarea v-model="editLineForm.text" rows="2" class="line-text" />
+              <textarea v-model="editLineForm.text" rows="2" class="line-text-input" />
               <div class="timecode-row">
                 <div class="tc-field">
                   <span class="tc-label">Début (ms)</span>
-                  <input v-model="editLineForm.startMs" type="number" class="tc-input" />
+                  <input v-model.number="editLineForm.startMs" type="number" class="tc-input" />
                 </div>
                 <div class="tc-field">
                   <span class="tc-label">Fin (ms)</span>
-                  <input v-model="editLineForm.endMs" type="number" class="tc-input" />
+                  <input v-model.number="editLineForm.endMs" type="number" class="tc-input" />
                 </div>
               </div>
               <div class="edit-actions">
@@ -712,12 +965,15 @@ const onTimeUpdate = () => {
                 <p class="line-char-name" :style="{ color: charColor(line.characterId) }">
                   {{ charName(line.characterId) }}
                 </p>
-                <p class="line-text">{{ line.text }}</p>
+                <p class="line-text-display">{{ line.text }}</p>
                 <p class="line-times">{{ formatMs(line.startMs) }} → {{ formatMs(line.endMs) }}</p>
               </div>
               <div class="line-actions">
-                <button class="btn-edit" @click="startEditLine(line)">Éditer</button>
-                <button class="btn-del" @click="deleteLine(line.id)">✕</button>
+                <button class="btn-play" title="Jouer cette réplique" @click.stop="playLine(line)">
+                  ▶
+                </button>
+                <button class="btn-edit" @click.stop="startEditLine(line)">Éditer</button>
+                <button class="btn-del" @click.stop="deleteLine(line.id)">✕</button>
               </div>
             </template>
           </div>
@@ -930,10 +1186,39 @@ select:focus {
   gap: 0.75rem;
   align-items: end;
 }
+
+/* ─── Lines Tab ────────────────────────────────────────────────────────────── */
+
 .lines-layout {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+.shortcuts-bar {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 10px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+kbd {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  font-family: monospace;
+  color: var(--text-main);
 }
 
 .lines-top-split {
@@ -949,11 +1234,38 @@ select:focus {
   border-radius: 12px;
   overflow: hidden;
 }
-
 .video-player {
   width: 100%;
   aspect-ratio: 16/9;
   display: block;
+}
+
+.waveform-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.waveform-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+.zoom-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.zoom-slider {
+  flex: 1;
+  max-width: 200px;
+  accent-color: var(--theme-accent);
+  height: 4px;
+}
+.zoom-value {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: monospace;
+  min-width: 60px;
 }
 
 .waveform-full-wrapper {
@@ -963,6 +1275,12 @@ select:focus {
   border-radius: 12px;
   overflow: hidden;
   padding: 1rem 0;
+}
+.waveform-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
 }
 
 .timecode-display {
@@ -1046,7 +1364,7 @@ select:focus {
   gap: 0.75rem;
 }
 .char-select,
-.line-text {
+.line-text-input {
   width: 100%;
 }
 .timecode-row {
@@ -1101,6 +1419,16 @@ select:focus {
   display: flex;
   gap: 0.5rem;
 }
+
+.overlap-warning {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  color: #f87171;
+}
+
 .lines-list {
   display: flex;
   flex-direction: column;
@@ -1116,11 +1444,24 @@ select:focus {
   border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 0.875rem;
-  transition: border-color 0.15s;
+  transition: all 0.15s;
+  cursor: pointer;
+  position: relative;
+}
+.line-row:hover {
+  background: var(--bg-hover);
 }
 .line-row.is-active {
   border-color: var(--theme-accent);
   background: var(--bg-hover);
+}
+.line-row.is-selected {
+  border-color: #c4b5fd;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+.line-row.is-overlapping {
+  border-color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.05);
 }
 .line-char-dot {
   width: 10px;
@@ -1137,7 +1478,7 @@ select:focus {
   font-weight: 600;
   margin-bottom: 3px;
 }
-.line-text {
+.line-text-display {
   font-size: 0.9rem;
   color: var(--text-main);
   line-height: 1.4;
@@ -1152,6 +1493,24 @@ select:focus {
   display: flex;
   gap: 0.5rem;
   align-items: center;
+}
+.btn-play {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.15s;
+}
+.btn-play:hover {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #34d399;
 }
 .btn-edit {
   background: transparent;
@@ -1231,6 +1590,19 @@ select:focus {
 }
 .btn-primary.w-full {
   width: 100%;
+}
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.btn-ghost:hover {
+  border-color: var(--text-main);
+  color: var(--text-main);
 }
 .btn-danger-sm {
   background: #1c1010;

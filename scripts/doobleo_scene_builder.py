@@ -53,12 +53,12 @@ def download_audio_and_video(url: str) -> tuple[str, str]:
     return "scenes/temp_audio.mp3", "scenes/scene_video.mp4"
 
 def transcribe_audio_local(audio_path: str):
-    print("🤖 Chargement du modèle Whisper local (gratuit)... cela peut prendre quelques secondes la première fois.")
-    # Le modèle 'small' est un bon compromis vitesse/précision pour tourner sur CPU
-    model = whisper.load_model("small")
+    print("🤖 Chargement du modèle Whisper 'medium' (plus précis pour le français)...")
+    print("   ⏳ Le premier lancement télécharge le modèle (~1.5 Go), les suivants seront plus rapides.")
+    model = whisper.load_model("medium")
     
-    print("✍️ Transcription de l'audio en cours...")
-    result = model.transcribe(audio_path, language="fr", fp16=False)
+    print("✍️ Transcription de l'audio avec timestamps par mot (word_timestamps=True)...")
+    result = model.transcribe(audio_path, language="fr", fp16=False, word_timestamps=True)
     return result["segments"]
 
 def separate_audio_local(audio_path: str) -> tuple[str, str]:
@@ -92,7 +92,7 @@ def separate_audio_local(audio_path: str) -> tuple[str, str]:
         return "", ""
 
 def build_doobleo_json(segments: list) -> str:
-    print("🧠 Formatage du JSON pour Doobleo...")
+    print("🧠 Formatage du JSON pour Doobleo (avec timestamps précis par mot)...")
     
     # On crée un personnage par défaut
     default_char_id = "char-unknown"
@@ -115,9 +115,17 @@ def build_doobleo_json(segments: list) -> str:
         text = segment["text"].strip()
         if not text:
             continue
-            
-        start_ms = int(segment["start"] * 1000)
-        end_ms = int(segment["end"] * 1000)
+        
+        # Utiliser les timestamps des mots pour plus de précision
+        words = segment.get("words", [])
+        if words:
+            # Le startMs est le début du premier mot, endMs est la fin du dernier mot
+            start_ms = int(words[0]["start"] * 1000)
+            end_ms = int(words[-1]["end"] * 1000)
+        else:
+            # Fallback sur les timestamps de segment (moins précis)
+            start_ms = int(segment["start"] * 1000)
+            end_ms = int(segment["end"] * 1000)
         
         data["lines"].append({
             "id": f"line-{order}",
