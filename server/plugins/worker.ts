@@ -2,7 +2,7 @@ import ffmpegPath from 'ffmpeg-static'
 import ffmpeg from 'fluent-ffmpeg'
 import { eq } from 'drizzle-orm'
 import { useDb } from '../utils/db'
-import { scenes } from '../db/schema/index'
+import { scenes, lines as linesSchema } from '../db/schema/index'
 import { mixingQueue } from '../services/queue'
 
 // Tell fluent-ffmpeg where the binary is
@@ -20,10 +20,13 @@ export default defineNitroPlugin(() => {
 
     if (!scene) throw new Error('Scene not found')
 
+    // Fetch all lines for this scene
+    const sceneLines = await db.select().from(linesSchema).where(eq(linesSchema.sceneId, scene.id))
+
     let finalUrl: string
     try {
       const { processMixJob } = await import('../utils/mixer')
-      finalUrl = await processMixJob(data, scene)
+      finalUrl = await processMixJob(data, scene, sceneLines)
 
       if (global.__io) {
         global.__io.to(data.roomCode).emit('mix_ready', { url: finalUrl })

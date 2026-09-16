@@ -200,6 +200,24 @@ watch(
 // L'audio player (previewAudio) est maintenant géré par wavesurferRecorded
 const isReviewing = ref(false)
 
+const initUnassignedIntervals = (roomState: any) => {
+  const sceneLines = lines.value || []
+
+  // Personnages assignés à n'importe quel joueur
+  const assignedCharIds = new Set<string>()
+  roomState.players.forEach((p: any) => {
+    if (p.characterIds) {
+      p.characterIds.forEach((id: string) => assignedCharIds.add(id))
+    }
+  })
+
+  const unassignedIntervals = sceneLines
+    .filter((l) => !assignedCharIds.has(l.characterId))
+    .map((l) => ({ startMs: l.startMs, endMs: l.endMs }))
+
+  setUnassignedIntervals(unassignedIntervals)
+}
+
 onMounted(async () => {
   await requestPermission()
 
@@ -218,6 +236,10 @@ onMounted(async () => {
 
   socket.on('room_state_update', (roomState: any) => {
     state.value = roomState
+
+    // Mettre à jour les intervalles non assignés pour garder le son original
+    initUnassignedIntervals(roomState)
+
     const me = roomState.players.find((p: any) => p.userId === userId.value)
     if (me?.characterIds && me.characterIds.length > 0) {
       myCharIds.value = me.characterIds

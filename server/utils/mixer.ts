@@ -23,7 +23,11 @@ async function downloadFile(url: string, dest: string) {
   await pipeline(Readable.fromWeb(res.body as any), fileStream)
 }
 
-export async function processMixJob(data: MixJobData, scene: any): Promise<string> {
+export async function processMixJob(
+  data: MixJobData,
+  scene: any,
+  sceneLines: any[] = []
+): Promise<string> {
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), `doobleo-mix-${data.roomCode}-`))
 
   try {
@@ -50,6 +54,8 @@ export async function processMixJob(data: MixJobData, scene: any): Promise<strin
     const chunkFiles: { file: string; startMs: number }[] = []
     let chunkIndex = 0
 
+    const assignedCharacters = new Set(data.blobs.map((b) => b.characterId))
+
     for (const player of data.blobs) {
       for (const chunk of player.chunks) {
         const chunkUrl = await generateDownloadPresignedUrl(chunk.key)
@@ -69,28 +75,49 @@ export async function processMixJob(data: MixJobData, scene: any): Promise<strin
       let filterComplex = ''
       let amixInputs = ''
       let inputIndex = 1 // video is 0
+      let totalAudioInputs: number
 
       if (scene.audioMeUrl) {
         command.input(meFile)
-        amixInputs += '[1:a]'
+
+        // Build intervals (in seconds) for enable expressions
+        const assignedIntervals = sceneLines
+          .filter((l) => assignedCharacters.has(l.characterId))
+          .map((l) => ({ start: l.startMs / 1000, end: l.endMs / 1000 }))
+
+        const unassignedIntervals = sceneLines
+          .filter((l) => !assignedCharacters.has(l.characterId))
+          .map((l) => ({ start: l.startMs / 1000, end: l.endMs / 1000 }))
+
+        const buildEnableExpr = (intervals: { start: number; end: number }[]) => {
+          if (intervals.length === 0) return '0' // Jamais vrai
+          return intervals.map((i) => `between(t,${i.start},${i.end})`).join('+')
+        }
+
+        const assignedExpr = buildEnableExpr(assignedIntervals)
+        const unassignedExpr = buildEnableExpr(unassignedIntervals)
+
+        // [0:a] (Original) muté pendant les lignes assignées
+        filterComplex += `[0:a]volume=0:enable='${assignedExpr}'[vorig];`
+        // [1:a] (M&E) muté pendant les lignes non assignées
+        filterComplex += `[1:a]volume=0:enable='${unassignedExpr}'[me];`
+
+        amixInputs += '[vorig][me]'
+        totalAudioInputs = 2
         inputIndex++
       } else {
-        // Si pas de piste M&E, on utilise l'audio original de la vidéo comme base
-        // pour que duration=first ne coupe pas le mixage sur la durée d'une petite prise.
+        // Si pas de piste M&E, on garde l'original tout le long
         amixInputs += '[0:a]'
+        totalAudioInputs = 1
       }
 
       for (const chunk of chunkFiles) {
         command.input(chunk.file)
         filterComplex += `[${inputIndex}:a]volume=1.5,adelay=${chunk.startMs}:all=1,apad[a${inputIndex}];`
         amixInputs += `[a${inputIndex}]`
+        totalAudioInputs++
         inputIndex++
       }
-
-      // Si pas de ME, on a ajouté [0:a] comme base, donc le nombre d'entrées audio est inputIndex.
-      // S'il y a un ME, on a [1:a] comme base + les chunks, donc c'est inputIndex - 1.
-      // Wait, let's just count how many inputs amix is receiving.
-      const totalAudioInputs = scene.audioMeUrl ? inputIndex - 1 : inputIndex
 
       if (totalAudioInputs > 0) {
         // Amix avec normalize=0 pour ne pas baisser le volume en fonction du nombre d'entrées

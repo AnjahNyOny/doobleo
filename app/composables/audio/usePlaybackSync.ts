@@ -8,9 +8,37 @@ export const usePlaybackSync = (videoElement: Ref<HTMLVideoElement | null>) => {
 
   const audioContext = ref<AudioContext | null>(null)
 
+  const unassignedIntervals = ref<{ start: number; end: number }[]>([])
+  const setUnassignedIntervals = (intervals: { startMs: number; endMs: number }[]) => {
+    unassignedIntervals.value = intervals.map((i) => ({
+      start: i.startMs / 1000,
+      end: i.endMs / 1000,
+    }))
+  }
+
+  let meBuffer: AudioBuffer | null = null
+  let meSource: AudioBufferSourceNode | null = null
+  let meGainNode: GainNode | null = null
+
   const loopTimeUpdate = () => {
     if (videoElement.value) {
       currentTimeMs.value = Math.round(videoElement.value.currentTime * 1000)
+
+      // Dynamic Mute/Unmute for unassigned intervals during full playback
+      if (!isRecordingMode.value) {
+        const ct = videoElement.value.currentTime
+        const isUnassigned = unassignedIntervals.value.some((i) => ct >= i.start && ct <= i.end)
+
+        // Si non assigné, on écoute la vidéo (voix originales) et on coupe le M&E
+        if (isUnassigned) {
+          videoElement.value.muted = false
+          if (meGainNode) meGainNode.gain.value = 0
+        } else {
+          // Sinon (assigné ou hors réplique), on mute la vidéo (pour entendre les joueurs ou M&E seul)
+          videoElement.value.muted = true
+          if (meGainNode) meGainNode.gain.value = 1
+        }
+      }
     }
     if (videoElement.value && !videoElement.value.paused) {
       requestAnimationFrame(loopTimeUpdate)
@@ -37,8 +65,7 @@ export const usePlaybackSync = (videoElement: Ref<HTMLVideoElement | null>) => {
     { immediate: true }
   )
 
-  let meBuffer: AudioBuffer | null = null
-  let meSource: AudioBufferSourceNode | null = null
+  // Variables moved up for loopTimeUpdate access
 
   let vocalsBuffer: AudioBuffer | null = null
   let vocalsSource: AudioBufferSourceNode | null = null
@@ -131,7 +158,13 @@ export const usePlaybackSync = (videoElement: Ref<HTMLVideoElement | null>) => {
         if (meBuffer) {
           meSource = audioContext.value.createBufferSource()
           meSource.buffer = meBuffer
-          meSource.connect(audioContext.value.destination)
+
+          meGainNode = audioContext.value.createGain()
+          meGainNode.gain.value = 1
+
+          meSource.connect(meGainNode)
+          meGainNode.connect(audioContext.value.destination)
+
           meSource.start(0, startTimeSec, durationSec)
         }
 
@@ -185,7 +218,13 @@ export const usePlaybackSync = (videoElement: Ref<HTMLVideoElement | null>) => {
     if (meBuffer && audioContext.value) {
       meSource = audioContext.value.createBufferSource()
       meSource.buffer = meBuffer
-      meSource.connect(audioContext.value.destination)
+
+      meGainNode = audioContext.value.createGain()
+      meGainNode.gain.value = 1
+
+      meSource.connect(meGainNode)
+      meGainNode.connect(audioContext.value.destination)
+
       meSource.start(0, startTimeSec)
     }
 
@@ -281,5 +320,6 @@ export const usePlaybackSync = (videoElement: Ref<HTMLVideoElement | null>) => {
     updateTime,
     updateDuration,
     onEnded,
+    setUnassignedIntervals,
   }
 }
