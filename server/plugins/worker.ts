@@ -1,5 +1,6 @@
 import ffmpegPath from 'ffmpeg-static'
 import ffmpeg from 'fluent-ffmpeg'
+import { eq } from 'drizzle-orm'
 import { useDb } from '../utils/db'
 import { scenes } from '../db/schema/index'
 import { mixingQueue } from '../services/queue'

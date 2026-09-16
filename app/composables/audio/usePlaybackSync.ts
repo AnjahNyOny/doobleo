@@ -121,7 +121,10 @@ export const usePlaybackSync = (videoElement: Ref<HTMLVideoElement | null>) => {
 
     // Si on a des pistes audio séparées (Web Audio API)
     if (meBuffer || vocalsBuffer) {
-      videoElement.value.muted = true
+      // On mute la vidéo si on a TOUTES les pistes nécessaires,
+      // ou si on est en mode enregistrement (pour éviter que le micro capte le son)
+      const hasFullSeparation = meBuffer && vocalsBuffer
+      videoElement.value.muted = recording || !!hasFullSeparation
 
       if (audioContext.value) {
         // M&E track (joue toujours si dispo)

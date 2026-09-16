@@ -19,6 +19,31 @@ import ssl
 # Fix for macOS Python SSL Certificate errors when downloading models
 ssl._create_default_https_context = ssl._create_unverified_context
 
+def process_local_video(file_path: str) -> tuple[str, str]:
+    print(f"📥 Traitement de la vidéo locale {file_path}...")
+    
+    # Création du dossier scenes
+    os.makedirs("scenes", exist_ok=True)
+    
+    video_out = "scenes/scene_video.mp4"
+    audio_out = "scenes/temp_audio.mp3"
+    
+    print("🎥 Préparation de la vidéo mp4...")
+    if file_path.lower().endswith(".mp4"):
+        shutil.copy(file_path, video_out)
+    else:
+        # Conversion au format mp4 si ce n'est pas déjà le cas
+        subprocess.run([
+            "ffmpeg", "-y", "-i", file_path, video_out
+        ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+        
+    print("🎵 Extraction de l'audio...")
+    subprocess.run([
+        "ffmpeg", "-y", "-i", file_path, "-vn", "-acodec", "libmp3lame", "-q:a", "2", audio_out
+    ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    
+    return audio_out, video_out
+
 def download_audio_and_video(url: str) -> tuple[str, str]:
     print(f"📥 Téléchargement de la vidéo et de l'audio depuis {url}...")
     
@@ -141,14 +166,17 @@ def build_doobleo_json(segments: list) -> str:
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python scripts/doobleo_scene_builder.py <URL_YOUTUBE_OU_DAILYMOTION>")
+        print("Usage: python scripts/doobleo_scene_builder.py <URL_YOUTUBE_OU_DAILYMOTION_OU_FICHIER_LOCAL>")
         sys.exit(1)
         
-    # Nettoyage de l'URL (si l'utilisateur a collé avec des antislashs depuis son terminal)
-    url = sys.argv[1].replace("\\", "")
+    # Nettoyage de l'URL ou du chemin (si l'utilisateur a collé avec des antislashs depuis son terminal)
+    input_arg = sys.argv[1].replace("\\", "")
     
     try:
-        audio_file, video_file = download_audio_and_video(url)
+        if os.path.exists(input_arg):
+            audio_file, video_file = process_local_video(input_arg)
+        else:
+            audio_file, video_file = download_audio_and_video(input_arg)
         segments = transcribe_audio_local(audio_file)
         
         # Séparation de la musique et des effets

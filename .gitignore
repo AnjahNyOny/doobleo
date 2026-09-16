@@ -43,3 +43,6 @@ logs/
 !.env.example
 dummy.wav
 scratch/
+
+# ─── Scènes (fichiers média générés localement) ─────────────────────────────
+scenes/
