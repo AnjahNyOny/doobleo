@@ -131,8 +131,16 @@ onUnmounted(() => {
   }
 })
 
-const { isPlaying, currentTimeMs, loadMeTrack, loadVocalsTrack, playSegment, pause, stop } =
-  usePlaybackSync(videoRef)
+const {
+  isPlaying,
+  currentTimeMs,
+  loadMeTrack,
+  loadVocalsTrack,
+  playSegment,
+  pause,
+  stop,
+  setUnassignedIntervals,
+} = usePlaybackSync(videoRef)
 
 const { isRecording, startRecording, stopRecording, recordedBlob, requestPermission, audioLevel } =
   useMicrophone()
