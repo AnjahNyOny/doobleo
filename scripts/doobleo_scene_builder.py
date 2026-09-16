@@ -151,6 +151,10 @@ def build_doobleo_json(segments: list) -> str:
             # Fallback sur les timestamps de segment (moins précis)
             start_ms = int(segment["start"] * 1000)
             end_ms = int(segment["end"] * 1000)
+            
+        # Ajouter 1 seconde (1000ms) de padding avant et après pour laisser du temps de préparation
+        start_ms = max(0, start_ms - 1000)
+        end_ms = end_ms + 1000
         
         data["lines"].append({
             "id": f"line-{order}",
