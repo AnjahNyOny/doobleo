@@ -247,6 +247,7 @@ const playReference = () => {
 // 2. Enregistrer
 const countdown = ref<number | null>(null)
 let countdownTimer: ReturnType<typeof setInterval> | null = null
+const PRE_ROLL_MS = 3000 // 3 secondes de pré-lecture avant la réplique
 
 const recordTake = async () => {
   if (!activeLine.value || countdown.value !== null) return
@@ -259,28 +260,49 @@ const recordTake = async () => {
 
   await requestPermission()
 
-  // Lancer le compte à rebours
-  countdown.value = 3
-  countdownTimer = setInterval(() => {
-    if (countdown.value && countdown.value > 1) {
-      countdown.value--
-    } else {
-      if (countdownTimer) clearInterval(countdownTimer)
-      countdown.value = null
+  const line = activeLine.value
+  const preRollStart = Math.max(0, line.startMs - PRE_ROLL_MS)
+  const actualPreRollMs = line.startMs - preRollStart
 
-      // Démarrer réellement l'enregistrement
-      startRecording()
-      playSegment(
-        activeLine.value.startMs,
-        activeLine.value.endMs,
-        true, // mode enregistrement (fond M&E seul ou mute)
-        () => {
-          // Fin automatique à la fin du timecode
-          stopRecording()
-        }
-      )
+  // Jouer la vidéo depuis le pré-roll (avec son pour entendre le contexte)
+  playSegment(
+    preRollStart,
+    line.endMs,
+    false // pas encore en mode enregistrement pendant le pré-roll
+  )
+
+  // Compte à rebours visuel pendant le pré-roll
+  const countdownSteps = Math.ceil(actualPreRollMs / 1000)
+  countdown.value = countdownSteps
+
+  if (countdownSteps > 0) {
+    countdownTimer = setInterval(() => {
+      if (countdown.value && countdown.value > 1) {
+        countdown.value--
+      } else {
+        if (countdownTimer) clearInterval(countdownTimer)
+        countdown.value = null
+      }
+    }, 1000)
+  } else {
+    countdown.value = null
+  }
+
+  // Démarrer l'enregistrement exactement au moment de la réplique
+  setTimeout(() => {
+    startRecording()
+    // Switcher en mode enregistrement (mute la vidéo pour le micro)
+    if (videoRef.value) {
+      videoRef.value.muted = true
     }
-  }, 1000)
+  }, actualPreRollMs)
+
+  // Arrêter l'enregistrement à la fin de la réplique
+  const totalDuration = line.endMs - preRollStart
+  setTimeout(() => {
+    stopRecording()
+    pause()
+  }, totalDuration)
 }
 
 // 2b. Arrêter manuellement l'enregistrement (ou annuler le compte à rebours)
